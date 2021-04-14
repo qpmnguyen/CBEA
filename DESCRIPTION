@@ -20,4 +20,9 @@ Imports:
     purrr,
     compositions,
     progress,
-    dplyr
+    dplyr,
+    phyloseq,
+    Rcpp
+LinkingTo: 
+    Rcpp
+SystemRequirements: C++11

@@ -45,7 +45,7 @@ default options in \code{mixtools} and \code{fitdistrplus} packages}
 \item{p_adj}{\code{logical}. Whether to adjust p-values using the BH procedure. Defaults to FALSE}
 }
 \value{
-\code{R} A \code{data.frame} object with rows equals the number of samples and
+A \code{data.frame} object with rows equals the number of samples and
     columns specifies the number of samples defined in the set
 }
 \description{

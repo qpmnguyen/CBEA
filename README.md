@@ -18,6 +18,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/teaR)](https://CRAN.R-project.org/package=teaR)
 <!-- badges: end -->
 
+# teaR <img src='man/figures/logo.png' align="right" height="137" />
+
 The goal of teaR is to provide a suite of standardized functions to
 perform taxonomic enrichment analysis in R using both newer methods and
 established methods in the gene set analysis field.
