@@ -2,54 +2,50 @@
 % Please edit documentation in R/cilr.R
 \name{cilr}
 \alias{cilr}
-\title{Applying the cILR method to a data.frame object and pre-defined sets}
+\title{Main cILR function to perform enrichment analysis using cILR method}
 \usage{
 cilr(
-  data,
-  sets,
-  output = NULL,
+  X,
+  A,
+  output = c("cdf", "zscore", "pval", "sig"),
   distr = c("mnorm", "norm"),
-  min_size = 2,
-  nperm = 5,
   adj = TRUE,
-  thresh = NULL,
+  nperm = 5,
+  thresh = 0.05,
   init = NULL,
+  min_size = 2,
+  raw = FALSE,
   ...
 )
 }
 \arguments{
-\item{data}{\code{matrix}. The otu or asv table in data.frame format}
+\item{X}{Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.}
 
-\item{sets}{\code{list}. The sets exists as named list with set names as strings and column index as integer}
+\item{A}{List of length \code{m}. This is a list of set membership by column names.}
 
-\item{output}{\code{string}. What is the preferred output, can be either
-\code{zscores}, \code{cdf}, \code{pvalues}, or \code{sig}}
+\item{output}{String. The form of the output of the model.}
 
-\item{distr}{\code{string}. What is the distribution, required only when \code{estim} is TRUE,
-can only be \code{norm} or \code{mnorm}}
+\item{distr}{String. The choice of distribution for the null.}
 
-\item{min_size}{\code{numeric}. What is the minimum size of a set}
+\item{adj}{Logical. Whether correlation adjustment procedure is utilized.}
 
-\item{adj}{\code{logical}. Whether correlation adjustment should be done.}
+\item{nperm}{Integer. The number of permutations/bootstrap re-sampling. Recommended not to exceed 5
+due to memory issues.}
 
-\item{thresh}{\code{numeric}. Threshold to consider rejecting the null hypothesis based on p-values.
-Only relevant when output is \code{sig}. Defaults to 0.05}
+\item{thresh}{Numeric. Threshold for significant p-values if \code{sig} is the output.}
 
-\item{init}{\code{list}. List of initialization parameters for the fitting portion, if not specified, defaults to
-default options in \code{mixtools} and \code{fitdistrplus} packages}
+\item{init}{Named List. Initialization parameters for estimating the null distribution. Default is NULL.}
 
-\item{...}{Additional parameters passed to fitdistrplus or mixtools functions}
+\item{min_size}{Integer. The lower bound of set size. Sets of size lower than min_size will be filtered out.
+Default is 2 (no singleton sets).}
 
-\item{n_perm}{\code{numeric}. Number of resamples for the data set for good estimation, defaults to 5.}
+\item{raw}{Logical. Whether scores are returned as raw (no parameter estimation step). Default is FALSE.}
 
-\item{p_adj}{\code{logical}. Whether to adjust p-values using the BH procedure. Defaults to FALSE}
+\item{...}{Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}}
 }
 \value{
-A \code{data.frame} object with rows equals the number of samples and
-    columns specifies the number of samples defined in the set
+\code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
 }
 \description{
-This function performs the cILR aggregation algorithm as defined in the Nguyen et al. paper. This
-   function takes in two inputs: an otu table as a \code{matrix} object where rows are samples and columns are
-   taxa; a named \code{list} where each list element is a numeric vector of indices for the columns of interest
+Main cILR function to perform enrichment analysis using cILR method
 }

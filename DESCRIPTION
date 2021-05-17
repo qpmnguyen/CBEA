@@ -18,11 +18,12 @@ Imports:
     fitdistrplus,
     rlang,
     purrr,
-    compositions,
     progress,
     dplyr,
     phyloseq,
-    Rcpp
+    Rcpp,
+    mixtools,
+    magrittr
 LinkingTo: 
     Rcpp
 SystemRequirements: C++11

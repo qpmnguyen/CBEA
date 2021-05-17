@@ -5,21 +5,32 @@
 
 using namespace Rcpp;
 
-// getScore
-DoubleVector getScore(NumericMatrix data, IntegerVector index);
-RcppExport SEXP _teaR_getScore(SEXP dataSEXP, SEXP indexSEXP) {
+// gmean
+double gmean(NumericVector vec);
+RcppExport SEXP _teaR_gmean(SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type index(indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(getScore(data, index));
+    Rcpp::traits::input_parameter< NumericVector >::type vec(vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(gmean(vec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gmeanRow
+DoubleVector gmeanRow(NumericMatrix X);
+RcppExport SEXP _teaR_gmeanRow(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(gmeanRow(X));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_teaR_getScore", (DL_FUNC) &_teaR_getScore, 2},
+    {"_teaR_gmean", (DL_FUNC) &_teaR_gmean, 1},
+    {"_teaR_gmeanRow", (DL_FUNC) &_teaR_gmeanRow, 1},
     {NULL, NULL, 0}
 };
 

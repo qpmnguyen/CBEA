@@ -1,9 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# teaR
-
-## Taxonomic Enrichment Analysis in R
+# `teaR`: Taxonomic Enrichment Analysis in R
 
 ### Quang Nguyen
 

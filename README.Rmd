@@ -13,8 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# teaR
-## Taxonomic Enrichment Analysis in R
+# `teaR`: Taxonomic Enrichment Analysis in R
 ### Quang Nguyen 
 <!-- badges: start -->
 [![Codecov test coverage](https://codecov.io/gh/qpmnguyen/teaR/branch/master/graph/badge.svg)](https://codecov.io/gh/qpmnguyen/teaR?branch=master)
