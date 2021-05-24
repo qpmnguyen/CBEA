@@ -1,9 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `teaR`: Taxonomic Enrichment Analysis in R
-
-### Quang Nguyen
+# `teaR`: Taxonomic Enrichment Analysis in R <img src='man/figures/logo.png' align="right" height="137" />
 
 <!-- badges: start -->
 
@@ -16,11 +14,12 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/teaR)](https://CRAN.R-project.org/package=teaR)
 <!-- badges: end -->
 
-# teaR <img src='man/figures/logo.png' align="right" height="137" />
+### Quang Nguyen
 
-The goal of teaR is to provide a suite of standardized functions to
-perform taxonomic enrichment analysis in R using both newer methods and
-established methods in the gene set analysis field.
+The `teaR` package provides basic functionality to perform taxonomic
+enrichment analysis in R. This package mainly supports the `cILR`
+method, but also supports additional approaches from the gene set
+testing literature. **This package is under active development**
 
 ### Installation
 
@@ -30,3 +29,5 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("qpmnguyen/teaR")
 ```
+
+### Features

@@ -24,7 +24,7 @@ jobs:
         config:
           - {os: windows-latest, r: 'release', bioc: '3.13'}
           - {os: macOS-latest, r: 'release', bioc: '3.13'}
-          - {os: ubuntu-latest, r: 'release', bioc: '3.13', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+          - {os: ubuntu-20.04, r: 'release', bioc: '3.13', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
           #- {os: ubuntu-20.04, r: 'devel', bioc: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
 
     env:
@@ -71,6 +71,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          local_deps <- remotes::local_package_deps(dependencies = TRUE)
+          deps <- remotes::dev_package_deps(dependencies = TRUE, repos = BiocManager::repositories())
+          BiocManager::install(local_deps[local_deps %in% deps$package[deps$diff != 0]], Ncpu = 2L)
           remotes::install_deps(dependencies = TRUE, repos = c(getOption("repos"), BiocManager::repositories()))
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
