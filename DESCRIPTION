@@ -29,7 +29,8 @@ Imports:
     rlang,
     Rcpp,
     magrittr,
-    GSEABase
+    GSEABase,
+    methods
 Suggests: 
     covr,
     testthat (>= 3.0.0)

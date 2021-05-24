@@ -1,7 +1,7 @@
 
 #' Main cILR function to perform enrichment analysis using cILR method
-#' @param X Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.
-#' @param A List of length \code{m}. This is a list of set membership by column names.
+#' @param otu_table Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.
+#' @param tax_sets List of length \code{m}. This is a list of set membership by column names.
 #' @param output String. The form of the output of the model.
 #' @param distr String. The choice of distribution for the null.
 #' @param adj Logical. Whether correlation adjustment procedure is utilized.
@@ -16,9 +16,11 @@
 #'
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
 #'
-#' @importFrom GSEABase GeneSet
+#' @importClassesFrom GSEABase GeneSet GeneSetCollection
+#' @importMethodsFrom GSEABase GeneSet GeneSetCollection
+#' @import rlang
 #' @export
-cilr <- function(X, A,
+cilr <- function(tab, sets,
                  output = c("cdf", "zscore", "pval", "sig"),
                  distr = c("mnorm", "norm"),
                  adj = TRUE,
@@ -31,18 +33,23 @@ cilr <- function(X, A,
     output <- match.arg(output)
     distr <- match.arg(distr)
     # check input
-    if (!is.matrix(X)){
+    if (!is.matrix(tab)){
         rlang::warn("Coercing OTU/ASV table into matrix format")
-        X <- as.matrix(X)
+        X <- as.matrix(tab)
     }
 
-    if (!is.matrix(A)){
-        rlang::warn("Coercing set-membership table into matrix format")
-        A <- as.matrix(A)
+    if (class(sets) != "GeneSetCollection"){
+        rlang::abort("A has to be of the GeneSet type")
     }
+
     p <- ncol(X) # number of features
     n <- nrow(X) # number of samples
 
-
     return(0)
 }
+
+
+
+
+
+
