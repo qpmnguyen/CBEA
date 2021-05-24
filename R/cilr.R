@@ -16,11 +16,9 @@
 #'
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
 #'
-#' @importClassesFrom GSEABase GeneSet GeneSetCollection
-#' @importMethodsFrom GSEABase GeneSet GeneSetCollection
-#' @import rlang
+#' @import rlang GSEABase
 #' @export
-cilr <- function(tab, sets,
+cilr <- function(otu_table, tax_sets,
                  output = c("cdf", "zscore", "pval", "sig"),
                  distr = c("mnorm", "norm"),
                  adj = TRUE,
@@ -33,12 +31,12 @@ cilr <- function(tab, sets,
     output <- match.arg(output)
     distr <- match.arg(distr)
     # check input
-    if (!is.matrix(tab)){
+    if (!is.matrix(otu_table)){
         rlang::warn("Coercing OTU/ASV table into matrix format")
         X <- as.matrix(tab)
     }
 
-    if (class(sets) != "GeneSetCollection"){
+    if (class(tax_sets) != "GeneSetCollection"){
         rlang::abort("A has to be of the GeneSet type")
     }
 

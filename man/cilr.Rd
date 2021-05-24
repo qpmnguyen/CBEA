@@ -5,8 +5,8 @@
 \title{Main cILR function to perform enrichment analysis using cILR method}
 \usage{
 cilr(
-  X,
-  A,
+  otu_table,
+  tax_sets,
   output = c("cdf", "zscore", "pval", "sig"),
   distr = c("mnorm", "norm"),
   adj = TRUE,
@@ -19,9 +19,9 @@ cilr(
 )
 }
 \arguments{
-\item{X}{Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.}
+\item{otu_table}{Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.}
 
-\item{A}{List of length \code{m}. This is a list of set membership by column names.}
+\item{tax_sets}{List of length \code{m}. This is a list of set membership by column names.}
 
 \item{output}{String. The form of the output of the model.}
 
