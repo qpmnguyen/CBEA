@@ -1,29 +1,35 @@
 Package: teaR
-Type: Package
-Title: Taxonomic enrichment analysis in R
-Version: 0.0.9000
-Author: person("Quang", "Nguyen", email = "quangpmnguyen@gmail.com", role = c("aut", "cre"))
-Maintainer: Quang Nguyen <quangpmnguyen@gmail.com>
-Description: This package contains the suite of functions to perform taxonomic enrichment analysis in R 
-    with either new tools or established methods in the gene set analysis field. 
+Title: Associated tools for taxa enrichment analysis in R
+Version: 0.99.0
+Date: 2021-05-20
+Authors@R: 
+    person(given = "Quang",
+           family = "Nguyen",
+           role = c("aut", "cre"),
+           email = "quangpmnguyen@gmail.com",
+           comment = c(ORCID = "0000-0002-2072-3279"))
+Description: Taxa enrichment analysis is a set of methods used to increase interpretability and incorporate
+    prior knowledge in microbiome analyses. This package mainly supports cILR, a new method to perform
+    analysis at the sample level by Nguyen et al. 2021+. Additionally, this package adds support for 
+    specialized knowledge driven taxa sets, as well as a limited number of similar methods in the gene 
+    set literature. 
 License: MIT + file LICENSE
+URL: https://github.com/qpmnguyen/teaR
+BugReports: https://github.com/qpmnguyen/teaR//issues
+biocViews: Software
 Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+LinkingTo: 
+    Rcpp
+Imports: 
+    fitdistrplus,
+    phyloseq,
+    rlang,
+    Rcpp,
+    magrittr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.1.1
-Imports: 
-    fitdistrplus,
-    rlang,
-    purrr,
-    progress,
-    dplyr,
-    phyloseq,
-    Rcpp,
-    mixtools,
-    magrittr
-LinkingTo: 
-    Rcpp
-SystemRequirements: C++11
