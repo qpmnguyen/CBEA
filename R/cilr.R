@@ -15,6 +15,9 @@
 #' @param ... Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}
 #'
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
+#'
+#' @importFrom GSEABase GeneSet
+#' @export
 cilr <- function(X, A,
                  output = c("cdf", "zscore", "pval", "sig"),
                  distr = c("mnorm", "norm"),

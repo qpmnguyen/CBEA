@@ -24,7 +24,7 @@ jobs:
         config:
           - {os: windows-latest, r: 'release', bioc: '3.13'}
           - {os: macOS-latest, r: 'release', bioc: '3.13'}
-          - {os: ubuntu-20.04, r: 'release', bioc: '3.13', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+          - {os: ubuntu-latest, r: 'release', bioc: '3.13', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
           #- {os: ubuntu-20.04, r: 'devel', bioc: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
 
     env:
