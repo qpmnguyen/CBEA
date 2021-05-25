@@ -30,7 +30,8 @@ Imports:
     Rcpp,
     magrittr,
     GSEABase,
-    methods
+    methods,
+    purrr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
