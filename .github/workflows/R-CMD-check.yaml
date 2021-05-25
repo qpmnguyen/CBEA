@@ -54,6 +54,12 @@ jobs:
         if: runner.os != 'Linux'
         uses: r-lib/actions/setup-pandoc@v1
 
+      - name: Install BiocManager
+        run: |
+          install.packages("BiocManager")
+          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE)
+        shell: Rscript {0}
+
       - name: Query dependencies
         run: |
           install.packages('remotes')
@@ -88,10 +94,9 @@ jobs:
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          while read -r cmd
-          do
-            eval sudo $cmd
-          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+          echo $sysreqs
+          sudo -s eval "$sysreqs"
 
 
       - name: Install macOS system dependencies
@@ -111,11 +116,6 @@ jobs:
           ## For installing usethis's dependency gert
           brew install libgit2
 
-      - name: Install BiocManager
-        run: |
-          install.packages("BiocManager")
-          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE)
-        shell: Rscript {0}
 
       - name: Install dependencies pass 1
         run: |
