@@ -44,7 +44,6 @@ cilr <- function(otu_table, tax_sets,
     n <- nrow(X) # number of samples
 
     # First, generate raw scores per set
-    purrr::map(tax_sets)
 
 
     # Generating bootstrap resamples

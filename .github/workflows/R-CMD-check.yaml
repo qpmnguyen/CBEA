@@ -1,5 +1,10 @@
 # For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
 # https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+
+env:
+  run_bioc_check: 'false'
+  run_covr: 'true'
+
 on:
   push:
     branches:
@@ -166,9 +171,36 @@ jobs:
           )
         shell: Rscript {0}
 
+      # Coverage testing
+      - name: Install covr
+        if: github.ref == 'refs/heads/master' && env.run_covr == 'true' && runner.os == 'Linux'
+        run: |
+          remotes::install_cran("covr")
+        shell: Rscript {0}
+
+      - name: Test coverage
+        if: github.ref == 'refs/heads/master' && env.run_covr == 'true' && runner.os == 'Linux'
+        run: |
+          covr::codecov()
+        shell: Rscript {0}
+
+      # Bioc Check
+      - name: Run BiocCheck
+        if: env.run_bioc_check == 'true'
+        run: |
+          BiocCheck::BiocCheck(
+              dir('check', 'tar.gz$', full.names = TRUE),
+              `quit-with-status` = TRUE,
+              `no-check-R-ver` = TRUE,
+              `no-check-bioc-help` = TRUE
+          )
+        shell: Rscript {0}
+
       - name: Upload check results
         if: failure()
         uses: actions/upload-artifact@master
         with:
           name: ${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-results
           path: check
+
+
