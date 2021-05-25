@@ -45,13 +45,13 @@ jobs:
 
       ## R is already included in the Bioconductor docker images
       - name: Setup R from rlib
-        if: runner.os != "Linux"
+        if: runner.os != 'Linux'
         uses: r-lib/actions/setup-r@master
         with:
           r-version: ${{ matrix.config.r }}
       ## Pandoc is already included in the Bioconductor docker images
       - name: Setting up pandoc
-        if: runner.os != "Linux"
+        if: runner.os != 'Linux'
         uses: r-lib/actions/setup-pandoc@v1
 
       - name: Query dependencies
