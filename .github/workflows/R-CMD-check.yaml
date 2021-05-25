@@ -33,6 +33,12 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Set R Library home on Linux
+        if: runner.os == 'Linux'
+        run: |
+          mkdir /__w/_temp/Library
+          echo ".libPaths('/__w/_temp/Library')" > ~/.Rprofile
+
       - uses: actions/checkout@v2
 
       - uses: r-lib/actions/setup-r@v1
@@ -69,13 +75,38 @@ jobs:
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
 
-      - name: Install dependencies
+      - name: Install dependencies pass 1
+      #   run: |
+      #     local_deps <- remotes::local_package_deps(dependencies = TRUE)
+      #     deps <- remotes::dev_package_deps(dependencies = TRUE, repos = BiocManager::repositories())
+      #     BiocManager::install(local_deps[local_deps %in% deps$package[deps$diff != 0]], Ncpu = 2L)
+      #     remotes::install_deps(dependencies = TRUE, repos = c(getOption("repos"), BiocManager::repositories()))
+      #     remotes::install_cran("rcmdcheck")
+      #   shell: Rscript {0}
         run: |
-          local_deps <- remotes::local_package_deps(dependencies = TRUE)
-          deps <- remotes::dev_package_deps(dependencies = TRUE, repos = BiocManager::repositories())
-          BiocManager::install(local_deps[local_deps %in% deps$package[deps$diff != 0]], Ncpu = 2L)
-          remotes::install_deps(dependencies = TRUE, repos = c(getOption("repos"), BiocManager::repositories()))
+            ## Try installing the package dependencies in steps. First the local
+            ## dependencies, then any remaining dependencies to avoid the
+            ## issues described at
+            ## https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016675.html
+            ## https://github.com/r-lib/remotes/issues/296
+            ## Ideally, all dependencies should get installed in the first pass.
+
+            ## Pass #1 at installing dependencies
+            message(paste('****', Sys.time(), 'pass number 1 at installing dependencies: local dependencies ****'))
+            remotes::install_local(dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = TRUE, upgrade = TRUE, force = TRUE)
+        continue-on-error: true
+        shell: Rscript {0}
+
+      - name: Install dependencies pass 2
+        run: |
+          ## Pass #2 at installing dependencies
+          message(paste('****', Sys.time(), 'pass number 2 at installing dependencies: any remaining dependencies ****'))
+          remotes::install_local(dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = TRUE, upgrade = TRUE, force = TRUE)
+
+          ## For running the checks
+          message(paste('****', Sys.time(), 'installing rcmdcheck and BiocCheck ****'))
           remotes::install_cran("rcmdcheck")
+          BiocManager::install("BiocCheck")
         shell: Rscript {0}
 
       - name: Check
