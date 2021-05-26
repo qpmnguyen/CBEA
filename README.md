@@ -12,6 +12,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![R-CMD-check](https://github.com/qpmnguyen/teaR/workflows/R-CMD-check/badge.svg)](https://github.com/qpmnguyen/teaR/actions)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/teaR)](https://CRAN.R-project.org/package=teaR)
+[![BioC
+status](http://www.bioconductor.org/shields/build/release/bioc/teaR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/teaR)
 <!-- badges: end -->
 
 ### Quang Nguyen
