@@ -16,7 +16,7 @@ Description: Taxa enrichment analysis is a set of methods used to increase inter
 License: MIT + file LICENSE
 URL: https://github.com/qpmnguyen/teaR
 BugReports: https://github.com/qpmnguyen/teaR//issues
-biocViews: Software
+biocViews: Software, Microbiome, Metagenomics
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -29,9 +29,10 @@ Imports:
     rlang,
     Rcpp,
     magrittr,
-    GSEABase,
     methods,
-    purrr
+    purrr,
+    BiocSet,
+    stringr
 Suggests: 
     covr,
     testthat (>= 3.0.0)

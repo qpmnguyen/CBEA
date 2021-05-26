@@ -16,7 +16,6 @@
 #'
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
 #'
-#' @import rlang GSEABase purrr
 #' @export
 cilr <- function(otu_table, tax_sets,
                  output = c("cdf", "zscore", "pval", "sig"),
