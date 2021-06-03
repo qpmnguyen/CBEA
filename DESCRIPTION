@@ -32,7 +32,10 @@ Imports:
     methods,
     purrr,
     BiocSet,
-    stringr
+    stringr,
+    dplyr,
+    tidyr,
+    tibble
 Suggests: 
     covr,
     testthat (>= 3.0.0)
