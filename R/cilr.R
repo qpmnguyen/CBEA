@@ -42,10 +42,10 @@ cilr <- function(otu_table, tax_sets,
     p <- ncol(X) # number of features
     n <- nrow(X) # number of samples
 
-    # First, generate raw scores per set
+    # 1. generate raw scores per set
 
 
-    # Generating bootstrap resamples
+    # 2. Generating bootstrap resamples
 
 
 
