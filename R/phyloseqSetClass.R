@@ -32,6 +32,32 @@ setClass("phyloseqSet",
     )
 )
 
+#' @keywords internal
+check_valid <- function(object){
+    # Object has to be a phyloseq object
+    if (is(object, "phyloseq") == FALSE){
+        return("Object have to be a child of phyloseq type")
+    }
+    if (!is.null(object@taxon_sets)){
+        # Only one taxon_set object available. BiocSets supports multiple set definitions that allow for
+        # overlapping or multi-sets
+        if (length(object@taxon_sets) >= 1){
+            return("There should only be one taxon set object. BiocSets supports multiple set definitions")
+        }
+        # Check type of taxon_sets
+        if (class(object@taxon_sets) != "BiocSet"){
+            return("taxon_sets has to be a BiocSet")
+        }
+        # Check the names of taxon_sets
+        # TODO: Create a function to generate taxa sets first to test
+    }
+    return(TRUE)
+}
+
+
+setValidity("phyloseqSet", check_valid)
+
+
 
 #' @title Construct a phyloseqSet object
 #' @aliases phyloseqSet
@@ -50,7 +76,7 @@ setClass("phyloseqSet",
 #' @importFrom methods new
 #' @seealso \code{\link{phyloseq}}
 #' @export
-phyloseqSet <- function(..., taxon_set){
+phyloseqSet <- function(..., taxon_set=NULL){
     args <- list(...)
     if (length(args) > 1){
         physeq <- do.call(phyloseq::phyloseq, args)
@@ -79,6 +105,7 @@ setMethod("taxon_set<-", "phyloseqSet", function(x, value){
     x
 })
 
+# TODO: Please remove placeholder objects here please Quang you're my only hope
 setMethod("show", "phyloseqSet", function(object){
     # callNextMethod calls the same inherited method
     callNextMethod()
