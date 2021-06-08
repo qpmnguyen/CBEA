@@ -40,16 +40,17 @@ cilr <- function(ab_tab, set_list,
     p <- ncol(ab_tab) # number of features
     n <- nrow(ab_tab) # number of samples
     ab_perm <- ab_tab[,sample(1:p, size = p, replace = FALSE)]
-    # 1. generate raw scores per set
+    # Loop through each set
     R <- purrr::map_dfc(set_list, ~{
         index <- which(colnames(ab_tab) %in% .x)
         if (raw == FALSE){
-            raw_scores <- getScore(ab_tab, index)
-            perm_scores <- getScore(ab_perm, index)
+            raw_scores <- get_score(ab_tab, index)
+            perm_scores <- get_score(ab_perm, index)
             if (adj == TRUE){
                 # estimate perm and unperm distributions
                 perm_distr <- estimate_distr(perm_scores, distr = distr, init = init, ...)
                 unperm_distr <- estimate_distr(raw_scores, distr = distr, init = init, ...)
+                print(perm_distr)
                 # combine them into one final distribution
                 final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr)
             } else {
@@ -60,7 +61,7 @@ cilr <- function(ab_tab, set_list,
             scores <- scale_score(raw_scores, method = output, param = final_distr, thresh = thresh)
         } else {
             # if raw is true then just get the score
-            scores <- getScore(ab_tab, index)
+            scores <- get_score(ab_tab, index)
         }
         return(scores)
     })
@@ -83,11 +84,11 @@ get_score <- function(X, idx){
     }
     # get total columns and define size ans scale funciton
     p <- ncol(X)
-    size <- sum(idx == 1)
+    size <- length(idx)
     scale <- sqrt(size * (p - size)/p)
     # calculate geometric mean
-    num <- gmeanRow(X[,idx == 1])
-    denom <- gmeanRow(X[,idx == 0])
+    num <- gmeanRow(X[,idx])
+    denom <- gmeanRow(X[,-idx])
     # return the ilr like statistic
     return(scale*(log(num/denom)))
 }
@@ -111,13 +112,25 @@ get_score <- function(X, idx){
 #' @importFrom fitdistrplus fitdist
 #' @importFrom mixtools normalmixEM
 #' @importFrom rlist list.append
-estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
+#' @importFrom stats na.omit
+#' @importFrom rlang abort
+estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, ...){
     # matching argument
     distr <- match.arg(distr)
+    # check if data has NAs
+    if (any(is.na(distr))){
+        message("There are NAs in the data vector, omitting NA values")
+        org_length <- length(data)
+        data <- stats::na.omit(data)
+        if (length(data) < 0.1 * org_length){
+            rlang::abort("More than 90% of the data is NA, aborting distribution fitting")
+        }
+
+    }
     # Default initialization is all zeroes
     if (missing(init) | is.null(init)){
         if (distr == "norm"){
-            init <- list(mu = NULL, sd = NULL)
+            init <- list(mean = 0, sd = 1)
         } else if (distr == "mnorm"){
             init <- list(lambda = NULL, mu = NULL, sigma = NULL)
         }
@@ -129,7 +142,7 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
         defaults <- list(maxrestarts=1000, epsilon = 1e-06, maxit= 1e5, arbmean = TRUE, k = 2)
     } else if (distr == "norm") {
         # so far there have no opinions
-        defaults <- list(method = "mle")
+        defaults <- list(method = "mle", fix.arg = NULL, discrete = FALSE, keepdata=FALSE, keepdata.nb=100)
     }
     params <- merge_lists(defaults = defaults, supplied = supplied)
 
@@ -142,8 +155,12 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
         },
         {
             if (distr %in% c("norm")){
-                params <- rlist::list.append(start = init, distr = distr, data = data)
-                fit <- do.call(fitdistrplus::fitdist, params)
+                params <- rlist::list.append(params, start = init, distr = distr, data = data)
+                print(params)
+                log <- capture.output({
+                    fit <- do.call(fitdistrplus::fitdist, params)
+                })
+                rm(log)
                 list(mean = fit$estimate[['mean']], sd = fit$estimate[['sd']])
             } else if (distr == "mnorm"){
                 params <- rlist::list.append(params, x = data)
@@ -184,7 +201,7 @@ combine_distr <- function(perm, unperm, distr){
         }
         final <- get_adj_mnorm(perm = perm, unperm = unperm)
     }
-    return(combine_distr)
+    return(final)
 }
 
 #' @title Function to perform the adjustment for the mixture normal distribution
