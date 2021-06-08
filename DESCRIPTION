@@ -35,7 +35,10 @@ Imports:
     stringr,
     dplyr,
     tidyr,
-    tibble
+    tibble,
+    mixtools,
+    rlist,
+    stats
 Suggests: 
     knitr,
     covr,

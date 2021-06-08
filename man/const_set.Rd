@@ -7,9 +7,9 @@
 \alias{const_set,data.frame-method}
 \title{Construct sets from objects}
 \usage{
-const_set(obj, min_size, ...)
+const_set(obj, ...)
 
-\S4method{const_set}{taxonomyTable}(obj, min_size, rank)
+\S4method{const_set}{taxonomyTable}(obj, rank)
 
 \S4method{const_set}{matrix}(obj)
 
@@ -17,8 +17,6 @@ const_set(obj, min_size, ...)
 }
 \arguments{
 \item{obj}{Object to convert to standard sets to be used}
-
-\item{min_size}{The minimum size of a set}
 
 \item{...}{Additional arguments to be passed}
 

@@ -1,5 +1,5 @@
 ---
-title: "basic_usage"
+title: "Basic Usage"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{basic_usage}
@@ -26,14 +26,17 @@ data(GlobalPatterns)
 
 We can use many ways to construct sets. The easiest way is to construct sets based on taxonomic ranks. Then we can attach these sets to a `phyloseq` object.  
 ```{r const_set_rank}
-family_sets <- const_set(tax_table(GlobalPatterns), min_size = 5, rank = "Family")
+family_sets <- const_set(tax_table(GlobalPatterns), rank = "Family")
 physeq <- phyloseqSet(GlobalPatterns, taxon_set = family_sets)
 print(physeq)
 ```
-The number of taxa in taxon set tables needs to be a subset of all taxa but can be smaller than the total number of taxa. This is because we can filter sets based on sizes, which means that some taxa won't be part of interesting sets that we have not filtered out. By adding on further metadata to sets, we can further refine our set of interest without disturbing our total number of available taxa.  
+This shows that among 19216 taxa that are on hand, about 13613 taxa are part of 341 sets. The number of taxa in taxon set tables needs to be a subset of all taxa but can be smaller than the total number of taxa. This is because we can filter sets based on a variety of criteria and therefore would only use the subset of total taxa that are assigned to those sets. To filter sets, we can use the `trim_sets()` function, which can take multiple criteria as long as they have been attached to the `BiocSet` object itself. The constructor function automatically adds a `size` column to the `set` slot in the `BiocSet` object, which means that we can always filter by size. 
+
+```{r trim_set}
+physeq <- trim_set(physeq, size >= 5)
+physeq
+```
 
 The reason why `phyloseqSet` was used as the extension is that we can still apply `phyloseq` operations and it would affect the resulting `taxon_set()` slot. This is because if we filtered out taxa due to issues like low abundance, then those taxa would also not appear in the elements section of taxon sets. However, **order matters**, especially if sets are being filtered based on size. If a `filter_taxa` step was performed after `taxon_set()` was attached, then the resulting sets need to be trimmed down further. The function `trim_sets()` can be used to filter taxa by different criteria.  
 
-```{r trim_set}
-#Demonstrate trim_set as well as applying filter_taxa to existing sets.  
-```
+

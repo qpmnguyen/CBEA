@@ -2,12 +2,13 @@
 % Please edit documentation in R/set_construction.R
 \name{conv_set}
 \alias{conv_set}
-\title{TODO: Convert set to different formats
-This is a placeholder function}
+\title{This is a placeholder function}
 \usage{
 conv_set(format = NULL)
 }
+\arguments{
+\item{format}{Format to convert sets to}
+}
 \description{
 TODO: Convert set to different formats
-This is a placeholder function
 }

@@ -5,23 +5,21 @@
 \title{Main cILR function to perform enrichment analysis using cILR method}
 \usage{
 cilr(
-  otu_table,
-  tax_sets,
+  ab_tab,
+  set_list,
   output = c("cdf", "zscore", "pval", "sig"),
   distr = c("mnorm", "norm"),
   adj = TRUE,
-  nperm = 5,
   thresh = 0.05,
   init = NULL,
-  min_size = 2,
   raw = FALSE,
   ...
 )
 }
 \arguments{
-\item{otu_table}{Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.}
+\item{ab_tab}{Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.}
 
-\item{tax_sets}{List of length \code{m}. This is a list of set membership by column names.}
+\item{set_list}{List of length \code{m}. This is a list of set membership by column names.}
 
 \item{output}{String. The form of the output of the model.}
 
@@ -29,15 +27,9 @@ cilr(
 
 \item{adj}{Logical. Whether correlation adjustment procedure is utilized.}
 
-\item{nperm}{Integer. The number of permutations/bootstrap re-sampling. Recommended not to exceed 5
-due to memory issues.}
-
 \item{thresh}{Numeric. Threshold for significant p-values if \code{sig} is the output.}
 
 \item{init}{Named List. Initialization parameters for estimating the null distribution. Default is NULL.}
-
-\item{min_size}{Integer. The lower bound of set size. Sets of size lower than min_size will be filtered out.
-Default is 2 (no singleton sets).}
 
 \item{raw}{Logical. Whether scores are returned as raw (no parameter estimation step). Default is FALSE.}
 
