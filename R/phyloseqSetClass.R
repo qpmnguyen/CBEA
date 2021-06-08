@@ -38,18 +38,22 @@ check_valid <- function(object){
     if (is(object, "phyloseq") == FALSE){
         return("Object have to be a child of phyloseq type")
     }
-    if (!is.null(object@taxon_sets)){
+    if (!is.null(object@taxon_set)){
         # Only one taxon_set object available. BiocSets supports multiple set definitions that allow for
         # overlapping or multi-sets
-        if (length(object@taxon_sets) >= 1){
+        if (length(object@taxon_set) > 1){
             return("There should only be one taxon set object. BiocSets supports multiple set definitions")
         }
         # Check type of taxon_sets
-        if (class(object@taxon_sets) != "BiocSet"){
+        if (class(object@taxon_set) != "BiocSet"){
             return("taxon_sets has to be a BiocSet")
         }
         # Check the names of taxon_sets
-        # TODO: Create a function to generate taxa sets first to test
+        names <- dplyr::pull(BiocSet::es_element(object@taxon_set))
+        matches <- base::match(names, phyloseq::taxa_names(object))
+        if (length(matches) != length(names)){
+            return("List of element taxa does not completely match taxa_names of phyloseq object")
+        }
     }
     return(TRUE)
 }
@@ -111,7 +115,10 @@ setMethod("show", "phyloseqSet", function(object){
     callNextMethod()
     if (!is.null(taxon_set(object))){
         cat(paste("taxon_set()   Taxon Set Tables:  [ ",
-                  2, " taxa by ", 3, " taxa sets ]", sep = ""), fill = TRUE)
+                  nrow(BiocSet::es_element(taxon_set(object))),
+                  " taxa by ",
+                  nrow(BiocSet::es_set(taxon_set(object))),
+                  " taxa sets ]", sep = ""), fill = TRUE)
     }
 })
 

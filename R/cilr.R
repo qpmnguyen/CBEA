@@ -35,24 +35,49 @@ cilr <- function(otu_table, tax_sets,
         X <- as.matrix(otu_table)
     }
 
-    if (class(tax_sets) != "GeneSetCollection"){
-        rlang::abort("A has to be of the GeneSetCollection type")
+    if (class(tax_sets) != "BiocSet"){
+        rlang::abort("A has to be of the BiocSet type")
     }
 
     p <- ncol(X) # number of features
     n <- nrow(X) # number of samples
 
     # 1. generate raw scores per set
-
+    set_names <- dplyr::pull(es_set(set))
+    id_list <- purrr::map(set_names, ~{
+        element_ids <- dplyr::pull(BiocSet::es_element(BiocSet::filter_elementset(set, set == .x)))
+    })
 
     # 2. Generating bootstrap resamples
-
+    map_df(X[, sample(1:p, replace = FALSE)])
 
 
     return(0)
 }
 
-
+#' @title Get cILR scores for a given matrix and a vector of column indices
+#' @param X (Matrix). OTU table of matrix format where taxa are columns and samples are rows
+#' @param idx (Integer vector). Vector of integers indicating the column ids of taxa in a set
+get_score <- function(X, idx){
+    # check type
+    if (is.matrix(X) == F){
+        message("Coercing X to matrix")
+        X <- as.matrix(X)
+    }
+    if (is.vector(idx) == F){
+        message("Coercing idx to a numeric vector")
+        idx <- as.vector(idx)
+    }
+    # get total columns and define size ans scale funciton
+    p <- ncol(X)
+    size <- sum(idx == 1)
+    scale <- sqrt(size * (p - size)/p)
+    # calculate geometric mean
+    num <- gmeanRow(x = X[,idx == 1])
+    denom <- gmeanRow(x = X[,idx == 0])
+    # return the ilr like statistic
+    return(scale*(log(num/denom)))
+}
 
 
 
