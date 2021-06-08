@@ -16,6 +16,7 @@ setGeneric("const_set", function(obj, ...) standardGeneric("const_set"), signatu
 #' @importFrom magrittr %>%
 #' @importFrom dplyr pull group_by
 #' @importFrom stats na.omit
+#' @importFrom lobstr obj_size
 #' @export
 setMethod("const_set", "taxonomyTable", function(obj, rank){
     # Avoiding no binding notes when doing R CMD CHECK for metaprogramming

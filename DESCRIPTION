@@ -38,7 +38,8 @@ Imports:
     tibble,
     mixtools,
     rlist,
-    stats
+    stats,
+    lobstr
 Suggests: 
     knitr,
     covr,
