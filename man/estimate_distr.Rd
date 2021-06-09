@@ -4,7 +4,7 @@
 \alias{estimate_distr}
 \title{Estimate distribution parameters from data}
 \usage{
-estimate_distr(data, distr = c("mnorm", "norm"), init, ...)
+estimate_distr(data, distr = c("mnorm", "norm"), init = NULL, args_list = NULL)
 }
 \arguments{
 \item{data}{(Numeric Vector). A vector of numbers that can be inputted to estimate the
@@ -14,6 +14,8 @@ parameters of the distributional forms.}
 
 \item{init}{(List). Initialization parameters for each distribution. For mixtures, each named
 element in the list should be a vector with length equal to the number of components}
+
+\item{args_list}{(List). Named list of additional arguments passed onto fitdist and normalmixEM}
 
 \item{...}{Other paremteres passed to fitdistrplus or normalmixEM}
 }

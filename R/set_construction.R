@@ -11,7 +11,7 @@ setGeneric("const_set", function(obj, ...) standardGeneric("const_set"), signatu
 #' @describeIn const_set convert taxonomyTable to \code{BiocSet}
 #' @param rank (Character). Restrict sets to certain taxonomic ranks.
 #' @importFrom purrr map
-#' @importFrom BiocSet BiocSet es_elementset mutate_set
+#' @importFrom BiocSet BiocSet es_elementset left_join_set
 #' @importFrom stringr str_ends
 #' @importFrom magrittr %>%
 #' @importFrom dplyr pull group_by
@@ -42,9 +42,9 @@ setMethod("const_set", "taxonomyTable", function(obj, rank){
     # Constructing sets
     sets <- BiocSet::BiocSet(sets)
     set_sizes <- BiocSet::es_elementset(sets) %>%
-        dplyr::count(set) %>% dplyr::pull(n)
+        dplyr::count(set, name = "size")
     # filter set by set sizes
-    sets <- BiocSet::mutate_set(sets, size = set_sizes)
+    sets <- BiocSet::left_join_set(sets, set_sizes)
     if (lobstr::obj_size(sets)/1e6 > 100){
         rlang::warn("Object size is larger than 100MB")
     }
