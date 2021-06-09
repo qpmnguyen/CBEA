@@ -23,6 +23,11 @@ cilr <- function(ab_tab, set_list,
                  thresh = 0.05,
                  init = NULL,
                  raw = FALSE, ...){
+    # Checking for additional parameters and pass as list to estimate_distr
+    additional_params <- list(...)
+    if (length(additional_params) == 0){
+        additional_params <- NULL
+    }
     # check arguments
     output <- match.arg(output)
     distr <- match.arg(distr)
@@ -40,6 +45,7 @@ cilr <- function(ab_tab, set_list,
     p <- ncol(ab_tab) # number of features
     n <- nrow(ab_tab) # number of samples
     ab_perm <- ab_tab[,sample(1:p, size = p, replace = FALSE)]
+
     # Loop through each set
     R <- purrr::map_dfc(set_list, ~{
         index <- which(colnames(ab_tab) %in% .x)
@@ -48,17 +54,16 @@ cilr <- function(ab_tab, set_list,
             perm_scores <- get_score(ab_perm, index)
             if (adj == TRUE){
                 # estimate perm and unperm distributions
-                perm_distr <- estimate_distr(perm_scores, distr = distr, init = init, ...)
-                unperm_distr <- estimate_distr(raw_scores, distr = distr, init = init, ...)
-                print(perm_distr)
+                perm_distr <- estimate_distr(perm_scores, distr = distr, init = init, args_list = additional_params)
+                unperm_distr <- estimate_distr(raw_scores, distr = distr, init = init, args_list = additional_params)
                 # combine them into one final distribution
                 final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr)
             } else {
                 # only estimate the distribution from the permuted data
-                final_distr <- estimate_distr(perm_scores, distr = distr, init = init, ...)
+                final_distr <- estimate_distr(perm_scores, distr = distr, init = init, args_list = additional_params)
             }
             # have to scale scores if raw is false (why else estimate the distribution)
-            scores <- scale_score(raw_scores, method = output, param = final_distr, thresh = thresh)
+            scores <- scale_scores(raw_scores, method = output, param = final_distr, thresh = thresh, distr = distr)
         } else {
             # if raw is true then just get the score
             scores <- get_score(ab_tab, index)
@@ -66,6 +71,7 @@ cilr <- function(ab_tab, set_list,
         return(scores)
     })
     colnames(R) <- names(set_list)
+    R <- tibble::add_column(R, sample_id = rownames(ab_tab), .before = 1)
     return(R)
 }
 #' @title Get cILR scores for a given matrix and a vector of column indices
@@ -107,6 +113,7 @@ get_score <- function(X, idx){
 #' @param distr (String). The distribution to be fitted. Right now only \code{norm} or \code{mnorm} is supported
 #' @param init (List). Initialization parameters for each distribution. For mixtures, each named
 #'     element in the list should be a vector with length equal to the number of components
+#' @param args_list (List). Named list of additional arguments passed onto fitdist and normalmixEM
 #' @param ... Other paremteres passed to fitdistrplus or normalmixEM
 #' @keywords internal
 #' @importFrom fitdistrplus fitdist
@@ -114,16 +121,17 @@ get_score <- function(X, idx){
 #' @importFrom rlist list.append
 #' @importFrom stats na.omit
 #' @importFrom rlang abort
-estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, ...){
+#' @importFrom utils capture.output
+estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, args_list=NULL){
     # matching argument
     distr <- match.arg(distr)
     # check if data has NAs
-    if (any(is.na(distr))){
+    if (any(is.na(data))){
         message("There are NAs in the data vector, omitting NA values")
         org_length <- length(data)
         data <- stats::na.omit(data)
-        if (length(data) < 0.1 * org_length){
-            rlang::abort("More than 90% of the data is NA, aborting distribution fitting")
+        if (length(data) < 0.5 * org_length){
+            rlang::abort("More than 50% of the data is NA, aborting distribution fitting")
         }
 
     }
@@ -137,15 +145,13 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, ...){
     }
 
     # supplied and defaults for additional parameters
-    supplied <- list(...)
     if (distr == "mnorm"){
         defaults <- list(maxrestarts=1000, epsilon = 1e-06, maxit= 1e5, arbmean = TRUE, k = 2)
     } else if (distr == "norm") {
         # so far there have no opinions
         defaults <- list(method = "mle", fix.arg = NULL, discrete = FALSE, keepdata=FALSE, keepdata.nb=100)
     }
-    params <- merge_lists(defaults = defaults, supplied = supplied)
-
+    params <- merge_lists(defaults = defaults, supplied = args_list)
     # Try catch would return NULL if the procedure errored out
     dist <- tryCatch(
         error = function(cnd) {
@@ -156,8 +162,7 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, ...){
         {
             if (distr %in% c("norm")){
                 params <- rlist::list.append(params, start = init, distr = distr, data = data)
-                print(params)
-                log <- capture.output({
+                log <- utils::capture.output({
                     fit <- do.call(fitdistrplus::fitdist, params)
                 })
                 rm(log)
@@ -173,6 +178,63 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, ...){
     return(dist)
 }
 
+#' @title Scaling scores based on estimated null distribution
+#' @param scores (Numeric Vector). Raw cILR scores generated without permutations
+#' @param method (String). The final form that the user want to return. Options include
+#'     \code{cdf}, \code{zscore}, \code{pval} and \code{sig}.
+#' @param param (List). The parameters of the estimated null distribution. Names must match distribution
+#' @param thresh (Numeric). The threshold to decide whether a set is significantly enriched.
+#'     Only available if \code{method} is \code{sig}
+#' @keywords internal
+#' @importFrom rlist list.append
+#' @importFrom rlang abort
+scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), param, distr, thresh=0.05){
+    # detect if parameter length is concordant with distribution type
+    if (distr == "norm"){
+        f <- "pnorm"
+        if (length(intersect(names(param), c("mean", "sd"))) != 2){
+            rlang::abort("Normal requires both mean and standard deviation")
+        }
+    } else {
+        f <- "pmnorm"
+        if (length(intersect(names(param), c("mu", "lambda", "sigma"))) != 3){
+            rlang::abort("Mixture normal requires mu, lambda and sigma arguments")
+        }
+        check_param <- all(vapply(param, FUN = length, FUN.VALUE = 1) == 2)
+        if (check_param == FALSE){
+            rlang::abort("Each named parameter much have values for each of the two components. Number of components restricted to 2")
+        }
+    }
+    if(method %in% c("cdf", "sig","pval")){
+        param <- rlist::list.append(q = as.vector(scores), param)
+        scale <- do.call(f, param)
+        if (sum(is.na(scale)) >= 1){
+            cat("There are NA values here")
+            if (file.exists("output") == FALSE){
+                dir.create("output")
+            }
+            saveRDS(param, file = "output/null_values.rds")
+        }
+        if (method == "pval"){
+            scale <- 1 - scale
+        } else if (method == "sig"){
+            scale <- 1 - scale
+            scale <- ifelse(scale <= thresh, 1, 0)
+        }
+    } else if (method == "zscore"){
+        if (f == "pmnorm"){
+            mean <- get_mean(mu = param$mu, lambda = param$lambda)
+            sd <- get_sd(sigma = param$sigma, mu = param$mu, mean = mean, lambda = param$lambda)
+        } else if (f == "pnorm"){
+            mean <- param$mean
+            sd <- param$sd
+        }
+        scale <- (scores - mean) * 1/sd
+    }
+    return(scale)
+}
+
+
 #' @title Combining two distributions
 #' @description Pass along handling of combining distributions to avoid clogging up the main function
 #' @param perm (List). A list of parameters for permuted distribution
@@ -182,6 +244,10 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, ...){
 #' @keywords internal
 #' @importFrom rlang abort
 combine_distr <- function(perm, unperm, distr){
+    # If unable to estimate anything, then return NULL final distribution
+    if (is.null(perm) | is.null(unperm)){
+        return(NULL)
+    }
     if (length(intersect(names(perm), names(unperm))) != length(perm)){
         rlang::abort("The two distributions to combine have to have the same parameters")
     }
