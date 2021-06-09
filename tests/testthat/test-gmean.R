@@ -1,5 +1,3 @@
-library(magrittr)
-
 df_pos <- matrix(rpois(100,3), 10, 10) %>% replace(which(. == 0), 1)
 df_neg <- replace(df_pos, sample(seq_len(length(df_pos)), size = 3), -2)
 df_zero <- replace(df_pos, sample(seq_len(length(df_pos)), size = 3), 0)
