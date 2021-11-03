@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
@@ -6,3 +8,4 @@
 ^codecov\.yml$
 ^doc$
 ^Meta$
+cache/

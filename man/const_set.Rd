@@ -2,14 +2,14 @@
 % Please edit documentation in R/set_construction.R
 \name{const_set}
 \alias{const_set}
-\alias{const_set,taxonomyTable-method}
+\alias{const_set,phyloseq-method}
 \alias{const_set,matrix-method}
 \alias{const_set,data.frame-method}
 \title{Construct sets from objects}
 \usage{
 const_set(obj, ...)
 
-\S4method{const_set}{taxonomyTable}(obj, rank)
+\S4method{const_set}{phyloseq}(obj, rank)
 
 \S4method{const_set}{matrix}(obj)
 
@@ -30,7 +30,7 @@ This function allows the construction of taxa sets of
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{taxonomyTable}: convert taxonomyTable to \code{BiocSet}
+\item \code{phyloseq}: convert taxonomyTable to \code{BiocSet}
 
 \item \code{matrix}: Convert membership (or logical) matrix to \code{BiocSet}
 
