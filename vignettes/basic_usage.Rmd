@@ -39,4 +39,38 @@ physeq
 
 The reason why `phyloseqSet` was used as the extension is that we can still apply `phyloseq` operations and it would affect the resulting `taxon_set()` slot. This is because if we filtered out taxa due to issues like low abundance, then those taxa would also not appear in the elements section of taxon sets. However, **order matters**, especially if sets are being filtered based on size. If a `filter_taxa` step was performed after `taxon_set()` was attached, then the resulting sets need to be trimmed down further. The function `trim_sets()` can be used to filter taxa by different criteria.  
 
+## Performance evaluation  
+We can assess the performance of cILR method 
+```{r}
+grid <- list(
+    n_samp = c(100,1000,10000),
+    n_tax = c(500,2500,5000)
+)
+grid <- purrr::cross_df(grid)
+grid <- tibble::add_column(grid, ids = seq(1, nrow(grid)), .before = 1)
+grid <- tibble::add_column(grid, n_sets = grid$n_tax/50, .before = 2)
+
+data <- purrr::map(1:nrow(grid), ~{ 
+    simulate_data(n_samp = grid$n_samp[.x], n_tax = grid$n_tax[.x], n_sets = grid$n_sets[.x])
+     
+})
+
+saveRDS(data, file = "../cache/data.rds")
+data <- readRDS(file = "../cache/data.rds")
+
+data <- purrr::map(data, ~{
+    .x$X <- .x$X + 1
+    return(.x)
+})
+
+results <- purrr::map_dfr(data, ~{
+    bench::mark(cilr(ab_tab = .x$X, set_list = .x$sets))
+})
+
+results
+
+```
+
+
+
 

@@ -18,7 +18,7 @@ setGeneric("const_set", function(obj, ...) standardGeneric("const_set"), signatu
 #' @importFrom stats na.omit
 #' @importFrom lobstr obj_size
 #' @export
-setMethod("const_set", "taxonomyTable", function(obj, rank){
+setMethod("const_set", "phyloseq", function(obj, rank){
     # Avoiding no binding notes when doing R CMD CHECK for metaprogramming
     n <- set <- NULL
     if (!any(colnames(obj) == rank)){
@@ -92,7 +92,8 @@ trim_set <- function(physeq, ...){
     element <- . <- NULL
     set <- taxon_set(physeq)
     set <- BiocSet::filter_set(set, ...) %>%
-        BiocSet::filter_element(element %in% dplyr::pull(BiocSet::es_elementset(.), element))
+        BiocSet::filter_element(element %in% dplyr::pull(BiocSet::es_elementset(.),
+                                                         element))
     taxon_set(physeq) <- set
     return(physeq)
 }

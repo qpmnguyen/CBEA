@@ -33,3 +33,13 @@ devtools::install_github("qpmnguyen/teaR")
 ```
 
 ### Features
+
+-   Supports the currently under review method CBEA (Competitive
+    compositional balances for enrichment analysis) formerly known as
+    cILR.  
+-   Converting taxonomic tables into sets in the `BiocSet` data type.  
+-   Convenient interface to use other common approaches in gene set
+    analysis literature.
+    -   [ ] GSEA  
+    -   [ ] GSVA, ssGSEA, z-score, PLAGE  
+    -   [ ] ORA
