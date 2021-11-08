@@ -1,24 +1,24 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `teaR`: Taxonomic Enrichment Analysis in R <img src='man/figures/logo.png' align="right" height="137" />
+# `CBEA`: Taxonomic Enrichment Analysis in R <img src='man/figures/hex-CBEA.png' align="right" height="137" />
 
 <!-- badges: start -->
 
 [![Codecov test
-coverage](https://codecov.io/gh/qpmnguyen/teaR/branch/master/graph/badge.svg)](https://codecov.io/gh/qpmnguyen/teaR?branch=master)
+coverage](https://codecov.io/gh/qpmnguyen/CBEA/branch/master/graph/badge.svg)](https://codecov.io/gh/qpmnguyen/CBEA?branch=master)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![R-CMD-check](https://github.com/qpmnguyen/teaR/workflows/R-CMD-check/badge.svg)](https://github.com/qpmnguyen/teaR/actions)
+[![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/teaR)](https://CRAN.R-project.org/package=teaR)
+status](https://www.r-pkg.org/badges/version/CBEA)](https://CRAN.R-project.org/package=CBEA)
 [![BioC
-status](http://www.bioconductor.org/shields/build/release/bioc/teaR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/teaR)
+status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA)
 <!-- badges: end -->
 
 ### Quang Nguyen
 
-The `teaR` package provides basic functionality to perform taxonomic
+The `CBEA` package provides basic functionality to perform taxonomic
 enrichment analysis in R. This package mainly supports the `CBEA`
 method, and provides additional support for generating sets for analyses
 using approaches commonly used in the gene set testing literature.
@@ -32,7 +32,7 @@ And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("qpmnguyen/teaR")
+devtools::install_github("qpmnguyen/CBEA")
 ```
 
 ### Features
@@ -40,4 +40,9 @@ devtools::install_github("qpmnguyen/teaR")
 -   Supports the currently under review method CBEA (Competitive
     compositional balances for enrichment analysis) formerly known as
     cILR.  
+-   Supports both `phyloseq` and `TreeSummarizedExperiment` data types
+    as inputs.
 -   Converting taxonomic tables into sets in the `BiocSet` data type.
+
+Future directions include additional support for using standard gene set
+analysis tools on microbiome relative abundance data sets

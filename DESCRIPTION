@@ -1,5 +1,5 @@
-Package: teaR
-Title: Associated tools for taxa enrichment analysis in R
+Package: CBEA
+Title: Competitive Balances for Taxonomic Enrichment Analysis in R
 Version: 0.99.0
 Date: 2021-05-20
 Authors@R: 
@@ -9,13 +9,13 @@ Authors@R:
            email = "quangpmnguyen@gmail.com",
            comment = c(ORCID = "0000-0002-2072-3279"))
 Description: Taxa enrichment analysis is a set of methods used to increase interpretability and incorporate
-    prior knowledge in microbiome analyses. This package mainly supports cILR, a new method to perform
+    prior knowledge in microbiome analyses. This package implements CBEA, a new method to perform
     analysis at the sample level by Nguyen et al. 2021+. Additionally, this package adds support for 
     specialized knowledge driven taxa sets, as well as a limited number of similar methods in the gene 
     set literature. 
 License: MIT + file LICENSE
-URL: https://github.com/qpmnguyen/teaR
-BugReports: https://github.com/qpmnguyen/teaR//issues
+URL: https://github.com/qpmnguyen/CBEA
+BugReports: https://github.com/qpmnguyen/CBEA//issues
 biocViews: Software, Microbiome, Metagenomics
 Encoding: UTF-8
 LazyData: true
