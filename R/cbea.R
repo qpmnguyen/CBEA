@@ -1,5 +1,7 @@
 
-#' Main cILR function to perform enrichment analysis using cILR method
+#' Enrichment analysis using competitive compositional balances (CBEA)
+#' @description This function is an independent implementation of CBEA approach (Nguyen et al. 2021+). Users can
+#'     use this approach using this function
 #' @param ab_tab Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.
 #' @param set_list List of length \code{m}. This is a list of set membership by column names.
 #' @param output String. The form of the output of the model.
@@ -16,7 +18,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom purrr map_dfc
 #' @importFrom rlang warn abort
-cilr <- function(ab_tab, set_list,
+.cbea <- function(ab_tab, set_list,
                  output = c("cdf", "zscore", "pval", "sig"),
                  distr = c("mnorm", "norm"),
                  adj = TRUE,
@@ -74,7 +76,7 @@ cilr <- function(ab_tab, set_list,
     R <- tibble::add_column(R, sample_id = rownames(ab_tab), .before = 1)
     return(R)
 }
-#' @title Get cILR scores for a given matrix and a vector of column indices
+#' @title Get CBEA scores for a given matrix and a vector of column indices
 #' @param X (Matrix). OTU table of matrix format where taxa are columns and samples are rows
 #' @param idx (Integer vector). Vector of integers indicating the column ids of taxa in a set
 #' @export
@@ -179,7 +181,7 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init=NULL, args_lis
 }
 
 #' @title Scaling scores based on estimated null distribution
-#' @param scores (Numeric Vector). Raw cILR scores generated without permutations
+#' @param scores (Numeric Vector). Raw CBEA scores generated without permutations
 #' @param method (String). The final form that the user want to return. Options include
 #'     \code{cdf}, \code{zscore}, \code{pval} and \code{sig}.
 #' @param param (List). The parameters of the estimated null distribution. Names must match distribution
