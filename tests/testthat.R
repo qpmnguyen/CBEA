@@ -1,4 +1,4 @@
 library(testthat)
-library(teaR)
+library(CBEA)
 
-test_check("teaR")
+test_check("CBEA")

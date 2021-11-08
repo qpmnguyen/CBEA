@@ -15,27 +15,45 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(teaR)
+library(CBEA)
 library(phyloseq)
 ```
 
-First, let's load the data  
+## Loading sample data  
+First, we can load some pre-packaged data sets contained in `CBEA`. Here we're loading the `phyloseq` version of the same data set. The `CBEA` package also supports `TreeSummarizedExperiment` objects, where the equivalent data set can be loaded via the command `data("hmp_gingival_treesum")`        
 ```{r load_data}
-data(GlobalPatterns)
+data("hmp_gingival_physeq")
+abun <- hmp_gingival_treesum$data
+sets <- hmp_gingival_treesum$set
 ```
 
-We can use many ways to construct sets. The easiest way is to construct sets based on taxonomic ranks. Then we can attach these sets to a `phyloseq` object.  
-```{r const_set_rank, eval = FALSE}
-family_sets <- const_set(tax_table(GlobalPatterns), rank = "Family")
+## Constructing sets from taxonomic tables  
+Taxonomic sets are custom collections of microbes and associated annotations pre-determined. There are various ways to think about constructing sets, and the most common type of sets used are based on taxonomic ranks. We can construct these sets using a convenient function `const_set`:  
+
+```{r const_set_rank, eval = TRUE}
+genus_sets <- const_set(abun, rank = "FAMILY")
+genus_sets
 ```
-This shows that among 19216 taxa that are on hand, about 13613 taxa are part of 341 sets. The number of taxa in taxon set tables needs to be a subset of all taxa but can be smaller than the total number of taxa. This is because we can filter sets based on a variety of criteria and therefore would only use the subset of total taxa that are assigned to those sets. To filter sets, we can use the `trim_sets()` function, which can take multiple criteria as long as they have been attached to the `BiocSet` object itself. The constructor function automatically adds a `size` column to the `set` slot in the `BiocSet` object, which means that we can always filter by size. 
-
-```{r trim_set, eval = FALSE}
-physeq <- trim_set(physeq, size >= 5)
-physeq
+The construction of sets using the `const_set` function also attaches the size of the set. Using this metadata and convenient functions associated with the `BiocSet` data container, we can filter out small sets. We can see that the total number of sets and element sets have decreased since the filter.  
+```{r trim_sets, eval = TRUE}
+genus_sets <- genus_sets %>% BiocSet::filter_set(size >= 10)
 ```
 
-The reason why `phyloseqSet` was used as the extension is that we can still apply `phyloseq` operations and it would affect the resulting `taxon_set()` slot. This is because if we filtered out taxa due to issues like low abundance, then those taxa would also not appear in the elements section of taxon sets. However, **order matters**, especially if sets are being filtered based on size. If a `filter_taxa` step was performed after `taxon_set()` was attached, then the resulting sets need to be trimmed down further. The function `trim_sets()` can be used to filter taxa by different criteria.  
+CBEA accepts any type of sets, as long as it is in the `BiocSet` format where the elements in the sets can be matched to taxa currently in the data container of choice (`phyloseq` or `TreeSummarizedExperiment`). Users can attach any type of metadata to sets as they wish. 
 
-## Performance evaluation  
-We can assess the performance of cILR method 
+## Applying CBEA   
+
+`cbea` requires an object of type `phyloseq`, `TreeSummarizedExperiment`, `matrix`, or `data.frame`. For `matrix` and `data.frame` classes, it is required that taxa are columns and sample are rows. For other data containers there is an automated procedure to perform the transpose and correct for these issues. Additionally, if there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method.  
+
+Applying `cbea` is one command:  
+```{r run_cbea, eval = TRUE}
+results <- cbea(abun, set = genus_sets, output = "cdf", distr = "norm", adj = TRUE, thresh = 0.05)
+head(results)
+```
+## Session Info 
+```{r session-info, eval=TRUE, echo=FALSE}
+sessionInfo()
+```
+
+
+
