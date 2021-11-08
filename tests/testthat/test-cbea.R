@@ -18,6 +18,7 @@ ref_ilr <- function(matrix, index){
     return(scale * log(num/denom))
 }
 
+# generate a fake data set
 df_pos <- matrix(rpois(1000,3), 100, 10) %>% replace(which(. == 0), 1)
 df_neg <- replace(df_pos, sample(seq_len(length(df_pos)), size = 3), -2)
 df_zero <- replace(df_pos, sample(seq_len(length(df_pos)), size = 3), 0)
@@ -61,7 +62,7 @@ test_that("Return error if have too much NAs", {
     expect_error(estimate_distr(c(rnorm(10), rep(NA, 90))))
 })
 
-##### Testing for the main cILR function #####
+##### Testing for the main CBEA function #####
 
 
 

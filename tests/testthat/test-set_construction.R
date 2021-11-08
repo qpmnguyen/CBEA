@@ -12,6 +12,6 @@ GlobalPatterns <- GlobalPatterns %>%
 GlobalPatterns %>%
     otu_table() %>% as(.,"matrix") %>% t() %>% .[,1:30]
 # generate set
-phylum_set <- const_set(tax_table(GlobalPatterns), rank = "Phylum")
-physeq <- phyloseqSet(GlobalPatterns, taxon_set = phylum_set)
-physeq <- trim_set(physeq, size >= 5)
+# phylum_set <- const_set(tax_table(GlobalPatterns), rank = "Phylum")
+# physeq <- phyloseqSet(GlobalPatterns, taxon_set = phylum_set)
+# physeq <- trim_set(physeq, size >= 5)

@@ -19,9 +19,12 @@ status](http://www.bioconductor.org/shields/build/release/bioc/teaR.svg)](https:
 ### Quang Nguyen
 
 The `teaR` package provides basic functionality to perform taxonomic
-enrichment analysis in R. This package mainly supports the `cILR`
-method, but also supports additional approaches from the gene set
-testing literature. **This package is under active development**
+enrichment analysis in R. This package mainly supports the `CBEA`
+method, and provides additional support for generating sets for analyses
+using approaches commonly used in the gene set testing literature.
+**This package is under ongoing development and might not be stable at
+the moment. Only install the development version if R CMD CHECK badge is
+green (passed)**
 
 ### Installation
 
@@ -37,9 +40,4 @@ devtools::install_github("qpmnguyen/teaR")
 -   Supports the currently under review method CBEA (Competitive
     compositional balances for enrichment analysis) formerly known as
     cILR.  
--   Converting taxonomic tables into sets in the `BiocSet` data type.  
--   Convenient interface to use other common approaches in gene set
-    analysis literature.
-    -   [ ] GSEA  
-    -   [ ] GSVA, ssGSEA, z-score, PLAGE  
-    -   [ ] ORA
+-   Converting taxonomic tables into sets in the `BiocSet` data type.

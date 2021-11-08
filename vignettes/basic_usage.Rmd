@@ -25,14 +25,12 @@ data(GlobalPatterns)
 ```
 
 We can use many ways to construct sets. The easiest way is to construct sets based on taxonomic ranks. Then we can attach these sets to a `phyloseq` object.  
-```{r const_set_rank}
+```{r const_set_rank, eval = FALSE}
 family_sets <- const_set(tax_table(GlobalPatterns), rank = "Family")
-physeq <- phyloseqSet(GlobalPatterns, taxon_set = family_sets)
-print(physeq)
 ```
 This shows that among 19216 taxa that are on hand, about 13613 taxa are part of 341 sets. The number of taxa in taxon set tables needs to be a subset of all taxa but can be smaller than the total number of taxa. This is because we can filter sets based on a variety of criteria and therefore would only use the subset of total taxa that are assigned to those sets. To filter sets, we can use the `trim_sets()` function, which can take multiple criteria as long as they have been attached to the `BiocSet` object itself. The constructor function automatically adds a `size` column to the `set` slot in the `BiocSet` object, which means that we can always filter by size. 
 
-```{r trim_set}
+```{r trim_set, eval = FALSE}
 physeq <- trim_set(physeq, size >= 5)
 physeq
 ```
@@ -41,36 +39,3 @@ The reason why `phyloseqSet` was used as the extension is that we can still appl
 
 ## Performance evaluation  
 We can assess the performance of cILR method 
-```{r}
-grid <- list(
-    n_samp = c(100,1000,10000),
-    n_tax = c(500,2500,5000)
-)
-grid <- purrr::cross_df(grid)
-grid <- tibble::add_column(grid, ids = seq(1, nrow(grid)), .before = 1)
-grid <- tibble::add_column(grid, n_sets = grid$n_tax/50, .before = 2)
-
-data <- purrr::map(1:nrow(grid), ~{ 
-    simulate_data(n_samp = grid$n_samp[.x], n_tax = grid$n_tax[.x], n_sets = grid$n_sets[.x])
-     
-})
-
-saveRDS(data, file = "../cache/data.rds")
-data <- readRDS(file = "../cache/data.rds")
-
-data <- purrr::map(data, ~{
-    .x$X <- .x$X + 1
-    return(.x)
-})
-
-results <- purrr::map_dfr(data, ~{
-    bench::mark(cilr(ab_tab = .x$X, set_list = .x$sets))
-})
-
-results
-
-```
-
-
-
-
