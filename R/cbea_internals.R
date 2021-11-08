@@ -1,30 +1,25 @@
-
-#' Enrichment analysis using competitive compositional balances (CBEA)
-#' @description This function is an independent implementation of CBEA approach (Nguyen et al. 2021+). Users can
-#'     use this approach using this function
+#' @title Internal cbea function
+#' @description See main function \code{cbea} documentation for more details.
 #' @param ab_tab Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.
 #' @param set_list List of length \code{m}. This is a list of set membership by column names.
-#' @param output String. The form of the output of the model.
-#' @param distr String. The choice of distribution for the null.
-#' @param adj Logical. Whether correlation adjustment procedure is utilized.
-#' @param thresh Numeric. Threshold for significant p-values if \code{sig} is the output.
-#' @param init Named List. Initialization parameters for estimating the null distribution. Default is NULL.
-#' @param raw Logical. Whether scores are returned as raw (no parameter estimation step). Default is FALSE.
-#' @param ... Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}
-#'
-#' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
-#'
-#' @export
+#' @param output See documentation \code{\link{cbea}}
+#' @param distr See documentation \code{\link{cbea}}
+#' @param adj See documentation \code{\link{cbea}}
+#' @param thresh See documentation \code{\link{cbea}}
+#' @param init See documentation \code{\link{cbea}}
+#' @param raw See documentation \code{\link{cbea}}
+#' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
 #' @importFrom purrr map_dfc
 #' @importFrom rlang warn abort
+#' @keywords internal
 .cbea <- function(ab_tab, set_list,
-                 output = c("cdf", "zscore", "pval", "sig"),
-                 distr = c("mnorm", "norm"),
-                 adj = TRUE,
-                 thresh = 0.05,
-                 init = NULL,
-                 raw = FALSE, ...){
+                  output = c("cdf", "zscore", "pval", "sig"),
+                  distr = c("mnorm", "norm"),
+                  adj = TRUE,
+                  thresh = 0.05,
+                  init = NULL,
+                  raw = FALSE, ...){
     # Checking for additional parameters and pass as list to estimate_distr
     additional_params <- list(...)
     if (length(additional_params) == 0){
@@ -50,6 +45,7 @@
 
     # Loop through each set
     R <- purrr::map_dfc(set_list, ~{
+        # first, retrieve indices for the set of interest
         index <- which(colnames(ab_tab) %in% .x)
         if (raw == FALSE){
             raw_scores <- get_score(ab_tab, index)
@@ -303,11 +299,11 @@ get_adj_mnorm <- function(perm, unperm, verbose = FALSE){
         return(obj)
     }
     opt <- stats::optim(par = c(0.01,0.01),
-                 obj_function,
-                 method = "L-BFGS-B",
-                 lower = c(1e-5,1e-5),
-                 upper = c(Inf, Inf),
-                 mu = perm$mu, lambda = perm$lambda, mean = perm_mean, sd = unperm_sd)
+                        obj_function,
+                        method = "L-BFGS-B",
+                        lower = c(1e-5,1e-5),
+                        upper = c(Inf, Inf),
+                        mu = perm$mu, lambda = perm$lambda, mean = perm_mean, sd = unperm_sd)
     estim_sd <- get_sd(sigma = opt$par, lambda = perm$lambda, mu = perm$mu, mean = perm_mean)
     if (verbose == TRUE){
         print(paste("Total sd is", unperm_sd,"and estimated sd is", estim_sd))
@@ -315,7 +311,3 @@ get_adj_mnorm <- function(perm, unperm, verbose = FALSE){
     param <- list(mu = perm$mu, sigma = opt$par, lambda = perm$lambda)
     return(param)
 }
-
-
-
-

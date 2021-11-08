@@ -7,7 +7,7 @@
 #' @return A numeric value of the geometric mean of the vector \code{vec}
 #' @export
 gmean <- function(vec) {
-    .Call(`_teaR_gmean`, vec)
+    .Call(`_CBEA_gmean`, vec)
 }
 
 #' Geometric mean of rows of a matrix
@@ -16,6 +16,6 @@ gmean <- function(vec) {
 #' @return A numeric vector of the geometric mean of the matrix \code{X} with length \code{n}
 #' @export
 gmeanRow <- function(X) {
-    .Call(`_teaR_gmeanRow`, X)
+    .Call(`_CBEA_gmeanRow`, X)
 }
 

@@ -9,3 +9,4 @@
 ^doc$
 ^Meta$
 cache/
+^data-raw$

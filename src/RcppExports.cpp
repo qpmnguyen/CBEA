@@ -5,9 +5,14 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // gmean
 double gmean(NumericVector vec);
-RcppExport SEXP _teaR_gmean(SEXP vecSEXP) {
+RcppExport SEXP _CBEA_gmean(SEXP vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,7 +23,7 @@ END_RCPP
 }
 // gmeanRow
 DoubleVector gmeanRow(NumericMatrix X);
-RcppExport SEXP _teaR_gmeanRow(SEXP XSEXP) {
+RcppExport SEXP _CBEA_gmeanRow(SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,12 +34,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_teaR_gmean", (DL_FUNC) &_teaR_gmean, 1},
-    {"_teaR_gmeanRow", (DL_FUNC) &_teaR_gmeanRow, 1},
+    {"_CBEA_gmean", (DL_FUNC) &_CBEA_gmean, 1},
+    {"_CBEA_gmeanRow", (DL_FUNC) &_CBEA_gmeanRow, 1},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_teaR(DllInfo *dll) {
+RcppExport void R_init_CBEA(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

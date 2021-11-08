@@ -3,6 +3,7 @@
 \name{const_set}
 \alias{const_set}
 \alias{const_set,phyloseq-method}
+\alias{const_set,TreeSummarizedExperiment-method}
 \alias{const_set,matrix-method}
 \alias{const_set,data.frame-method}
 \title{Construct sets from objects}
@@ -10,6 +11,8 @@
 const_set(obj, ...)
 
 \S4method{const_set}{phyloseq}(obj, rank)
+
+\S4method{const_set}{TreeSummarizedExperiment}(obj, rank)
 
 \S4method{const_set}{matrix}(obj)
 
@@ -20,7 +23,7 @@ const_set(obj, ...)
 
 \item{...}{Additional arguments to be passed}
 
-\item{rank}{(Character). Restrict sets to certain taxonomic ranks.}
+\item{rank}{String. Restrict sets to certain taxonomic ranks.}
 }
 \description{
 This function allows the construction of taxa sets of
@@ -30,7 +33,9 @@ This function allows the construction of taxa sets of
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{phyloseq}: convert taxonomyTable to \code{BiocSet}
+\item \code{phyloseq}: convert \code{phyloseq} to \code{BiocSet}
+
+\item \code{TreeSummarizedExperiment}: Convert taxonomic tables from TreeSummarizedExperiment to BiocSet
 
 \item \code{matrix}: Convert membership (or logical) matrix to \code{BiocSet}
 
