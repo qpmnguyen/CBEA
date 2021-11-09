@@ -8,26 +8,21 @@
 #' @param thresh See documentation \code{\link{cbea}}
 #' @param init See documentation \code{\link{cbea}}
 #' @param raw See documentation \code{\link{cbea}}
+#' @param control See documentation \code{\link{cbea}}
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
 #' @importFrom purrr map_dfc
 #' @importFrom rlang warn abort
 #' @keywords internal
 .cbea <- function(ab_tab, set_list,
-                  output = c("cdf", "zscore", "pval", "sig"),
-                  distr = c("mnorm", "norm"),
+                  output, distr,
                   adj = TRUE,
                   thresh = 0.05,
                   init = NULL,
-                  raw = FALSE, ...){
-    # Checking for additional parameters and pass as list to estimate_distr
-    additional_params <- list(...)
-    if (length(additional_params) == 0){
-        additional_params <- NULL
-    }
+                  raw = FALSE, control = NULL, ...){
     # check arguments
-    output <- match.arg(output)
-    distr <- match.arg(distr)
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm"))
     # check input
     if (!is.matrix(ab_tab)){
         rlang::warn("Coercing OTU/ASV table into matrix format")
@@ -52,8 +47,10 @@
             perm_scores <- get_score(ab_perm, index)
             if (adj == TRUE){
                 # estimate perm and unperm distributions
-                perm_distr <- estimate_distr(perm_scores, distr = distr, init = init, args_list = additional_params)
-                unperm_distr <- estimate_distr(raw_scores, distr = distr, init = init, args_list = additional_params)
+                perm_distr <- estimate_distr(perm_scores, distr = distr, init = init,
+                                             args_list = control)
+                unperm_distr <- estimate_distr(raw_scores, distr = distr, init = init,
+                                               args_list = control)
                 # combine them into one final distribution
                 final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr)
             } else {
@@ -91,8 +88,8 @@ get_score <- function(X, idx){
     size <- length(idx)
     scale <- sqrt(size * (p - size)/p)
     # calculate geometric mean
-    num <- gmeanRow(X[,idx])
-    denom <- gmeanRow(X[,-idx])
+    num <- gmeanRow(as.matrix(X[,idx]))
+    denom <- gmeanRow(as.matrix(X[,-idx]))
     # return the ilr like statistic
     return(scale*(log(num/denom)))
 }

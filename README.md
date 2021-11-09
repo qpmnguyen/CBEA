@@ -22,9 +22,10 @@ The `CBEA` package provides basic functionality to perform taxonomic
 enrichment analysis in R. This package mainly supports the `CBEA`
 method, and provides additional support for generating sets for analyses
 using approaches commonly used in the gene set testing literature.
+
 **This package is under ongoing development and might not be stable at
 the moment. Only install the development version if R CMD CHECK badge is
-green (passed)**
+green (passed).**
 
 ### Installation
 

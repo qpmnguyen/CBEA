@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(CBEA)
 library(phyloseq)
+library(tidyverse, quietly = TRUE)
+library(BiocSet)
 ```
 
 ## Loading sample data  
@@ -50,6 +52,9 @@ Applying `cbea` is one command:
 results <- cbea(abun, set = genus_sets, output = "cdf", distr = "norm", adj = TRUE, thresh = 0.05)
 head(results)
 ```
+
+There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `fitdistrplus` and `mixtools` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument. 
+
 ## Session Info 
 ```{r session-info, eval=TRUE, echo=FALSE}
 sessionInfo()

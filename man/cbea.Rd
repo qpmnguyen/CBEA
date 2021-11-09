@@ -9,36 +9,39 @@
 cbea(
   obj,
   set,
-  output = c("cdf", "zscore", "pval", "sig"),
-  distr = c("mnorm", "norm"),
+  output,
+  distr,
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
   raw = FALSE,
+  control = NULL,
   ...
 )
 
 \S4method{cbea}{phyloseq}(
   obj,
   set,
-  output = c("cdf", "zscore", "pval", "sig"),
-  distr = c("mnorm", "norm"),
+  output,
+  distr,
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
   raw = FALSE,
+  control = NULL,
   ...
 )
 
 \S4method{cbea}{TreeSummarizedExperiment}(
   obj,
   set,
-  output = c("cdf", "zscore", "pval", "sig"),
-  distr = c("mnorm", "norm"),
+  output,
+  distr,
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
   raw = FALSE,
+  control = NULL,
   ...
 )
 }

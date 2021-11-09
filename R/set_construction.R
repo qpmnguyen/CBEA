@@ -31,7 +31,6 @@ setMethod("const_set", "phyloseq", function(obj, rank){
 #' @importFrom SummarizedExperiment rowData
 #' @export
 setMethod("const_set", "TreeSummarizedExperiment", function(obj, rank){
-  #TODO: Replace abun with object
   table <- SummarizedExperiment::rowData(obj)
   if (!rank %in% colnames(table)){
     stop("Specified rank is not part of the taxonomic table")

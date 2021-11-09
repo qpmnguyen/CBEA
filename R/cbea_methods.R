@@ -19,19 +19,21 @@ NULL
 
 #' @rdname cbea
 setGeneric("cbea", function(obj, set,
-                            output = c("cdf", "zscore", "pval", "sig"),
-                            distr = c("mnorm", "norm"),
+                            output,
+                            distr,
                             adj = FALSE, thresh = 0.05,
-                            init = NULL, raw = FALSE, ...) standardGeneric("cbea"), signature = "obj")
+                            init = NULL, raw = FALSE, control = NULL, ...) standardGeneric("cbea"), signature = "obj")
 
 #' @rdname cbea
 #' @importClassesFrom phyloseq phyloseq
 #' @importFrom phyloseq otu_table taxa_are_rows
 setMethod("cbea", "phyloseq", function(obj, set,
-                                       output = c("cdf", "zscore", "pval", "sig"),
-                                       distr = c("mnorm", "norm"),
+                                       output,
+                                       distr,
                                        adj = FALSE, thresh = 0.05,
-                                       init = NULL, raw = FALSE, ...){
+                                       init = NULL, raw = FALSE, control = NULL, ...){
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm"))
     tab <- phyloseq::otu_table(obj)
     tab <- as(tab, "matrix")
 
@@ -46,7 +48,7 @@ setMethod("cbea", "phyloseq", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(ab_tab = tab, set_list = set_list, output = output,
                    distr = distr, adj = adj, thresh = thresh, init = init,
-                   raw = raw, ...)
+                   raw = raw, control = control, ...)
     return(model)
 })
 
@@ -54,10 +56,12 @@ setMethod("cbea", "phyloseq", function(obj, set,
 #' @importClassesFrom TreeSummarizedExperiment TreeSummarizedExperiment
 #' @import TreeSummarizedExperiment
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
-                                                       output = c("cdf", "zscore", "pval", "sig"),
-                                                       distr = c("mnorm", "norm"),
+                                                       output,
+                                                       distr,
                                                        adj = FALSE, thresh = 0.05,
-                                                       init = NULL, raw = FALSE, ...){
+                                                       init = NULL, raw = FALSE, control = NULL, ...){
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm"))
     tab <- SummarizedExperiment::assays(obj)[[1]]
     # TreeSummarizedExperiment data sets are always transposed
     tab <- as(tab, "matrix")
@@ -69,7 +73,7 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(ab_tab = tab, set_list = set_list, output = output,
                    distr = distr, adj = adj, thresh = thresh, init = init,
-                   raw = raw, ...)
+                   raw = raw, control = control, ...)
     return(model)
 })
 

@@ -7,12 +7,13 @@
 .cbea(
   ab_tab,
   set_list,
-  output = c("cdf", "zscore", "pval", "sig"),
-  distr = c("mnorm", "norm"),
+  output,
+  distr,
   adj = TRUE,
   thresh = 0.05,
   init = NULL,
   raw = FALSE,
+  control = NULL,
   ...
 )
 }
@@ -32,6 +33,8 @@
 \item{init}{See documentation \code{\link{cbea}}}
 
 \item{raw}{See documentation \code{\link{cbea}}}
+
+\item{control}{See documentation \code{\link{cbea}}}
 
 \item{...}{See documentation \code{\link{cbea}}}
 }
