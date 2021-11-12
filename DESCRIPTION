@@ -42,7 +42,8 @@ Imports:
     lobstr,
     utils,
     MASS,
-    TreeSummarizedExperiment
+    TreeSummarizedExperiment,
+    SummarizedExperiment
 Suggests: 
     knitr,
     covr,

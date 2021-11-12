@@ -10,14 +10,15 @@
 #' @param thresh Numeric. Threshold for significant p-values if \code{sig} is the output.
 #' @param init Named List. Initialization parameters for estimating the null distribution. Default is NULL.
 #' @param raw Logical. Whether scores are returned as raw (no parameter estimation step). Default is FALSE.
-#' @param ... Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}
-#'
+#' @param control Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}
+#' @param ... Additional arguments not used at the moment.
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
 #' @name cbea
 NULL
 
 
 #' @rdname cbea
+#' @export
 setGeneric("cbea", function(obj, set,
                             output,
                             distr,
@@ -27,6 +28,7 @@ setGeneric("cbea", function(obj, set,
 #' @rdname cbea
 #' @importClassesFrom phyloseq phyloseq
 #' @importFrom phyloseq otu_table taxa_are_rows
+#' @export
 setMethod("cbea", "phyloseq", function(obj, set,
                                        output,
                                        distr,
@@ -55,6 +57,7 @@ setMethod("cbea", "phyloseq", function(obj, set,
 #' @rdname cbea
 #' @importClassesFrom TreeSummarizedExperiment TreeSummarizedExperiment
 #' @import TreeSummarizedExperiment
+#' @export
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,
                                                        distr,

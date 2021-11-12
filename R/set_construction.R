@@ -70,6 +70,7 @@ setMethod("const_set", "data.frame", function(obj){
 #' @importFrom lobstr obj_size
 #' @keywords internal
 .const_set_taxtable <- function(table, rank){
+  set <- NULL # R CMD NOTE
   id <- which(colnames(table) == rank)
   table <- as.data.frame(as(table, "matrix")[,1:id])
   # Get all names -- have to do this because sometimes different phyla might have the same
