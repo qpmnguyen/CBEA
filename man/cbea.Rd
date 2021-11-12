@@ -65,7 +65,9 @@ Taxa names must be in the same format as elements in the set.}
 
 \item{raw}{Logical. Whether scores are returned as raw (no parameter estimation step). Default is FALSE.}
 
-\item{...}{Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}}
+\item{control}{Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}}
+
+\item{...}{Additional arguments not used at the moment.}
 }
 \value{
 \code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
