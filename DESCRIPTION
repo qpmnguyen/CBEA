@@ -34,14 +34,12 @@ Imports:
     BiocSet,
     stringr,
     dplyr,
-    tidyr,
     tibble,
     mixtools,
     rlist,
     stats,
     lobstr,
     utils,
-    MASS,
     TreeSummarizedExperiment,
     SummarizedExperiment
 Suggests: 

@@ -4,7 +4,6 @@ library(tidyverse)
 library(phyloseq)
 library(TreeSummarizedExperiment)
 library(BiocSet)
-library(mia)
 
 # basic filtering
 process_16S <- function(physeq){
@@ -36,13 +35,9 @@ sub <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Subgingival Plaque" & VISI
 
 merged <- merge_phyloseq(supra, sub)
 merged <- merged %>% subset_samples(!duplicated(RSID)) %>% process_16S()
-merged_mia <- mia::makeTreeSummarizedExperimentFromPhyloseq(merged)
 metadata <- read_tsv("https://raw.githubusercontent.com/mcalgaro93/sc2meta/master/data/genera_methabolism.tsv")
 
 set <- generate_sets(merged, metadata)
 
-hmp_gingival_physeq <- list(data = merged, set=set)
-hmp_gingival_treesum <- list(data = merged_mia, set=set)
-
-usethis::use_data(hmp_gingival_physeq, overwrite = TRUE)
-usethis::use_data(hmp_gingival_treesum, overwrite = TRUE)
+hmp_gingival <- list(data = merged, set=set)
+usethis::use_data(hmp_gingival, overwrite = TRUE)

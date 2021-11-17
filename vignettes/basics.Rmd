@@ -22,11 +22,11 @@ library(phyloseq)
 ```
 
 ## Loading sample data  
-First, we can load some pre-packaged data sets contained in `CBEA`. Here we're loading the `phyloseq` version of the same data set. The `CBEA` package also supports `TreeSummarizedExperiment` objects, where the equivalent data set can be loaded via the command `data("hmp_gingival_treesum")`        
+First, we can load some pre-packaged data sets contained in `CBEA`. Here we're loading the `phyloseq` version of the same data set. The `CBEA` package also supports `TreeSummarizedExperiment` objects, where users can perform the conversion using the `mia` package.          
 ```{r load_data}
-data("hmp_gingival_physeq")
-abun <- hmp_gingival_physeq$data
-sets <- hmp_gingival_physeq$set
+data("hmp_gingival")
+abun <- hmp_gingival$data
+sets <- hmp_gingival$set
 ```
 
 ## Constructing sets from taxonomic tables  
@@ -49,8 +49,15 @@ CBEA accepts any type of sets, as long as it is in the `BiocSet` format where th
 
 Applying `cbea` is one command:  
 ```{r run_cbea, eval = TRUE}
-results <- cbea(abun, set = genus_sets, output = "cdf", distr = "norm", adj = TRUE, thresh = 0.05)
+results <- cbea(abun, set = genus_sets, 
+                output = "cdf", distr = "norm", adj = TRUE, thresh = 0.05)
 head(results)
 ```
 
 There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `fitdistrplus` and `mixtools` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument. 
+
+## Session Information 
+```{r}
+sessionInfo()
+```
+

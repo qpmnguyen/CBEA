@@ -19,6 +19,7 @@ NULL
 
 #' @rdname cbea
 #' @export
+#' @import methods
 setGeneric("cbea", function(obj, set,
                             output,
                             distr,
@@ -28,6 +29,7 @@ setGeneric("cbea", function(obj, set,
 #' @rdname cbea
 #' @importClassesFrom phyloseq phyloseq
 #' @importFrom phyloseq otu_table taxa_are_rows
+#' @import methods
 #' @export
 setMethod("cbea", "phyloseq", function(obj, set,
                                        output,
@@ -57,6 +59,7 @@ setMethod("cbea", "phyloseq", function(obj, set,
 #' @rdname cbea
 #' @importClassesFrom TreeSummarizedExperiment TreeSummarizedExperiment
 #' @import TreeSummarizedExperiment
+#' @import methods
 #' @export
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,
