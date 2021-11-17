@@ -1,12 +1,12 @@
 #' Gingival data set from the Human Microbiome Project
-#'
+#' @usage data(hmp_gingival)
 #' @format A list with two elements
 #' \describe{
 #'     \item{data}{The microbiome relative abundance data with relevant metadata
-#'         obtained from the Human Microbiome Project via the \code{HMP16SData} package.
-#'         The data set is hosted either in the container of type \code{phyloseq} or
-#'         \code{TreeSummarizedExperiment} depending on which data is being loaded
-#'         (\code{hmp_gingival_treesum} or \code{hmp_gingival_physeq})}
+#'         obtained from the Human Microbiome Project via the \code{HMP16SData} package (snapshot: 11-15-2021).
+#'         The data set is hosted the container of type \code{phyloseq}. Using the
+#'         \code{mia} package users can convert it to the \code{TreeSummarizedExperiment}
+#'         type.}
 #'     \item{set}{Sets of microbes based on their metabolism annotation at the Genera level.
 #'         Annotations obtained via Calagaro et al.'s repository on Zenodo
 #'         (\url{https://doi.org/10.5281/zenodo.3942108})}
@@ -26,11 +26,4 @@
 #' @references Schiffer L, Azhar R, Shepherd L, Ramos M, Geistlinger L, Huttenhower C, et al.
 #'    HMP16SData: Efficient Access to the Human Microbiome Project through
 #'    Bioconductor. American Journal of Epidemiology. 2019;doi:10.1093/aje/kwz006.
-#' @name gingival_data
-NULL
-
-#' @describeIn gingival_data \code{TreeSummarizedExperiment} version
-"hmp_gingival_treesum"
-
-#' @describeIn gingival_data \code{phyloseq} version
-"hmp_gingival_physeq"
+"hmp_gingival"

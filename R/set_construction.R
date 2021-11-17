@@ -6,12 +6,14 @@
 #' @param obj Object to convert to standard sets to be used
 #' @param ... Additional arguments to be passed
 #' @export
+#' @import methods
 setGeneric("const_set", function(obj, ...) standardGeneric("const_set"), signature = "obj")
 
 #' @describeIn const_set convert \code{phyloseq} to \code{BiocSet}
 #' @param rank Character. Restrict sets to certain taxonomic ranks.
 #' @importClassesFrom phyloseq phyloseq
 #' @importFrom phyloseq tax_table
+#' @import methods
 #' @export
 setMethod("const_set", "phyloseq", function(obj, rank){
     # Avoiding no binding notes when doing R CMD CHECK for metaprogramming
@@ -29,6 +31,7 @@ setMethod("const_set", "phyloseq", function(obj, rank){
 #' @importClassesFrom TreeSummarizedExperiment TreeSummarizedExperiment
 #' @import TreeSummarizedExperiment
 #' @importFrom SummarizedExperiment rowData
+#' @import methods
 #' @export
 setMethod("const_set", "TreeSummarizedExperiment", function(obj, rank){
   table <- SummarizedExperiment::rowData(obj)
