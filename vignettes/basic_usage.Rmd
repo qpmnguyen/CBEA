@@ -1,0 +1,210 @@
+---
+title: "Basic Usage"
+author: 
+  - name: Your name
+    affiliation:
+    - Your institution
+    email: your.email@somewhere.com
+output: 
+  BiocStyle::html_document:
+    self_contained: yes
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('CBEA')`"
+vignette: >
+  %\VignetteIndexEntry{Basic Usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+)
+```
+
+
+```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
+## Track time spent on making the vignette
+startTime <- Sys.time()
+
+## Bib setup
+library("RefManageR")
+
+## Write bibliography information
+bib <- c(
+    R = citation(),
+    BiocStyle = citation("BiocStyle")[1],
+    knitr = citation("knitr")[1],
+    RefManageR = citation("RefManageR")[1],
+    rmarkdown = citation("rmarkdown")[1],
+    sessioninfo = citation("sessioninfo")[1],
+    testthat = citation("testthat")[1],
+    phyloseq = citation("phyloseq")[1],
+    treesummarizedexperiment = citation("TreeSummarizedExperiment")[1],
+    tidyverse = citation("tidyverse")[1],
+    mixtools = citation("mixtools")[1],
+    fitdistrplus = citation("fitdistrplus")[1],
+    CBEA = citation("CBEA")[1]
+)
+```
+
+# Basics
+
+## Install `CBEA`
+
+`R` is an open-source statistical environment which can be easily modified to enhance its functionality via packages. `r Biocpkg("CBEA")` is a `R` package available via the [Bioconductor](http://bioconductor.org) repository for packages. `R` can be installed on any operating system from [CRAN](https://cran.r-project.org/) after which you can install `r Biocpkg("CBEA")` by using the following commands in your `R` session:
+
+```{r "install", eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+      install.packages("BiocManager")
+  }
+
+BiocManager::install("CBEA")
+
+## Check that you have a valid Bioconductor installation
+BiocManager::valid()
+```
+
+## Required knowledge
+
+`r Biocpkg("CBEA")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with microbiome data sets and gene set methods. That is, packages like `r Biocpkg("TreeSummarizedExperiment")`, `r Biocpkg("phyloseq)`, and `r Biocpkg("BiocSet")`.  
+
+If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](http://lcolladotor.github.io/2014/10/16/startbioc/#.VkOKbq6rRuU).
+
+## Asking for help
+
+The best approach to ask for support for `CBEA` would be to file an issue at the GitHub [repository](https://github.com/qpmnguyen/CBEA). For any additional support you can use the [Bioconductor support site](https://support.bioconductor.org/) and use the `CBEA` tag and check [the older posts](https://support.bioconductor.org/t/CBEA/). Please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.  
+
+## Citing `CBEA`
+
+We hope that `r Biocpkg("CBEA")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
+
+```{r "citation"}
+## Citation info
+citation("CBEA")
+```
+
+# Quick start to using to `CBEA`
+
+```{r "start", message=FALSE}
+library("CBEA")
+library(BiocSet)
+library(tidyverse)
+library(phyloseq)
+```
+
+## Loading sample data  
+First, we can load some pre-packaged data sets contained in `CBEA`. Here we're loading the `phyloseq` version of the same data set. The `CBEA` package also supports `TreeSummarizedExperiment` objects, where users can perform the conversion using the `mia` package.          
+```{r load_data}
+data("hmp_gingival")
+abun <- hmp_gingival$data
+sets <- hmp_gingival$set
+```
+
+## Constructing sets from taxonomic tables  
+Taxonomic sets are custom collections of microbes and associated annotations pre-determined. There are various ways to think about constructing sets, and the most common type of sets used are based on taxonomic ranks. We can construct these sets using a convenient function `const_set`:  
+
+```{r const_set_rank, eval = TRUE}
+genus_sets <- const_set(abun, rank = "FAMILY")
+genus_sets
+```
+The construction of sets using the `const_set` function also attaches the size of the set. Using this metadata and convenient functions associated with the `BiocSet` data container, we can filter out small sets. We can see that the total number of sets and element sets have decreased since the filter.  
+```{r trim_sets, eval = TRUE}
+genus_sets <- genus_sets %>% BiocSet::filter_set(size >= 10)
+```
+
+CBEA accepts any type of sets, as long as it is in the `BiocSet` format where the elements in the sets can be matched to taxa currently in the data container of choice (`phyloseq` or `TreeSummarizedExperiment`). Users can attach any type of metadata to sets as they wish. 
+
+## Applying CBEA   
+
+`cbea` requires an object of type `phyloseq`, `TreeSummarizedExperiment`, `matrix`, or `data.frame`. For `matrix` and `data.frame` classes, it is required that taxa are columns and sample are rows. For other data containers there is an automated procedure to perform the transpose and correct for these issues. Additionally, if there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method.  
+
+Applying `cbea` is one command:  
+```{r run_cbea, eval = TRUE}
+results <- cbea(abun, set = genus_sets, 
+                output = "cdf", distr = "norm", adj = TRUE, thresh = 0.05)
+head(results)
+```
+
+There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `fitdistrplus` and `mixtools` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.   
+
+
+
+* `r Biocpkg("CBEA")` `r Citep(bib[["CBEA"]])`
+
+
+
+# Reproducibility
+
+The `r Biocpkg("CBEA")` package `r Citep(bib[["CBEA"]])` was made possible thanks to:
+
+* R `r Citep(bib[["R"]])`
+* `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
+* `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])`
+* `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`
+* `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
+* `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
+* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+
+* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+
+This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
+
+Code for creating the vignette
+
+```{r createVignette, eval=FALSE}
+## Create the vignette
+library("rmarkdown")
+system.time(render("basic_usage.Rmd", "BiocStyle::html_document"))
+
+## Extract the R code
+library("knitr")
+knit("basic_usage.Rmd", tangle = TRUE)
+```
+
+Date the vignette was generated.
+
+```{r reproduce1, echo=FALSE}
+## Date the vignette was generated
+Sys.time()
+```
+
+Wallclock time spent generating the vignette.
+
+```{r reproduce2, echo=FALSE}
+## Processing time in seconds
+totalTime <- diff(c(startTime, Sys.time()))
+round(totalTime, digits = 3)
+```
+
+`R` session information.
+
+```{r reproduce3, echo=FALSE}
+## Session info
+library("sessioninfo")
+options(width = 120)
+session_info()
+```
+
+
+
+# Bibliography
+
+This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
+with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
+
+Citations made with `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`.
+
+```{r vignetteBiblio, results = "asis", echo = FALSE, warning = FALSE, message = FALSE}
+## Print bibliography
+PrintBibliography(bib, .opts = list(hyperlink = "to.doc", style = "html"))
+```
