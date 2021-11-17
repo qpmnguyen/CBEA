@@ -9,7 +9,7 @@
 coverage](https://codecov.io/gh/qpmnguyen/CBEA/branch/master/graph/badge.svg)](https://codecov.io/gh/qpmnguyen/CBEA?branch=master)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
+[![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/CBEA)](https://CRAN.R-project.org/package=CBEA)
 [![BioC
