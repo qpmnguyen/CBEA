@@ -1,0 +1,29 @@
+pkgVer <- function(pkg) {
+    if (!exists("meta") || is.null(meta)) meta <- packageDescription(pkg)
+    ver <- meta$Version
+    paste0('https://github.com/qpmnguyen/', pkg, ' - R package version ', ver)
+}
+
+c(
+
+    bibentry(bibtype="manual",
+        title = "CBEA: R package for performing CBEA approach",
+        author = personList(
+            as.person("Quang Nguyen")
+        ),
+        year = format(Sys.Date(), "%Y"),
+        url = "http://www.bioconductor.org/packages/CBEA",
+        note = pkgVer('CBEA'),
+        doi = '10.18129/B9.bioc.CBEA'
+    ),
+    bibentry(bibtype="article",
+        title = "CBEA: Competitive balances for taxonomic enrichment analysis",
+        author = personList(
+            as.person("Quang Nguyen")
+        ),
+        year = format(Sys.Date(), "%Y"),
+        journal = "bioRxiv",
+        doi = "10.1101/TODO",
+        url = "https://www.biorxiv.org/content/10.1101/TODO"
+    )
+)
