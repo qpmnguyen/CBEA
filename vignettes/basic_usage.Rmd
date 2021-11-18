@@ -1,10 +1,21 @@
 ---
-title: "Basic Usage"
+title: "CBEA: Competitive Balances for Taxonomic Enrichment Analysis"
 author: 
-  - name: Your name
+  - name: Quang P.Nguyen
     affiliation:
-    - Your institution
-    email: your.email@somewhere.com
+    - Department of Epidemiology at Dartmouth College
+    - Department of Biomedical Data Science at Dartmouth College  
+    email: quangpmnguyen@gmail.com
+  - name: Anne G. Hoen 
+    affiliation: 
+    - Department of Epidemiology at Dartmouth College
+    - Department of Biomedical Data Science at Dartmouth College 
+    - Department of Microbiology and Immunology at Dartmouth College 
+    email: Anne.G.Hoen@Dartmouth.edu
+  - name: H. Robert Frost
+    affiliation:
+    - Department of Biomedical Data Science at Dartmouth College 
+    email: Hildreth.R.Frost@Dartmouth.edu  
 output: 
   BiocStyle::html_document:
     self_contained: yes
@@ -73,7 +84,7 @@ BiocManager::valid()
 
 ## Required knowledge
 
-`r Biocpkg("CBEA")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with microbiome data sets and gene set methods. That is, packages like `r Biocpkg("TreeSummarizedExperiment")`, `r Biocpkg("phyloseq)`, and `r Biocpkg("BiocSet")`.  
+`r Biocpkg("CBEA")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with microbiome data sets and gene set methods. That is, packages like `r Biocpkg("TreeSummarizedExperiment")`, `r Biocpkg("phyloseq")`, and `r Biocpkg("BiocSet")`.  
 
 If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](http://lcolladotor.github.io/2014/10/16/startbioc/#.VkOKbq6rRuU).
 
@@ -90,7 +101,7 @@ We hope that `r Biocpkg("CBEA")` will be useful for your research. Please use th
 citation("CBEA")
 ```
 
-# Quick start to using to `CBEA`
+# Using `CBEA`
 
 ```{r "start", message=FALSE}
 library("CBEA")
@@ -100,7 +111,7 @@ library(phyloseq)
 ```
 
 ## Loading sample data  
-First, we can load some pre-packaged data sets contained in `CBEA`. Here we're loading the `phyloseq` version of the same data set. The `CBEA` package also supports `TreeSummarizedExperiment` objects, where users can perform the conversion using the `mia` package.          
+First, we can load some pre-packaged data sets contained in `r Biocpkg("CBEA")`. Here we're loading the data from the Human Microbiome Project (HMP) in `phyloseq` data container from the `r Biocpkg("phyloseq")` package. The `r Biocpkg("CBEA")` package also supports `TreeSummarizedExperiment` objects from the `r Biocpkg("TreeSummarizedExperiment")` package, where users can perform the conversion using the `r Biocpkg("mia")`` package.          
 ```{r load_data}
 data("hmp_gingival")
 abun <- hmp_gingival$data
@@ -114,7 +125,8 @@ Taxonomic sets are custom collections of microbes and associated annotations pre
 genus_sets <- const_set(abun, rank = "FAMILY")
 genus_sets
 ```
-The construction of sets using the `const_set` function also attaches the size of the set. Using this metadata and convenient functions associated with the `BiocSet` data container, we can filter out small sets. We can see that the total number of sets and element sets have decreased since the filter.  
+The construction of sets using the `const_set` function also attaches the size of the set. Using this metadata and convenient functions associated with the `BiocSet` data container from the `r Biocpkg("BiocSet")` package, we can filter out small sets. We can see that the total number of sets and element sets have decreased since the filter.   
+
 ```{r trim_sets, eval = TRUE}
 genus_sets <- genus_sets %>% BiocSet::filter_set(size >= 10)
 ```
@@ -132,13 +144,7 @@ results <- cbea(abun, set = genus_sets,
 head(results)
 ```
 
-There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `fitdistrplus` and `mixtools` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.   
-
-
-
-* `r Biocpkg("CBEA")` `r Citep(bib[["CBEA"]])`
-
-
+There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.   
 
 # Reproducibility
 
@@ -151,11 +157,11 @@ The `r Biocpkg("CBEA")` package `r Citep(bib[["CBEA"]])` was made possible thank
 * `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
 * `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
 * `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
-
-* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
-* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
-* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
-* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+* `r CRANpkg("mixtools")` `r Citep(bib[["mixtools"]])`
+* `r CRANpkg("fitdistrplus")` `r Citep(bib[["fitdistrplus"]])`
+* `r CRANpkg("tidyverse")` `r Citep(bib[["tidyverse"]])`
+* `r Biocpkg("BiocSet")` `r Citep(bib[["BiocSet"]])`
+* `r Biocpkg("phyloseq")` `r Citep(bib[["phyloseq"]])`
 
 This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
 
