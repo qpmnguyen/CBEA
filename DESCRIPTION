@@ -8,11 +8,12 @@ Authors@R:
            role = c("aut", "cre"),
            email = "quangpmnguyen@gmail.com",
            comment = c(ORCID = "0000-0002-2072-3279"))
-Description: Taxa enrichment analysis is a set of methods used to increase interpretability and incorporate
-    prior knowledge in microbiome analyses. This package implements CBEA, a new method to perform
-    analysis at the sample level by Nguyen et al. 2021+. Additionally, this package adds support for 
-    specialized knowledge driven taxa sets, as well as a limited number of similar methods in the gene 
-    set literature. 
+Description: This package implements CBEA, a method to perform set-based analysis for
+    microbiome relative abundance data. This approach constructs a competitive balance between
+    taxa within the set and remainder taxa per sample. More details can be found in the
+    Nguyen et al. 2021+ manuscript. Additionally, this package adds support functions to help
+    users perform taxa-set enrichment analyses using existing gene set analysis methods. 
+    In the future we hope to also provide curated knowledge driven taxa sets.
 License: MIT + file LICENSE
 URL: https://github.com/qpmnguyen/CBEA
 BugReports: https://github.com/qpmnguyen/CBEA//issues
@@ -27,7 +28,7 @@ Imports:
     fitdistrplus,
     phyloseq,
     rlang,
-    Rcpp,
+    Rcpp (>= 1.0.7),
     magrittr,
     methods,
     purrr,
