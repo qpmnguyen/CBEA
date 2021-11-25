@@ -100,3 +100,20 @@ setMethod("const_set", "data.frame", function(obj){
   }
   return(sets)
 }
+
+#' @title Unify sets with data containers
+#' @description This function checks for consistencies in naming between
+#'     the data container and the set itself.
+#' @details Extracts out elements from a \code{\linkS4class{BiocSet}}
+#'     and then compares it against taxa names from the data container
+#'     (either \code{\linkS4class{phyloseq}} or \code{\linkS4class{TreeSummarizedExperiment}}).
+#'     It then removes elements from the \code{\linkS4class{BiocSet}} that are
+#'     not in the taxa_names of the data container. Throws an error if there are no
+#' @export
+#' @param obj
+#' @param set (BiocSet)
+#' @param ... Additional arguments to be passed
+#' @import methods
+setGeneric("unify_sets",
+           function(obj, set, ...) standardGeneric("unify_sets"),
+           signature = "obj")
