@@ -54,6 +54,5 @@ Suggests:
     sessioninfo
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-SystemRequirements: C++11
 Depends: 
     R (>= 4.1.0)

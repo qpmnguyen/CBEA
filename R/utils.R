@@ -73,6 +73,3 @@ get_sd <- function(sigma, mu, mean, lambda){
 get_mean <- function(mu, lambda){
     sum(lambda * mu)
 }
-
-
-
