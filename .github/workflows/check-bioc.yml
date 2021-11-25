@@ -150,7 +150,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           ## Edit below if you have any Windows system dependencies
-          echo "PATH="${RTOOLS40_HOME}\usr\bin;${PATH}" >> $GITHUB_ENV
+          ## echo "PATH="${RTOOLS40_HOME}\usr\bin;${PATH}" >> $GITHUB_ENV
           ## First refresh pacman repos
           pacman -Sy
           ## Then install
