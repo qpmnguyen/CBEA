@@ -154,7 +154,7 @@ jobs:
           ## First refresh pacman repos
           pacman -Sy
           ## Then install
-          pacman -S mingw-w64-{i686,x86_64}-glpk
+          pacman -S mingw-w64-{i686,x86_64}-glpk --noconfirm
         shell: bash
 
       - name: Install BiocManager
