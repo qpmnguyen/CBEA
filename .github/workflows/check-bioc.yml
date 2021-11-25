@@ -147,6 +147,10 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           ## Edit below if you have any Windows system dependencies
+          ## First refresh pacman repos
+          pacman -Sy
+          ## Then install
+          pacman -S mingw-w64-{i686,x86_64}-glpk
         shell: Rscript {0}
 
       - name: Install BiocManager
