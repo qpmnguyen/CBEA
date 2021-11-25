@@ -153,8 +153,10 @@ jobs:
           ## echo "PATH="${RTOOLS40_HOME}\usr\bin;${PATH}" >> $GITHUB_ENV
           ## First refresh pacman repos
           pacman -Sy
-          ## Then install
+          ## Then install glpk
           pacman -S mingw-w64-{i686,x86_64}-glpk --noconfirm
+          ## Then install libxml2
+          pacman -S mingw-w64-{i686,x86_64}-libxml2 --noconfirm
         shell: bash
 
       - name: Install BiocManager
