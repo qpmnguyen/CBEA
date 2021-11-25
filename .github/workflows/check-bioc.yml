@@ -143,6 +143,9 @@ jobs:
           ## Required for tcltk
           brew install xquartz --cask
 
+          ## Installing glpk
+          brew install glpk
+
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
         run: |
