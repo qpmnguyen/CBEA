@@ -1,17 +1,39 @@
-#TODO: Test input output type
-#TODO: Test standard errors
-#TODO: Come up with simple data sets and test for correctness
+# TODO: Test input output type
+# TODO: Test standard errors
+# TODO: Come up with simple data sets and test for correctness
+data(hmp_gingival)
+requireNamespace("mia", quietly = TRUE)
+requireNamespace("purrr", quietly = TRUE)
+library(magrittr)
 library(phyloseq)
-data(GlobalPatterns)
-requireNamespace("tidyverse", quietly = TRUE)
-# preprocess data
-GlobalPatterns <- GlobalPatterns %>%
-    filter_taxa(function(x) (sum(x > 0)/length(x)) > 0.1, TRUE ) %>%
-    filter_taxa(function(x) mean(x) >= 1e-5, TRUE) %>%
-    transform_sample_counts(function(OTU) OTU + 1)
-GlobalPatterns %>%
-    otu_table() %>% as(.,"matrix") %>% t() %>% .[,1:30]
-# generate set
-# phylum_set <- const_set(tax_table(GlobalPatterns), rank = "Phylum")
-# physeq <- phyloseqSet(GlobalPatterns, taxon_set = phylum_set)
-# physeq <- trim_set(physeq, size >= 5)
+library(BiocSet)
+
+seq <- hmp_gingival$data
+set <- hmp_gingival$set
+# for some reason makeTreeSummarizedExperimentFromPhyloseq(seq) doesn't work
+seq_ts <- TreeSummarizedExperiment::TreeSummarizedExperiment(
+  assays = otu_table(seq),
+  rowData = tax_table(seq),
+  colData = sample_data(seq)
+)
+
+seq_matrix <- as(otu_table(seq), "matrix")
+seq_df <- as.data.frame(seq_matrix)
+objects <- list(seq, seq_ts, seq_df, seq_matrix)
+names(objects) <- c("phyloseq", "ts", "df", "matrix")
+
+
+### test unify sets ------------------------------- ####
+test_that("unify_sets remove redundant elements from a set that is not part of the data", {
+  set_add <- dplyr::union(set, BiocSet::BiocSet(met1 = letters[c(1:3)], met2 = letters[c(5:7)]))
+  purrr::imap(objects, ~ {
+    if (.y %in% c("phyloseq", "ts")) {
+      set_new <- unify_sets(obj = .x, set = set_add)
+    } else {
+      set_new <- unify_sets(obj = .x, set = set_add, taxa_are_rows = TRUE)
+    }
+    print(paste("Currently at", .y))
+    expect_s4_class(set_new, "BiocSet")
+    expect_identical(object = set_new, expected = set)
+  })
+})

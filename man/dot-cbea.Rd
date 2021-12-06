@@ -38,6 +38,11 @@
 
 \item{...}{See documentation \code{\link{cbea}}}
 }
+\value{
+A \code{data.frame} of size \code{n} by \code{m}. \code{n} is the total number
+of samples and \code{m} is the total number of sets with elements represented
+in the data.
+}
 \description{
 See main function \code{cbea} documentation for more details.
 }

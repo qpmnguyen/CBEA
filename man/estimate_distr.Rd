@@ -19,6 +19,9 @@ element in the list should be a vector with length equal to the number of compon
 
 \item{...}{Other paremteres passed to fitdistrplus or normalmixEM}
 }
+\value{
+A named list with all the parameter names and values
+}
 \description{
 This function takes a numeric vector input and attempts to find the most optimal solution
 for the parameters of the distribution of choice. Right now only \code{norm} and \code{mnorm} distributions

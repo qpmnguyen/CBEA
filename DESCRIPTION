@@ -17,7 +17,7 @@ Description: This package implements CBEA, a method to perform set-based analysi
 License: MIT + file LICENSE
 URL: https://github.com/qpmnguyen/CBEA
 BugReports: https://github.com/qpmnguyen/CBEA//issues
-biocViews: Software, Microbiome, Metagenomics
+biocViews: Software, Microbiome, Metagenomics, GeneSetEnrichment
 Encoding: UTF-8
 LazyData: false
 Roxygen: list(markdown = TRUE)
@@ -51,7 +51,8 @@ Suggests:
     tidyverse,
     BiocStyle,
     RefManageR,
-    sessioninfo
+    sessioninfo,
+    mia
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 

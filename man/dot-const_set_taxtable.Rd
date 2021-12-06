@@ -11,6 +11,9 @@
 
 \item{rank}{String. The rank to extract sets from}
 }
+\value{
+An object of type \code{\linkS4class{BiocSet}}
+}
 \description{
 Internal function to construct from a tax table converted to data.frame or matrix formats
 }
