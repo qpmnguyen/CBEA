@@ -7,13 +7,24 @@
 get_score(X, idx)
 }
 \arguments{
-\item{X}{(Matrix). OTU table of matrix format where taxa are columns and samples are rows}
+\item{X}{(Matrix). OTU table of matrix format where taxa are
+columns and samples are rows}
 
-\item{idx}{(Integer vector). Vector of integers indicating the column ids of taxa in a set}
+\item{idx}{(Integer vector). Vector of integers indicating
+the column ids of taxa in a set}
 }
 \value{
-A matrix of size \code{n} by \code{1} where \code{n} is the total number of samples
+A matrix of size \code{n} by \code{1} where \code{n}
+is the total number of samples
 }
 \description{
 Get CBEA scores for a given matrix and a vector of column indices
+}
+\examples{
+data(hmp_gingival)
+seq <- hmp_gingival$data
+seq_matrix <- as(phyloseq::otu_table(seq), "matrix")
+seq_matrix <- t(seq_matrix) + 1
+rand_set <- sample(seq_len(ncol(seq_matrix)), size = 10)
+scores <- get_score(X = seq_matrix, idx = rand_set)
 }

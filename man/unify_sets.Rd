@@ -19,16 +19,19 @@ unify_sets(obj, set, ...)
 \S4method{unify_sets}{matrix}(obj, set, taxa_are_rows)
 }
 \arguments{
-\item{obj}{Data container object containing taxonomic relative abundance data with taxa and sample names}
+\item{obj}{Data container object containing taxonomic
+relative abundance data with taxa and sample names}
 
 \item{set}{(BiocSet) The set being tested against}
 
 \item{...}{Additional arguments to be passed}
 
-\item{tax_ids}{(String). Indicate column name with all the names of taxa. Can be "rownames" if
-taxa names are stored as row names. Only used if \code{taxa_are_rows = TRUE}.}
+\item{tax_ids}{(String). Indicate column name with all the names of taxa.
+If NULL, rownames will be used.
+Only used if \code{taxa_are_rows = TRUE}.}
 
-\item{taxa_are_rows}{(Logical). Indicate whether taxa are stored as rows or columns of the data.frame/matrix.}
+\item{taxa_are_rows}{(Logical). Indicate whether taxa
+are stored as rows or columns of the data.frame/matrix.}
 }
 \value{
 An object of type \code{\linkS4class{BiocSet}}
@@ -40,19 +43,33 @@ the data container and the set itself.
 \details{
 Extracts out elements from a \code{\linkS4class{BiocSet}}
 and then compares it against taxa names from the data container
-(either \code{\linkS4class{phyloseq}} or \code{\linkS4class{TreeSummarizedExperiment}}).
+(either \code{\linkS4class{phyloseq}} or
+\code{\linkS4class{TreeSummarizedExperiment}}).
 It then removes elements from the \code{\linkS4class{BiocSet}} that are
-not in the taxa_names of the data container. Throws an error if there are no elements in BiocSet that matches
+not in the taxa_names of the data container.
+Throws an error if there are no elements in BiocSet that matches
 taxa names of the data container.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{TreeSummarizedExperiment}: Unify set and data container for \code{\linkS4class{TreeSummarizedExperiment}}
+\item \code{TreeSummarizedExperiment}: Unify set and data
+container for \code{\linkS4class{TreeSummarizedExperiment}}
 
-\item \code{phyloseq}: Unify set and data container for \code{\linkS4class{phyloseq}}
+\item \code{phyloseq}: Unify set and data
+container for \code{\linkS4class{phyloseq}}
 
 \item \code{data.frame}: Unify set and data container for \code{data.frame}
 
-\item \code{matrix}: Unify set and data container for \code{\linkS4class{matrix}}
+\item \code{matrix}: Unify set and data container
+for \code{\linkS4class{matrix}}
 }}
 
+\examples{
+data(hmp_gingival)
+set <- hmp_gingival$set
+seq <- hmp_gingival$data
+# adding some random elements in some set
+set_add <- dplyr::union(set, BiocSet::BiocSet(met1 = letters[c(1:3)],
+    met2 = letters[c(5:7)]))
+set_new <- unify_sets(obj = seq, set = set_add)
+}

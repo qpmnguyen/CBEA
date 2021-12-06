@@ -2,7 +2,8 @@
 % Please edit documentation in R/set_construction.R
 \name{.const_set_taxtable}
 \alias{.const_set_taxtable}
-\title{Internal function to construct from a tax table converted to data.frame or matrix formats}
+\title{Internal function to construct from a tax table
+converted to data.frame or matrix formats}
 \usage{
 .const_set_taxtable(table, rank)
 }
@@ -15,6 +16,7 @@
 An object of type \code{\linkS4class{BiocSet}}
 }
 \description{
-Internal function to construct from a tax table converted to data.frame or matrix formats
+Internal function to construct from a tax table
+converted to data.frame or matrix formats
 }
 \keyword{internal}

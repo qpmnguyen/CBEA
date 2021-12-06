@@ -7,8 +7,13 @@ using namespace std;
 
 //' Geometric mean of a vector
 //' @param vec A vector of values with length \code{n}
-//' @description Compute geometric mean of a vector using \code{exp(mean(log(.x)))} format
-//' @return A numeric value of the geometric mean of the vector \code{vec}
+//' @description Compute geometric mean of a vector
+//'     using \code{exp(mean(log(.x)))} format
+//' @return A numeric value of the
+//'     geometric mean of the vector \code{vec}
+//' @examples
+//' ex <- abs(rnorm(10))
+//' gmean(ex)
 //' @export
 // [[Rcpp::export]]
 double gmean(NumericVector vec){
@@ -18,8 +23,14 @@ double gmean(NumericVector vec){
 
 //' Geometric mean of rows of a matrix
 //' @param X A numeric matrix with \code{n} rows and \code{p} columns
-//' @description This function computes the geometric mean by row of a numeric matrix
-//' @return A numeric vector of the geometric mean of the matrix \code{X} with length \code{n}
+//' @description This function computes the geometric
+//'     mean by row of a numeric matrix
+//' @return A numeric vector of the geometric
+//'     mean of the matrix \code{X} with length \code{n}
+//' @examples
+//' ex <- matrix(rnorm(100), nrow = 10, ncol = 10)
+//' ex <- abs(ex)
+//' gmeanRow(ex)
 //' @export
 // [[Rcpp::export]]
 DoubleVector gmeanRow(NumericMatrix X){
