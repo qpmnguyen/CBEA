@@ -10,8 +10,6 @@ coverage](https://codecov.io/gh/qpmnguyen/CBEA/branch/master/graph/badge.svg)](h
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
-[![CRAN
-status](https://www.r-pkg.org/badges/version/CBEA)](https://CRAN.R-project.org/package=CBEA)
 [![BioC
 status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA)
 <!-- badges: end -->
