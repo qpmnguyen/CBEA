@@ -2,11 +2,9 @@
 
 export(cbea)
 export(const_set)
-export(dmnorm)
 export(get_score)
 export(gmean)
 export(gmeanRow)
-export(pmnorm)
 export(unify_sets)
 exportMethods(cbea)
 exportMethods(const_set)

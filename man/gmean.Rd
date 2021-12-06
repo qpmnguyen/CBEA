@@ -10,8 +10,14 @@ gmean(vec)
 \item{vec}{A vector of values with length \code{n}}
 }
 \value{
-A numeric value of the geometric mean of the vector \code{vec}
+A numeric value of the
+geometric mean of the vector \code{vec}
 }
 \description{
-Compute geometric mean of a vector using \code{exp(mean(log(.x)))} format
+Compute geometric mean of a vector
+using \code{exp(mean(log(.x)))} format
+}
+\examples{
+ex <- abs(rnorm(10))
+gmean(ex)
 }

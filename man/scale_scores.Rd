@@ -13,15 +13,17 @@ scale_scores(
 )
 }
 \arguments{
-\item{scores}{(Numeric Vector). Raw CBEA scores generated without permutations}
+\item{scores}{(Numeric Vector). Raw CBEA scores
+generated without permutations}
 
-\item{method}{(String). The final form that the user want to return. Options include
-\code{cdf}, \code{zscore}, \code{pval} and \code{sig}.}
+\item{method}{(String). The final form that the user want to return.
+Options include \code{cdf}, \code{zscore}, \code{pval} and \code{sig}.}
 
-\item{param}{(List). The parameters of the estimated null distribution. Names must match distribution}
+\item{param}{(List). The parameters of the estimated null distribution.
+Names must match distribution}
 
-\item{thresh}{(Numeric). The threshold to decide whether a set is significantly enriched.
-Only available if \code{method} is \code{sig}}
+\item{thresh}{(Numeric). The threshold to decide whether a set
+is significantly enriched. Only available if \code{method} is \code{sig}}
 }
 \value{
 A vector of size \code{n} where \code{n} is the sample size

@@ -7,9 +7,10 @@
 get_adj_mnorm(perm, unperm, verbose = FALSE)
 }
 \arguments{
-\item{perm}{(List). Parameter values of the distribution of scores computed on permuted data}
+\item{perm}{(List). Parameter values of the distribution of scores}
 
-\item{unperm}{(List). Parameter values of the distribution of scores computed on unpermuted data}
+\item{unperm}{(List). Parameter values of the distribution of scores
+computed on unpermuted data}
 }
 \value{
 A List of parameters for the adjusted mixture normal.

@@ -146,6 +146,20 @@ head(results)
 
 There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.   
 
+# Additional considerations  
+
+## Constructing sets from other sources  
+
+Users would want to consider utilizing different types of sets that is not from the taxonomic table. CBEA's `const_set` function also supports two additional sources: `data.frame` and `matrix`. These signatures correspond to specific types of formats that can be converted to `BiocSet`.   
+
+* `data.frame` is expected to be an element-set data frame containing a column of taxonomic names (equivalent to `taxa_names` from a `phyloseq` object), and a column of set assignment  
+* `matrix` is expected to be a dummy matrix (of only 1 and 0s) of taxa as rows (or columns) and sets as columns (or rows)  
+
+## Making sure all elements are represented in the data frame 
+
+`CBEA` extracts sub-matrices by matching taxa by names that are assigned to that set. As such, an error would be thrown if a set contains taxa that were not part of the data object. The function `unify_sets` can perform a check to "unify" the elements in the set with the taxa in the data object. It would prune out elements (or entire sets) if they did not exist as part of the data object. This is an issue that is more commonly found when users attempt to use custom sets.  
+
+
 # Reproducibility
 
 The `r Biocpkg("CBEA")` package `r Citep(bib[["CBEA"]])` was made possible thanks to:

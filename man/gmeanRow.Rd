@@ -10,8 +10,15 @@ gmeanRow(X)
 \item{X}{A numeric matrix with \code{n} rows and \code{p} columns}
 }
 \value{
-A numeric vector of the geometric mean of the matrix \code{X} with length \code{n}
+A numeric vector of the geometric
+mean of the matrix \code{X} with length \code{n}
 }
 \description{
-This function computes the geometric mean by row of a numeric matrix
+This function computes the geometric
+mean by row of a numeric matrix
+}
+\examples{
+ex <- matrix(rnorm(100), nrow = 10, ncol = 10)
+ex <- abs(ex)
+gmeanRow(ex)
 }

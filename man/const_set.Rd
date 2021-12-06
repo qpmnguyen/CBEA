@@ -25,7 +25,8 @@ const_set(obj, ...)
 
 \item{rank}{String. Restrict sets to certain taxonomic ranks.}
 
-\item{sets_are_rows}{(Logical). Indicate whether sets are rows or as columns. Affect set names}
+\item{sets_are_rows}{(Logical). Indicate whether sets are
+rows or as columns. Affect set names.}
 
 \item{id}{String. Indicates which columns are taxa ids}
 
@@ -42,18 +43,31 @@ This function allows the construction of taxa sets of
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{phyloseq}: Convert taxonomic tables from \code{\linkS4class{phyloseq}} to \code{\linkS4class{BiocSet}}
+\item \code{phyloseq}: Convert taxonomic tables from
+\code{\linkS4class{phyloseq}} to \code{\linkS4class{BiocSet}}
 from a certain rank.
 
-\item \code{TreeSummarizedExperiment}: Convert taxonomic tables from \code{\linkS4class{TreeSummarizedExperiment}} to \code{\linkS4class{BiocSet}}
+\item \code{TreeSummarizedExperiment}: Convert taxonomic tables
+from \code{\linkS4class{TreeSummarizedExperiment}}
+to \code{\linkS4class{BiocSet}}
 from a certain rank.
 
-\item \code{matrix}: Convert membership (or logical) matrix to \code{BiocSet}.
-This matrix is a matrix of 1 or 0s indicating membership of taxa (as row or column names)
+\item \code{matrix}: Convert membership (or logical)
+matrix to \code{BiocSet}.
+This matrix is a matrix of 1 or 0s indicating membership of
+taxa (as row or column names)
 with relevant sets (as row or column names)
 
-\item \code{data.frame}: Convert \code{data.frame} element set or \code{tibble} element set
-to \code{BiocSet}. We expect at least a 2-column data frame with the taxa names
+\item \code{data.frame}: Convert \code{data.frame} element set or
+\code{tibble} element set
+to \code{BiocSet}. We expect at least a 2-column
+data frame with the taxa names
 and the set names as the set-membership identifiers.
 }}
 
+\examples{
+data(hmp_gingival)
+seq <- hmp_gingival$data
+# Constructing set using taxonomic table
+set_phylum <- const_set(obj = seq, rank = "PHYLUM")
+}
