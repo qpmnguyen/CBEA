@@ -14,9 +14,9 @@ const_set(obj, ...)
 
 \S4method{const_set}{TreeSummarizedExperiment}(obj, rank)
 
-\S4method{const_set}{matrix}(obj)
+\S4method{const_set}{matrix}(obj, sets_are_rows = FALSE)
 
-\S4method{const_set}{data.frame}(obj)
+\S4method{const_set}{data.frame}(obj, id, member)
 }
 \arguments{
 \item{obj}{Object to convert to standard sets to be used}
@@ -24,6 +24,15 @@ const_set(obj, ...)
 \item{...}{Additional arguments to be passed}
 
 \item{rank}{String. Restrict sets to certain taxonomic ranks.}
+
+\item{sets_are_rows}{(Logical). Indicate whether sets are rows or as columns. Affect set names}
+
+\item{id}{String. Indicates which columns are taxa ids}
+
+\item{member}{String. Indicate which columns connect taxa ids to set names}
+}
+\value{
+A \code{\linkS4class{BiocSet}} object
 }
 \description{
 This function allows the construction of taxa sets of
@@ -33,13 +42,18 @@ This function allows the construction of taxa sets of
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{phyloseq}: convert \code{phyloseq} to \code{BiocSet}
+\item \code{phyloseq}: Convert taxonomic tables from \code{\linkS4class{phyloseq}} to \code{\linkS4class{BiocSet}}
+from a certain rank.
 
-\item \code{TreeSummarizedExperiment}: Convert taxonomic tables from TreeSummarizedExperiment to BiocSet
+\item \code{TreeSummarizedExperiment}: Convert taxonomic tables from \code{\linkS4class{TreeSummarizedExperiment}} to \code{\linkS4class{BiocSet}}
+from a certain rank.
 
-\item \code{matrix}: Convert membership (or logical) matrix to \code{BiocSet}
+\item \code{matrix}: Convert membership (or logical) matrix to \code{BiocSet}.
+This matrix is a matrix of 1 or 0s indicating membership of taxa (as row or column names)
+with relevant sets (as row or column names)
 
-\item \code{data.frame}: Convert \code{data.frame} membership or \code{tibble} to
-\code{BiocSet}
+\item \code{data.frame}: Convert \code{data.frame} element set or \code{tibble} element set
+to \code{BiocSet}. We expect at least a 2-column data frame with the taxa names
+and the set names as the set-membership identifiers.
 }}
 

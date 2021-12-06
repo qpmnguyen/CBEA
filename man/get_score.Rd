@@ -11,6 +11,9 @@ get_score(X, idx)
 
 \item{idx}{(Integer vector). Vector of integers indicating the column ids of taxa in a set}
 }
+\value{
+A matrix of size \code{n} by \code{1} where \code{n} is the total number of samples
+}
 \description{
 Get CBEA scores for a given matrix and a vector of column indices
 }

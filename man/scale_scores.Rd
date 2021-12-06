@@ -23,6 +23,9 @@ scale_scores(
 \item{thresh}{(Numeric). The threshold to decide whether a set is significantly enriched.
 Only available if \code{method} is \code{sig}}
 }
+\value{
+A vector of size \code{n} where \code{n} is the sample size
+}
 \description{
 Scaling scores based on estimated null distribution
 }
