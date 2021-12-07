@@ -51,8 +51,7 @@ Suggests:
     tidyverse,
     BiocStyle,
     RefManageR,
-    sessioninfo,
-    mia
+    sessioninfo
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 

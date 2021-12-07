@@ -2,11 +2,11 @@
 # TODO: Test standard errors
 # TODO: Come up with simple data sets and test for correctness
 data(hmp_gingival)
-requireNamespace("mia", quietly = TRUE)
 requireNamespace("purrr", quietly = TRUE)
 library(magrittr)
 library(phyloseq)
 library(BiocSet)
+library(TreeSummarizedExperiment)
 
 seq <- hmp_gingival$data
 set <- hmp_gingival$set
