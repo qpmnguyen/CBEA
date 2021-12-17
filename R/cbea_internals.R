@@ -52,7 +52,7 @@
                 # only estimate the distribution from the permuted data
                 final_distr <- estimate_distr(perm_scores, distr = distr,
                                                   init = init,
-                                                  args_list = additional_params)
+                                                  args_list = control)
             }
             # have to scale scores if raw is false
             scores <- scale_scores(raw_scores, method = output,
