@@ -1,6 +1,6 @@
 Package: CBEA
 Title: Competitive Balances for Taxonomic Enrichment Analysis in R
-Version: 0.99.0
+Version: 0.99.1
 Date: 2021-05-20
 Authors@R: 
     person(given = "Quang",
@@ -17,7 +17,7 @@ Description: This package implements CBEA, a method to perform set-based analysi
 License: MIT + file LICENSE
 URL: https://github.com/qpmnguyen/CBEA
 BugReports: https://github.com/qpmnguyen/CBEA//issues
-biocViews: Software, Microbiome, Metagenomics
+biocViews: Software, Microbiome, Metagenomics, GeneSetEnrichment
 Encoding: UTF-8
 LazyData: false
 Roxygen: list(markdown = TRUE)

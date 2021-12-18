@@ -18,9 +18,11 @@
 )
 }
 \arguments{
-\item{ab_tab}{Named \code{n} by \code{p} matrix. This is the OTU/ASV/Strain table where taxa are columns.}
+\item{ab_tab}{Named \code{n} by \code{p} matrix.
+This is the OTU/ASV/Strain table where taxa are columns.}
 
-\item{set_list}{List of length \code{m}. This is a list of set membership by column names.}
+\item{set_list}{List of length \code{m}.
+This is a list of set membership by column names.}
 
 \item{output}{See documentation \code{\link{cbea}}}
 
@@ -37,6 +39,11 @@
 \item{control}{See documentation \code{\link{cbea}}}
 
 \item{...}{See documentation \code{\link{cbea}}}
+}
+\value{
+A \code{data.frame} of size \code{n} by \code{m}.
+\code{n} is the total number of samples and \code{m}
+is the total number of sets with elements represented in the data.
 }
 \description{
 See main function \code{cbea} documentation for more details.

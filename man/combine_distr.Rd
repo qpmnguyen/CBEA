@@ -14,9 +14,11 @@ combine_distr(perm, unperm, distr)
 \item{distr}{(String). Distribution of choice}
 }
 \value{
-A list of the combined distribution form based on the initial distribution of choice
+A list of the combined distribution form based on
+the initial distribution of choice
 }
 \description{
-Pass along handling of combining distributions to avoid clogging up the main function
+Pass along handling of combining distributions to avoid
+clogging up the main function
 }
 \keyword{internal}

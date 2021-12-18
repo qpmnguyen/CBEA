@@ -2,7 +2,8 @@
 % Please edit documentation in R/utils.R
 \name{get_sd}
 \alias{get_sd}
-\title{Get the overall standard deviation of a two component mixture distribution}
+\title{Get the overall standard deviation of a
+two component mixture distribution}
 \usage{
 get_sd(sigma, mu, mean, lambda)
 }
@@ -19,6 +20,7 @@ get_sd(sigma, mu, mean, lambda)
 A numeric value representing the overall standard deviation
 }
 \description{
-Get the overall standard deviation of a two component mixture distribution
+Get the overall standard deviation of a
+two component mixture distribution
 }
 \keyword{internal}

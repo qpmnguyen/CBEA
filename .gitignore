@@ -7,3 +7,8 @@ inst/doc
 /Meta/
 cache/
 renv/
+src/*.o
+src/*.so
+src/*.dll
+.DS_Store
+*.Rproj

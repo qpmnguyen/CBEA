@@ -4,6 +4,8 @@
 \alias{cbea}
 \alias{cbea,phyloseq-method}
 \alias{cbea,TreeSummarizedExperiment-method}
+\alias{cbea,data.frame-method}
+\alias{cbea,matrix-method}
 \title{Enrichment analysis using competitive compositional balances (CBEA)}
 \usage{
 cbea(
@@ -44,34 +46,82 @@ cbea(
   control = NULL,
   ...
 )
+
+\S4method{cbea}{data.frame}(
+  obj,
+  set,
+  output,
+  distr,
+  adj = FALSE,
+  thresh = 0.05,
+  init = NULL,
+  raw = FALSE,
+  control = NULL,
+  taxa_are_rows = FALSE,
+  ...
+)
+
+\S4method{cbea}{matrix}(
+  obj,
+  set,
+  output,
+  distr,
+  adj = FALSE,
+  thresh = 0.05,
+  init = NULL,
+  raw = FALSE,
+  control = NULL,
+  taxa_are_rows = FALSE,
+  ...
+)
 }
 \arguments{
-\item{obj}{The element of class \code{TreeSummarizedExperiment}, \code{phyloseq}, \code{data.frame},
-or \code{matrix}}
+\item{obj}{The element of class \code{TreeSummarizedExperiment},
+\code{phyloseq}, \code{data.frame}, or \code{matrix}}
 
-\item{set}{\code{BiocSet}. Sets to be tested for enrichment in the \code{BiocSet} format.
-Taxa names must be in the same format as elements in the set.}
+\item{set}{\code{BiocSet}. Sets to be tested for
+enrichment in the \code{BiocSet}
+format. Taxa names must be in the same format
+as elements in the set.}
 
-\item{output}{String. The form of the output of the model. Has to be either \code{zscore},
+\item{output}{(String). The form of the output of the model.
+Has to be either \code{zscore},
 \code{cdf}, \code{zscore}, \code{pval}, \code{sig}}
 
-\item{distr}{String. The choice of distribution for the null.}
+\item{distr}{(String). The choice of distribution for the null.}
 
-\item{adj}{Logical. Whether correlation adjustment procedure is utilized.}
+\item{adj}{(Logical). Whether correlation adjustment procedure is utilized.}
 
-\item{thresh}{Numeric. Threshold for significant p-values if \code{sig} is the output.}
+\item{thresh}{(Numeric). Threshold for significant p-values if \code{sig}
+is the output.}
 
-\item{init}{Named List. Initialization parameters for estimating the null distribution. Default is NULL.}
+\item{init}{(Named List). Initialization parameters
+for estimating the null distribution.
+Default is
+NULL.}
 
-\item{raw}{Logical. Whether scores are returned as raw (no parameter estimation step). Default is FALSE.}
+\item{raw}{(Logical). Whether scores are returned as raw
+(no parameter estimation step). Default is FALSE.}
 
-\item{control}{Named List. Additional arguments to be passed to \code{fitdistr} and \code{normmixEM}}
+\item{control}{(Named List). Additional arguments to be passed to
+\code{fitdistr} and \code{normmixEM}}
 
 \item{...}{Additional arguments not used at the moment.}
+
+\item{taxa_are_rows}{(Logical). Indicate whether the data frame
+or matrix has taxa as rows}
 }
 \value{
-\code{R}    An \code{n} by \code{m} matrix of enrichment scores at the sample level
+\code{R}    An \code{n} by \code{m} matrix of enrichment scores at
+the sample level
 }
 \description{
 Enrichment analysis using competitive compositional balances (CBEA)
+}
+\examples{
+data(hmp_gingival)
+seq <- hmp_gingival$data
+set <- hmp_gingival$set
+mod <- cbea(obj = seq, set = set, output = "zscore", distr = "norm",
+    adj = TRUE, thresh = 0.05)
 }

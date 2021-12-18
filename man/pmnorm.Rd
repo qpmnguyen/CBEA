@@ -22,6 +22,10 @@ dmnorm(x, mu, sigma, lambda, log = FALSE, verbose = FALSE)
 
 \item{verbose}{(Boolean). Whether to return component values.}
 }
+\value{
+A numeric value representing the probability
+density value of a two-component mixture distribution
+}
 \description{
 The Two Component Mixture Normal Distribution
 }

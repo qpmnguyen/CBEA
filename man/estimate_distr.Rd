@@ -7,28 +7,41 @@
 estimate_distr(data, distr = c("mnorm", "norm"), init = NULL, args_list = NULL)
 }
 \arguments{
-\item{data}{(Numeric Vector). A vector of numbers that can be inputted to estimate the
-parameters of the distributional forms.}
+\item{data}{(Numeric Vector). A vector of numbers that can be inputted
+to estimate the parameters of the distributional forms.}
 
-\item{distr}{(String). The distribution to be fitted. Right now only \code{norm} or \code{mnorm} is supported}
+\item{distr}{(String). The distribution to be fitted.
+Right now only \code{norm} or \code{mnorm} is supported}
 
-\item{init}{(List). Initialization parameters for each distribution. For mixtures, each named
-element in the list should be a vector with length equal to the number of components}
+\item{init}{(List). Initialization parameters for each distribution.
+For mixtures, each named element in the list should be a vector
+with length equal to the number of components}
 
-\item{args_list}{(List). Named list of additional arguments passed onto fitdist and normalmixEM}
+\item{args_list}{(List). Named list of additional arguments
+passed onto fitdist and normalmixEM}
 
 \item{...}{Other paremteres passed to fitdistrplus or normalmixEM}
 }
+\value{
+A named list with all the parameter names and values
+}
 \description{
-This function takes a numeric vector input and attempts to find the most optimal solution
-for the parameters of the distribution of choice. Right now only \code{norm} and \code{mnorm} distributions
+This function takes a numeric vector input and
+attempts to find the most optimal solution
+for the parameters of the distribution of choice.
+Right now only \code{norm} and \code{mnorm} distributions
 are supported.
 }
 \details{
-The package \code{\link[fitdistrplus]{fitdistrplus}} is used to estimate parameters of the normal distribution
-while the package \code{\link[mixtools]{normalmixEM}} is used to estimate parameters of the mixture normal
-distribution. So far we suggest only estimating two components for the mixture normal distribution.
-For default options, we use mostly defaults from the packages themselves. The only difference was the mixture normal distribution
-where the convergence parameters were loosened and requiring more iterations to converge.
+The package \code{\link[fitdistrplus]{fitdistrplus}} is used to
+estimate parameters of the normal distribution
+while the package \code{\link[mixtools]{normalmixEM}} is used to
+estimate parameters of the mixture normal distribution.
+So far we suggest only estimating two components for the mixture
+normal distribution.
+For default options, we use mostly defaults from the packages themselves.
+The only difference was the mixture normal distribution
+where the convergence parameters were loosened and requiring
+more iterations to converge.
 }
 \keyword{internal}
