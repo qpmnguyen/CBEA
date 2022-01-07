@@ -1,4 +1,17 @@
 #' @title Enrichment analysis using competitive compositional balances (CBEA)
+#' @description \code{cbea} is used compute enrichment scores
+#'     per sample for pre-defined sets using the CBEA
+#'     (Competitive Balances for Enrichment Analysis).
+#' @details This function support different formats of the OTU table, however
+#'     for best results please use either \code{\linkS4class{TreeSummarizedExperiment}} or
+#'     \code{\linkS4class{phyloseq}}. If use \code{data.frame} or \code{matrix}, additional
+#'     arguments specifying if \code{taxa_are_rows} should be true or not. \cr
+#'     The \code{output} specifies what type of values will be returned in the final matrix.
+#'     The options \code{pval} or \code{sig} returns either unadjusted p-values or dummy variables
+#'     indicating whether a set is significantly enriched in that sample (based on \code{thresh}).
+#'     The option \code{raw} returns raw scores computed for each set without any distribution fitting
+#'     or inference procedure. Users can use this option to examine the distribution of CBEA scores
+#'     under the null.
 #' @param obj The element of class \code{TreeSummarizedExperiment},
 #'     \code{phyloseq}, \code{data.frame}, or \code{matrix}
 #' @param set \code{BiocSet}. Sets to be tested for
@@ -7,7 +20,7 @@
 #'     as elements in the set.
 #' @param output (String). The form of the output of the model.
 #'     Has to be either \code{zscore},
-#'     \code{cdf}, \code{zscore}, \code{pval}, \code{sig}
+#'     \code{cdf}, \code{raw}, \code{pval}, or \code{sig}
 #' @param distr (String). The choice of distribution for the null.
 #' @param adj (Logical). Whether correlation adjustment procedure is utilized.
 #' @param thresh (Numeric). Threshold for significant p-values if \code{sig}
@@ -16,8 +29,6 @@
 #'     for estimating the null distribution.
 #'     Default is
 #'     NULL.
-#' @param raw (Logical). Whether scores are returned as raw
-#'     (no parameter estimation step). Default is FALSE.
 #' @param control (Named List). Additional arguments to be passed to
 #'     \code{fitdistr} and \code{normmixEM}
 #' @param ... Additional arguments not used at the moment.
@@ -40,7 +51,7 @@ setGeneric("cbea", function(obj, set,
                             output,
                             distr,
                             adj = FALSE, thresh = 0.05,
-                            init = NULL, raw = FALSE, control = NULL, ...) {
+                            init = NULL, control = NULL, ...) {
   standardGeneric("cbea")
 }, signature = "obj")
 
@@ -54,9 +65,8 @@ setMethod("cbea", "phyloseq", function(obj, set,
                                        distr,
                                        adj = FALSE, thresh = 0.05,
                                        init = NULL,
-                                       raw = FALSE,
                                        control = NULL, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm"))
     tab <- phyloseq::otu_table(obj)
     tab <- as(tab, "matrix")
@@ -90,9 +100,9 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        distr,
                                                        adj = FALSE,
                                                        thresh = 0.05,
-                                                       init = NULL, raw = FALSE,
+                                                       init = NULL,
                                                        control = NULL, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm"))
     tab <- SummarizedExperiment::assays(obj)[[1]]
     # TreeSummarizedExperiment data sets are always transposed
@@ -124,10 +134,9 @@ setMethod("cbea", "data.frame", function(obj, set,
                                          adj = FALSE,
                                          thresh = 0.05,
                                          init = NULL,
-                                         raw = FALSE,
                                          control = NULL,
                                          taxa_are_rows = FALSE, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm"))
     if (taxa_are_rows == TRUE) {
         check_numeric <- vapply(tab, class)
@@ -167,9 +176,9 @@ setMethod("cbea", "matrix", function(obj, set,
                                      distr,
                                      adj = FALSE, thresh = 0.05,
                                      init = NULL,
-                                     raw = FALSE, control = NULL,
+                                     control = NULL,
                                      taxa_are_rows = FALSE, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm"))
     if (taxa_are_rows == TRUE) {
         tab <- t(tab)

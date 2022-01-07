@@ -9,7 +9,6 @@
 #' @param adj See documentation \code{\link{cbea}}
 #' @param thresh See documentation \code{\link{cbea}}
 #' @param init See documentation \code{\link{cbea}}
-#' @param raw See documentation \code{\link{cbea}}
 #' @param control See documentation \code{\link{cbea}}
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
@@ -20,12 +19,12 @@
 #'     is the total number of sets with elements represented in the data.
 #' @keywords internal
 .cbea <- function(ab_tab,
-                    set_list,
-                    output, distr,
-                    adj = TRUE,
-                    thresh = 0.05,
-                    init = NULL,
-                    raw = FALSE, control = NULL, ...) {
+                  set_list,
+                  output, distr,
+                  adj = TRUE,
+                  thresh = 0.05,
+                  init = NULL,
+                  control = NULL, ...) {
     p <- ncol(ab_tab) # number of features
     n <- nrow(ab_tab) # number of samples
     ab_perm <- ab_tab[, sample(seq_len(p), size = p, replace = FALSE)]
@@ -34,7 +33,7 @@
     R <- purrr::map_dfc(set_list, ~ {
         # first, retrieve indices for the set of interest
         index <- which(colnames(ab_tab) %in% .x)
-        if (raw == FALSE) {
+        if (output != "raw") {
             raw_scores <- get_score(ab_tab, index)
             perm_scores <- get_score(ab_perm, index)
             if (adj == TRUE) {

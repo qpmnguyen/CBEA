@@ -12,7 +12,6 @@
   adj = TRUE,
   thresh = 0.05,
   init = NULL,
-  raw = FALSE,
   control = NULL,
   ...
 )
@@ -33,8 +32,6 @@ This is a list of set membership by column names.}
 \item{thresh}{See documentation \code{\link{cbea}}}
 
 \item{init}{See documentation \code{\link{cbea}}}
-
-\item{raw}{See documentation \code{\link{cbea}}}
 
 \item{control}{See documentation \code{\link{cbea}}}
 

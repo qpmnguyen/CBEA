@@ -16,7 +16,6 @@ cbea(
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
-  raw = FALSE,
   control = NULL,
   ...
 )
@@ -29,7 +28,6 @@ cbea(
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
-  raw = FALSE,
   control = NULL,
   ...
 )
@@ -42,7 +40,6 @@ cbea(
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
-  raw = FALSE,
   control = NULL,
   ...
 )
@@ -55,7 +52,6 @@ cbea(
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
-  raw = FALSE,
   control = NULL,
   taxa_are_rows = FALSE,
   ...
@@ -69,7 +65,6 @@ cbea(
   adj = FALSE,
   thresh = 0.05,
   init = NULL,
-  raw = FALSE,
   control = NULL,
   taxa_are_rows = FALSE,
   ...
@@ -86,7 +81,7 @@ as elements in the set.}
 
 \item{output}{(String). The form of the output of the model.
 Has to be either \code{zscore},
-\code{cdf}, \code{zscore}, \code{pval}, \code{sig}}
+\code{cdf}, \code{raw}, \code{pval}, or \code{sig}}
 
 \item{distr}{(String). The choice of distribution for the null.}
 
@@ -99,9 +94,6 @@ is the output.}
 for estimating the null distribution.
 Default is
 NULL.}
-
-\item{raw}{(Logical). Whether scores are returned as raw
-(no parameter estimation step). Default is FALSE.}
 
 \item{control}{(Named List). Additional arguments to be passed to
 \code{fitdistr} and \code{normmixEM}}
@@ -116,7 +108,21 @@ or matrix has taxa as rows}
 the sample level
 }
 \description{
-Enrichment analysis using competitive compositional balances (CBEA)
+\code{cbea} is used compute enrichment scores
+per sample for pre-defined sets using the CBEA
+(Competitive Balances for Enrichment Analysis).
+}
+\details{
+This function support different formats of the OTU table, however
+for best results please use either \code{\linkS4class{TreeSummarizedExperiment}} or
+\code{\linkS4class{phyloseq}}. If use \code{data.frame} or \code{matrix}, additional
+arguments specifying if \code{taxa_are_rows} should be true or not. \cr
+The \code{output} specifies what type of values will be returned in the final matrix.
+The options \code{pval} or \code{sig} returns either unadjusted p-values or dummy variables
+indicating whether a set is significantly enriched in that sample (based on \code{thresh}).
+The option \code{raw} returns raw scores computed for each set without any distribution fitting
+or inference procedure. Users can use this option to examine the distribution of CBEA scores
+under the null.
 }
 \examples{
 data(hmp_gingival)
