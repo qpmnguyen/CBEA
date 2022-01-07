@@ -1,6 +1,6 @@
 Package: CBEA
 Title: Competitive Balances for Taxonomic Enrichment Analysis in R
-Version: 0.99.1
+Version: 0.99.2
 Date: 2021-05-20
 Authors@R: 
     person(given = "Quang",
