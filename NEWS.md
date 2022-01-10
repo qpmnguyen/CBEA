@@ -1,7 +1,7 @@
 # CBEA 0.99.2  
 NEW FEATURES  
 
-None 
+- Allow users to add options to add bootstrap resamples to the permutation procedure.  
 
 SIGNIFICANT USER-VISIBLE CHANGES  
 

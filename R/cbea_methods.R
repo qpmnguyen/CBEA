@@ -8,7 +8,8 @@
 #'     arguments specifying if \code{taxa_are_rows} should be true or not. \cr
 #'     The \code{output} specifies what type of values will be returned in the final matrix.
 #'     The options \code{pval} or \code{sig} returns either unadjusted p-values or dummy variables
-#'     indicating whether a set is significantly enriched in that sample (based on \code{thresh}).
+#'     indicating whether a set is significantly enriched in that sample (based on unadjusted
+#'     p-values thresholded at \code{thresh}).
 #'     The option \code{raw} returns raw scores computed for each set without any distribution fitting
 #'     or inference procedure. Users can use this option to examine the distribution of CBEA scores
 #'     under the null.
@@ -21,16 +22,20 @@
 #' @param output (String). The form of the output of the model.
 #'     Has to be either \code{zscore},
 #'     \code{cdf}, \code{raw}, \code{pval}, or \code{sig}
-#' @param distr (String). The choice of distribution for the null.
-#' @param adj (Logical). Whether correlation adjustment procedure is utilized.
+#' @param distr (String). The choice of distribution for the null. Can be either \code{mnorm}
+#'     (2 component mixture normal) or \code{norm} (Normal distribution).
+#' @param adj (Logical). Whether correlation adjustment procedure is utilized. Defaults to FALSE.
+#' @param n_boot (Numeric). Add bootstrap resamples to both the permuted and unpermuted data set.
+#'     This might help with stabilizing the distribution fitting procedure, especially if the sample
+#'     size is low. CBEA will throw a warning if the object size in memory of the resampled data set
+#'     is larger than 250 MiB. Defaults to 1.
 #' @param thresh (Numeric). Threshold for significant p-values if \code{sig}
-#'     is the output.
+#'     is the output. Defaults to 0.05
 #' @param init (Named List). Initialization parameters
 #'     for estimating the null distribution.
-#'     Default is
-#'     NULL.
+#'     Default is NULL.
 #' @param control (Named List). Additional arguments to be passed to
-#'     \code{fitdistr} and \code{normmixEM}
+#'     \code{fitdistr} and \code{normmixEM}. Defaults to NULL.
 #' @param ... Additional arguments not used at the moment.
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at
 #'     the sample level
@@ -50,8 +55,11 @@ NULL
 setGeneric("cbea", function(obj, set,
                             output,
                             distr,
-                            adj = FALSE, thresh = 0.05,
-                            init = NULL, control = NULL, ...) {
+                            adj = FALSE,
+                            n_boot = 1,
+                            thresh = 0.05,
+                            init = NULL,
+                            control = NULL, ...) {
   standardGeneric("cbea")
 }, signature = "obj")
 
@@ -63,7 +71,9 @@ setGeneric("cbea", function(obj, set,
 setMethod("cbea", "phyloseq", function(obj, set,
                                        output,
                                        distr,
-                                       adj = FALSE, thresh = 0.05,
+                                       adj = FALSE,
+                                       n_boot = 1,
+                                       thresh = 0.05,
                                        init = NULL,
                                        control = NULL, ...) {
     output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
@@ -84,8 +94,9 @@ setMethod("cbea", "phyloseq", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(
         ab_tab = tab, set_list = set_list, output = output,
-        distr = distr, adj = adj, thresh = thresh, init = init,
-        raw = raw, control = control, ...
+        distr = distr, adj = adj, n_boot = n_boot,
+        thresh = thresh, init = init,
+        control = control, ...
     )
     return(model)
 })
@@ -99,6 +110,7 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,
                                                        distr,
                                                        adj = FALSE,
+                                                       n_boot = 1,
                                                        thresh = 0.05,
                                                        init = NULL,
                                                        control = NULL, ...) {
@@ -117,7 +129,8 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(
         ab_tab = tab, set_list = set_list, output = output,
-        distr = distr, adj = adj, thresh = thresh, init = init,
+        distr = distr, adj = adj, n_boot = n_boot,
+        thresh = thresh, init = init,
         raw = raw, control = control, ...
     )
     return(model)
@@ -163,7 +176,7 @@ setMethod("cbea", "data.frame", function(obj, set,
     model <- .cbea(
         ab_tab = tab, set_list = set_list,
         output = output, distr = distr, adj = adj,
-        thresh = thresh, init = init, raw = raw, control = control, ...
+        thresh = thresh, init = init, control = control, ...
     )
     return(model)
 })
@@ -174,7 +187,8 @@ setMethod("cbea", "data.frame", function(obj, set,
 setMethod("cbea", "matrix", function(obj, set,
                                      output,
                                      distr,
-                                     adj = FALSE, thresh = 0.05,
+                                     adj = FALSE,
+                                     thresh = 0.05,
                                      init = NULL,
                                      control = NULL,
                                      taxa_are_rows = FALSE, ...) {
@@ -194,7 +208,7 @@ setMethod("cbea", "matrix", function(obj, set,
     model <- .cbea(
         ab_tab = tab, set_list = set_list,
         output = output, distr = distr, adj = adj,
-        thresh = thresh, init = init, raw = raw, control = control, ...
+        thresh = thresh, init = init, control = control, ...
     )
     return(model)
 })

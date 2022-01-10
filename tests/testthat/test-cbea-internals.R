@@ -1,6 +1,6 @@
 requireNamespace("tidyverse", quietly = TRUE)
 
-# reference gmean and gmean rows
+# reference gmean and gmean rows ####
 ref_gmean <- function(vec) {
   return(exp(mean(log(unclass(vec)))))
 }
@@ -62,4 +62,9 @@ test_that("Return error if have too much NAs", {
   expect_error(estimate_distr(c(rnorm(10), rep(NA, 90))))
 })
 
-##### Testing for the main CBEA function #####
+
+
+
+
+
+

@@ -154,9 +154,11 @@ jobs:
           ## First refresh pacman repos
           pacman -Sy
           ## Then install glpk
-          pacman -S mingw-w64-{i686,x86_64}-glpk --noconfirm
+          pacman -Sy mingw-w64-{i686,x86_64}-glpk --noconfirm
           ## Then install libxml2
-          pacman -S mingw-w64-{i686,x86_64}-libxml2 --noconfirm
+          pacman -Sy mingw-w64-{i686,x86_64}-libxml2 --noconfirm
+          ## Then install gmp
+          pacman -Sy mingw-w64-{i686,x86_64}-gmp --noconfirm
         shell: bash
 
       - name: Install BiocManager

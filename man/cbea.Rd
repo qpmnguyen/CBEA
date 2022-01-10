@@ -14,6 +14,7 @@ cbea(
   output,
   distr,
   adj = FALSE,
+  n_boot = 1,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -26,6 +27,7 @@ cbea(
   output,
   distr,
   adj = FALSE,
+  n_boot = 1,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -38,6 +40,7 @@ cbea(
   output,
   distr,
   adj = FALSE,
+  n_boot = 1,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -83,20 +86,25 @@ as elements in the set.}
 Has to be either \code{zscore},
 \code{cdf}, \code{raw}, \code{pval}, or \code{sig}}
 
-\item{distr}{(String). The choice of distribution for the null.}
+\item{distr}{(String). The choice of distribution for the null. Can be either \code{mnorm}
+(2 component mixture normal) or \code{norm} (Normal distribution).}
 
-\item{adj}{(Logical). Whether correlation adjustment procedure is utilized.}
+\item{adj}{(Logical). Whether correlation adjustment procedure is utilized. Defaults to FALSE.}
+
+\item{n_boot}{(Numeric). Add bootstrap resamples to both the permuted and unpermuted data set.
+This might help with stabilizing the distribution fitting procedure, especially if the sample
+size is low. CBEA will throw a warning if the object size in memory of the resampled data set
+is larger than 250 MiB. Defaults to 1.}
 
 \item{thresh}{(Numeric). Threshold for significant p-values if \code{sig}
-is the output.}
+is the output. Defaults to 0.05}
 
 \item{init}{(Named List). Initialization parameters
 for estimating the null distribution.
-Default is
-NULL.}
+Default is NULL.}
 
 \item{control}{(Named List). Additional arguments to be passed to
-\code{fitdistr} and \code{normmixEM}}
+\code{fitdistr} and \code{normmixEM}. Defaults to NULL.}
 
 \item{...}{Additional arguments not used at the moment.}
 
@@ -119,7 +127,8 @@ for best results please use either \code{\linkS4class{TreeSummarizedExperiment}}
 arguments specifying if \code{taxa_are_rows} should be true or not. \cr
 The \code{output} specifies what type of values will be returned in the final matrix.
 The options \code{pval} or \code{sig} returns either unadjusted p-values or dummy variables
-indicating whether a set is significantly enriched in that sample (based on \code{thresh}).
+indicating whether a set is significantly enriched in that sample (based on unadjusted
+p-values thresholded at \code{thresh}).
 The option \code{raw} returns raw scores computed for each set without any distribution fitting
 or inference procedure. Users can use this option to examine the distribution of CBEA scores
 under the null.

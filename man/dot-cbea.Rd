@@ -10,6 +10,7 @@
   output,
   distr,
   adj = TRUE,
+  n_boot = 1,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -17,10 +18,10 @@
 )
 }
 \arguments{
-\item{ab_tab}{Named \code{n} by \code{p} matrix.
+\item{ab_tab}{(Matrix). Named \code{n} by \code{p} matrix.
 This is the OTU/ASV/Strain table where taxa are columns.}
 
-\item{set_list}{List of length \code{m}.
+\item{set_list}{(List). List of length \code{m}.
 This is a list of set membership by column names.}
 
 \item{output}{See documentation \code{\link{cbea}}}
@@ -28,6 +29,8 @@ This is a list of set membership by column names.}
 \item{distr}{See documentation \code{\link{cbea}}}
 
 \item{adj}{See documentation \code{\link{cbea}}}
+
+\item{n_boot}{See documentation \code{\link{cbea}}}
 
 \item{thresh}{See documentation \code{\link{cbea}}}
 

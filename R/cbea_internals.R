@@ -1,19 +1,22 @@
 #' @title Internal cbea function
 #' @description See main function \code{cbea} documentation for more details.
-#' @param ab_tab Named \code{n} by \code{p} matrix.
+#' @param ab_tab (Matrix). Named \code{n} by \code{p} matrix.
 #'     This is the OTU/ASV/Strain table where taxa are columns.
-#' @param set_list List of length \code{m}.
+#' @param set_list (List). List of length \code{m}.
 #'     This is a list of set membership by column names.
 #' @param output See documentation \code{\link{cbea}}
 #' @param distr See documentation \code{\link{cbea}}
 #' @param adj See documentation \code{\link{cbea}}
+#' @param n_boot See documentation \code{\link{cbea}}
 #' @param thresh See documentation \code{\link{cbea}}
 #' @param init See documentation \code{\link{cbea}}
 #' @param control See documentation \code{\link{cbea}}
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
-#' @importFrom purrr map_dfc
+#' @importFrom purrr map_dfc map
 #' @importFrom rlang warn abort
+#' @importFrom utils object.size
+#' @importFrom tibble add_column
 #' @return A \code{data.frame} of size \code{n} by \code{m}.
 #'     \code{n} is the total number of samples and \code{m}
 #'     is the total number of sets with elements represented in the data.
@@ -22,49 +25,86 @@
                   set_list,
                   output, distr,
                   adj = TRUE,
+                  n_boot = 1,
                   thresh = 0.05,
                   init = NULL,
                   control = NULL, ...) {
+    if (missing(distr)){
+        message("Distribution was not specified, returning raw scores")
+        output <- "raw"
+    }
     p <- ncol(ab_tab) # number of features
     n <- nrow(ab_tab) # number of samples
-    ab_perm <- ab_tab[, sample(seq_len(p), size = p, replace = FALSE)]
+    # if users want more bootstrap resamples
+    if (n_boot > 1){
+        # for the permuted data, each bootstrap resample is a different column permutation
+        ab_perm <- unname(ab_tab) # remove names so the permutations can be rbind
+        boot_perm <- map(seq_along(n_boot), ~{
+            ab_perm[,sample(seq_len(p), size = p, replace = FALSE)]
+        })
+        ab_perm <- do.call(rbind, boot_perm)
 
+        # for unpermuted data, each bootstrap resample is simply a sampling with replacement
+        # from the original data table. We ensure that all samples are represented at least once.
+        ab_tab_boot <- ab_tab[sample(seq_len(n), size = p * (n_boot - 1), replace = TRUE),]
+        ab_tab <- rbind(ab_tab, ab_tab_boot)
+
+        # check object sizes
+        obj_thresh <- 250 * 1024^2
+        if (object.size(ab_tab) >= obj_thresh | object.size(ab_perm) >= obj_thresh){
+            warning("Beware! The resampled object size is larger than or equal to 250 MiB")
+        }
+        # manual memory management in case object sizes are large
+        rm(ab_tab_boot)
+        rm(boot_perm)
+        invisible(gc())
+    } else {
+        ab_perm <- ab_tab[, sample(seq_len(p), size = p, replace = FALSE)]
+    }
     # Loop through each set
-    R <- purrr::map_dfc(set_list, ~ {
-        # first, retrieve indices for the set of interest
+    R <- map_dfc(set_list, ~ {
+        # first, retrieve indices for the set of interest of the original matrix
         index <- which(colnames(ab_tab) %in% .x)
         if (output != "raw") {
             raw_scores <- get_score(ab_tab, index)
             perm_scores <- get_score(ab_perm, index)
             if (adj == TRUE) {
-            # estimate perm and unperm distributions
+                # estimate perm and unperm distributions
                 perm_distr <- estimate_distr(perm_scores,
-                                distr = distr, init = init,
-                                args_list = control)
+                    distr = distr, init = init,
+                    args_list = control
+                )
                 unperm_distr <- estimate_distr(raw_scores,
-                                distr = distr, init = init,
-                                args_list = control)
-            # combine them into one final distribution
+                    distr = distr, init = init,
+                    args_list = control
+                )
+                # combine them into one final distribution
                 final_distr <- combine_distr(perm_distr,
-                                             unperm_distr, distr = distr)
+                    unperm_distr,
+                    distr = distr
+                )
             } else {
                 # only estimate the distribution from the permuted data
-                final_distr <- estimate_distr(perm_scores, distr = distr,
-                                                  init = init,
-                                                  args_list = control)
+                final_distr <- estimate_distr(perm_scores,
+                    distr = distr,
+                    init = init,
+                    args_list = control
+                )
             }
             # have to scale scores if raw is false
-            scores <- scale_scores(raw_scores, method = output,
-                                     param = final_distr,
-                                     thresh = thresh, distr = distr)
+            scores <- scale_scores(raw_scores,
+                method = output,
+                param = final_distr,
+                thresh = thresh, distr = distr
+            )
         } else {
-        # if raw is true then just get the score
+            # if raw is true then just get the score
             scores <- get_score(ab_tab, index)
         }
         return(scores)
     })
     colnames(R) <- names(set_list)
-    R <- tibble::add_column(R, sample_id = rownames(ab_tab), .before = 1)
+    R <- add_column(R, sample_id = rownames(ab_tab), .before = 1)
     return(R)
 }
 
@@ -85,7 +125,7 @@
 #' scores <- get_score(X = seq_matrix, idx = rand_set)
 #' @export
 get_score <- function(X, idx) {
-  # check type
+    # check type
     if (is.matrix(X) == FALSE) {
         message("Coercing X to matrix")
         X <- as.matrix(X)
@@ -162,25 +202,32 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"),
     }
     # supplied and defaults for additional parameters
     if (distr == "mnorm") {
-        defaults <- list(maxrestarts = 1000, epsilon = 1e-06,
-                     maxit = 1e5, arbmean = TRUE, k = 2)
+        defaults <- list(
+            maxrestarts = 1000, epsilon = 1e-06,
+            maxit = 1e5, arbmean = TRUE, k = 2
+        )
     } else if (distr == "norm") {
-    # so far there have no opinions
-        defaults <- list(method = "mle", fix.arg = NULL,
-                     discrete = FALSE, keepdata = FALSE, keepdata.nb = 100)
+        # so far there have no opinions
+        defaults <- list(
+            method = "mle", fix.arg = NULL,
+            discrete = FALSE, keepdata = FALSE, keepdata.nb = 100
+        )
     }
     params <- merge_lists(defaults = defaults, supplied = args_list)
     # Try catch would return NULL if the procedure errored out
     dist <- tryCatch(
         error = function(cnd) {
-              message("Adjusting the fitting parameters might
+            message("Adjusting the fitting parameters might
                       help with the fitting")
-              message(cnd)
-              return(NULL)
-        }, {
+            message(cnd)
+            return(NULL)
+        },
+        {
             if (distr %in% c("norm")) {
-                params <- rlist::list.append(params, start = init,
-                                         distr = distr, data = data)
+                params <- rlist::list.append(params,
+                    start = init,
+                    distr = distr, data = data
+                )
                 fit <- do.call(fitdistrplus::fitdist, params)
                 list(mean = fit$estimate[["mean"]], sd = fit$estimate[["sd"]])
             } else if (distr == "mnorm") {
@@ -247,8 +294,10 @@ scale_scores <- function(scores, method = c("cdf", "zscore", "pval", "sig"),
     } else if (method == "zscore") {
         if (f == "pmnorm") {
             mean <- get_mean(mu = param$mu, lambda = param$lambda)
-            sd <- get_sd(sigma = param$sigma, mu = param$mu,
-                       mean = mean, lambda = param$lambda)
+            sd <- get_sd(
+                sigma = param$sigma, mu = param$mu,
+                mean = mean, lambda = param$lambda
+            )
         } else if (f == "pnorm") {
             mean <- param$mean
             sd <- param$sd
@@ -270,7 +319,7 @@ scale_scores <- function(scores, method = c("cdf", "zscore", "pval", "sig"),
 #' @keywords internal
 #' @importFrom rlang abort
 combine_distr <- function(perm, unperm, distr) {
-  # If unable to estimate anything, then return NULL final distribution
+    # If unable to estimate anything, then return NULL final distribution
     if (is.null(perm) | is.null(unperm)) {
         return(NULL)
     }
@@ -291,7 +340,7 @@ combine_distr <- function(perm, unperm, distr) {
         check_perm <- all(vapply(perm, FUN = length, FUN.VALUE = 1) == 2)
         check_unperm <- all(vapply(unperm, FUN = length, FUN.VALUE = 1) == 2)
         if (check_perm == FALSE | check_unperm == FALSE) {
-              rlang::abort("Each named parameter much have values for
+            rlang::abort("Each named parameter much have values for
                            each of the two components.
                            Number of components restricted to 2")
         }
@@ -302,7 +351,7 @@ combine_distr <- function(perm, unperm, distr) {
 
 #' @title Function to perform the adjustment for the mixture normal distribution
 #' @param perm (List). Parameter values of the distribution of scores
-#;    computed on permuted data
+# ;    computed on permuted data
 #' @param unperm (List). Parameter values of the distribution of scores
 #'    computed on unpermuted data
 #' @return A List of parameters for the adjusted mixture normal.
@@ -344,8 +393,10 @@ get_adj_mnorm <- function(perm, unperm, verbose = FALSE) {
         upper = c(Inf, Inf),
         mu = perm$mu, lambda = perm$lambda, mean = perm_mean, sd = unperm_sd
     )
-    estim_sd <- get_sd(sigma = opt$par, lambda = perm$lambda,
-                        mu = perm$mu, mean = perm_mean)
+    estim_sd <- get_sd(
+        sigma = opt$par, lambda = perm$lambda,
+        mu = perm$mu, mean = perm_mean
+    )
     if (verbose == TRUE) {
         print(paste("Total sd is", unperm_sd, "and estimated sd is", estim_sd))
     }
