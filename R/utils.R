@@ -28,7 +28,7 @@ pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     q <- as.vector(q)
     n_components <- length(sigma)
     if (verbose == TRUE) {
-        cat(paste(n_components, "components!", "\n"))
+        message(paste(n_components, "components!", "\n"))
     }
     comp <- vector(mode = "list", length = n_components)
     for (i in seq_len(n_components)) {
@@ -43,7 +43,7 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     x <- as.vector(x)
     n_components <- length(sigma)
     if (verbose == TRUE) {
-        cat(paste(n_components, "components!", "\n"))
+        message(paste(n_components, "components!", "\n"))
     }
     comp <- vector(mode = "list", length = n_components)
     for (i in seq_len(n_components)) {
@@ -72,3 +72,4 @@ get_sd <- function(sigma, mu, mean, lambda) {
 get_mean <- function(mu, lambda) {
     sum(lambda * mu)
 }
+

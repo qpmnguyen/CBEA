@@ -14,7 +14,8 @@ cbea(
   output,
   distr,
   adj = FALSE,
-  n_boot = 1,
+  n_perm = 1,
+  parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -27,7 +28,8 @@ cbea(
   output,
   distr,
   adj = FALSE,
-  n_boot = 1,
+  n_perm = 1,
+  parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -40,7 +42,8 @@ cbea(
   output,
   distr,
   adj = FALSE,
-  n_boot = 1,
+  n_perm = 1,
+  parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -53,6 +56,8 @@ cbea(
   output,
   distr,
   adj = FALSE,
+  n_perm = 1,
+  parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -66,6 +71,8 @@ cbea(
   output,
   distr,
   adj = FALSE,
+  n_perm = 1,
+  parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -87,14 +94,17 @@ Has to be either \code{zscore},
 \code{cdf}, \code{raw}, \code{pval}, or \code{sig}}
 
 \item{distr}{(String). The choice of distribution for the null. Can be either \code{mnorm}
-(2 component mixture normal) or \code{norm} (Normal distribution).}
+(2 component mixture normal), \code{norm} (Normal distribution), or NULL if \code{parametric}
+is \code{TRUE}.}
 
 \item{adj}{(Logical). Whether correlation adjustment procedure is utilized. Defaults to FALSE.}
 
-\item{n_boot}{(Numeric). Add bootstrap resamples to both the permuted and unpermuted data set.
+\item{n_perm}{(Numeric). Add bootstrap resamples to both the permuted and unpermuted data set.
 This might help with stabilizing the distribution fitting procedure, especially if the sample
-size is low. CBEA will throw a warning if the object size in memory of the resampled data set
-is larger than 250 MiB. Defaults to 1.}
+size is low. Defaults to 1.}
+
+\item{parametric}{(Logical). Indicate whether a parametric distribution will be fitted to estimate
+z-scores, CDF values, and p-values. Defaults to \code{TRUE}}
 
 \item{thresh}{(Numeric). Threshold for significant p-values if \code{sig}
 is the output. Defaults to 0.05}
@@ -137,6 +147,6 @@ under the null.
 data(hmp_gingival)
 seq <- hmp_gingival$data
 set <- hmp_gingival$set
-mod <- cbea(obj = seq, set = set, output = "zscore", distr = "norm",
+mod <- cbea(obj = seq, set = set, output = "zscore", distr = "norm", parametric = TRUE,
     adj = TRUE, thresh = 0.05)
 }

@@ -20,7 +20,7 @@ generated without permutations}
 Options include \code{cdf}, \code{zscore}, \code{pval} and \code{sig}.}
 
 \item{param}{(List). The parameters of the estimated null distribution.
-Names must match distribution}
+Names must match distribution.}
 
 \item{thresh}{(Numeric). The threshold to decide whether a set
 is significantly enriched. Only available if \code{method} is \code{sig}}

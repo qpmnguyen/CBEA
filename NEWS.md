@@ -1,7 +1,8 @@
 # CBEA 0.99.2  
 NEW FEATURES  
 
-- Allow users to add options to add bootstrap resamples to the permutation procedure.  
+- Added an option (`parametric`)to specify whether the null is estimated parametrically or
+via pure permutation. To support this, an option (`nboot`) was also added to specify the number of permutations. A warning will be added if `parametric` is `FALSE` but `n_boot` is small (< 200)    
 
 SIGNIFICANT USER-VISIBLE CHANGES  
 

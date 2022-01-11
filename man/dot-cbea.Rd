@@ -10,7 +10,8 @@
   output,
   distr,
   adj = TRUE,
-  n_boot = 1,
+  n_perm = 1,
+  parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
@@ -30,7 +31,9 @@ This is a list of set membership by column names.}
 
 \item{adj}{See documentation \code{\link{cbea}}}
 
-\item{n_boot}{See documentation \code{\link{cbea}}}
+\item{n_perm}{See documentation \code{\link{cbea}}}
+
+\item{parametric}{See documentation \code{\link{cbea}}}
 
 \item{thresh}{See documentation \code{\link{cbea}}}
 

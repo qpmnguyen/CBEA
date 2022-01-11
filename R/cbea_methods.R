@@ -23,12 +23,14 @@
 #'     Has to be either \code{zscore},
 #'     \code{cdf}, \code{raw}, \code{pval}, or \code{sig}
 #' @param distr (String). The choice of distribution for the null. Can be either \code{mnorm}
-#'     (2 component mixture normal) or \code{norm} (Normal distribution).
+#'     (2 component mixture normal), \code{norm} (Normal distribution), or NULL if \code{parametric}
+#'     is \code{TRUE}.
 #' @param adj (Logical). Whether correlation adjustment procedure is utilized. Defaults to FALSE.
-#' @param n_boot (Numeric). Add bootstrap resamples to both the permuted and unpermuted data set.
+#' @param n_perm (Numeric). Add bootstrap resamples to both the permuted and unpermuted data set.
 #'     This might help with stabilizing the distribution fitting procedure, especially if the sample
-#'     size is low. CBEA will throw a warning if the object size in memory of the resampled data set
-#'     is larger than 250 MiB. Defaults to 1.
+#'     size is low. Defaults to 1.
+#' @param parametric (Logical). Indicate whether a parametric distribution will be fitted to estimate
+#'     z-scores, CDF values, and p-values. Defaults to \code{TRUE}
 #' @param thresh (Numeric). Threshold for significant p-values if \code{sig}
 #'     is the output. Defaults to 0.05
 #' @param init (Named List). Initialization parameters
@@ -44,7 +46,7 @@
 #' data(hmp_gingival)
 #' seq <- hmp_gingival$data
 #' set <- hmp_gingival$set
-#' mod <- cbea(obj = seq, set = set, output = "zscore", distr = "norm",
+#' mod <- cbea(obj = seq, set = set, output = "zscore", distr = "norm", parametric = TRUE,
 #'     adj = TRUE, thresh = 0.05)
 NULL
 
@@ -56,7 +58,8 @@ setGeneric("cbea", function(obj, set,
                             output,
                             distr,
                             adj = FALSE,
-                            n_boot = 1,
+                            n_perm = 1,
+                            parametric = TRUE,
                             thresh = 0.05,
                             init = NULL,
                             control = NULL, ...) {
@@ -72,12 +75,40 @@ setMethod("cbea", "phyloseq", function(obj, set,
                                        output,
                                        distr,
                                        adj = FALSE,
-                                       n_boot = 1,
+                                       n_perm = 1,
+                                       parametric = TRUE,
                                        thresh = 0.05,
                                        init = NULL,
                                        control = NULL, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    # Validate inputs ####
+    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm"))
+    # handling instances if distr was missing
+    if (missing(distr) | is.null(distr)){
+        if (parametric == TRUE){
+            message("Distribution was not specified, returning raw scores")
+            output <- "raw"
+        } else {
+            distr <- NULL
+        }
+    }
+    # handling instances if adj was missing
+    if (missing(adj) | is.null(adj)){
+        if (parametric == TRUE){
+            message("Correlation adjustment was not specified, defaulting to FALSE")
+            adj <- FALSE
+        } else {
+            adj <- NULL
+        }
+    }
+
+    # if parametric is false cannot get either cdf values or z-scores
+    if (parametric == FALSE){
+        if (output %in% c("zscore", "cdf")){
+            stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
+        }
+    }
+    # wrangle data into the correct format
     tab <- phyloseq::otu_table(obj)
     tab <- as(tab, "matrix")
 
@@ -94,7 +125,7 @@ setMethod("cbea", "phyloseq", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(
         ab_tab = tab, set_list = set_list, output = output,
-        distr = distr, adj = adj, n_boot = n_boot,
+        distr = distr, adj = adj, n_perm = n_perm, parametric = parametric,
         thresh = thresh, init = init,
         control = control, ...
     )
@@ -110,12 +141,41 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,
                                                        distr,
                                                        adj = FALSE,
-                                                       n_boot = 1,
+                                                       n_perm = 1,
+                                                       parametric = TRUE,
                                                        thresh = 0.05,
                                                        init = NULL,
                                                        control = NULL, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
-    distr <- match.arg(distr, choices = c("mnorm", "norm"))
+    # Validate inputs ####
+    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
+    # handling instances if distr was missing
+    if (missing(distr) | is.null(distr)){
+        if (parametric == TRUE){
+            message("Distribution was not specified, returning raw scores")
+            output <- "raw"
+        } else {
+            distr <- NULL
+        }
+    }
+    # handling instances if adj was missing
+    if (missing(adj) | is.null(adj)){
+        if (parametric == TRUE){
+            message("Correlation adjustment was not specified, defaulting to FALSE")
+            adj <- FALSE
+        } else {
+            adj <- NULL
+        }
+    }
+
+    # if parametric is false cannot get either cdf values or z-scores
+    if (parametric == FALSE){
+        if (output %in% c("zscore", "cdf")){
+            stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
+        }
+    }
+
+    # generate table
     tab <- SummarizedExperiment::assays(obj)[[1]]
     # TreeSummarizedExperiment data sets are always transposed
     tab <- as(tab, "matrix")
@@ -129,7 +189,7 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(
         ab_tab = tab, set_list = set_list, output = output,
-        distr = distr, adj = adj, n_boot = n_boot,
+        distr = distr, adj = adj, n_perm = n_perm, parametric = parametric,
         thresh = thresh, init = init,
         raw = raw, control = control, ...
     )
@@ -145,19 +205,48 @@ setMethod("cbea", "data.frame", function(obj, set,
                                          output,
                                          distr,
                                          adj = FALSE,
+                                         n_perm = 1,
+                                         parametric = TRUE,
                                          thresh = 0.05,
                                          init = NULL,
                                          control = NULL,
                                          taxa_are_rows = FALSE, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
-    distr <- match.arg(distr, choices = c("mnorm", "norm"))
+    # Validate inputs ####
+    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
+    # handling instances if distr was missing
+    if (missing(distr) | is.null(distr)){
+        if (parametric == TRUE){
+            message("Distribution was not specified, returning raw scores")
+            output <- "raw"
+        } else {
+            distr <- NULL
+        }
+    }
+    # handling instances if adj was missing
+    if (missing(adj) | is.null(adj)){
+        if (parametric == TRUE){
+            message("Correlation adjustment was not specified, defaulting to FALSE")
+            adj <- FALSE
+        } else {
+            adj <- NULL
+        }
+    }
+
+    # if parametric is false cannot get either cdf values or z-scores
+    if (parametric == FALSE){
+        if (output %in% c("zscore", "cdf")){
+            stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
+        }
+    }
     if (taxa_are_rows == TRUE) {
-        check_numeric <- vapply(tab, class)
-        idx <- which(check_numeric != "numeric")
-        if (length(idx) >= 2) {
+        check_numeric <- vapply(tab, FUN = function(x) is(x, "numeric"), FUN.VALUE = TRUE)
+        idx <- which(check_numeric == FALSE)
+        if (length(numeric) >= 2) {
             stop("There are more than two non-numeric columns,
                 please remove columns un-associated with taxa identifiers")
-        } else if (length(idx) == 1) {
+        } else if (length(numeric) == 1) {
+            warning("Removing the one non-numeric column, assuming that it's the sample/taxa identifiers")
             rownames(tab) <- tab[, idx]
             tab <- tab[, -idx]
         }
@@ -175,7 +264,8 @@ setMethod("cbea", "data.frame", function(obj, set,
     set_list <- as(set, "list")
     model <- .cbea(
         ab_tab = tab, set_list = set_list,
-        output = output, distr = distr, adj = adj,
+        output = output, distr = distr, adj = adj, n_perm = n_perm,
+        parametric = parametric,
         thresh = thresh, init = init, control = control, ...
     )
     return(model)
@@ -188,12 +278,40 @@ setMethod("cbea", "matrix", function(obj, set,
                                      output,
                                      distr,
                                      adj = FALSE,
+                                     n_perm = 1,
+                                     parametric = TRUE,
                                      thresh = 0.05,
                                      init = NULL,
                                      control = NULL,
                                      taxa_are_rows = FALSE, ...) {
-    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
-    distr <- match.arg(distr, choices = c("mnorm", "norm"))
+    # Validate inputs ####
+    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
+    # handling instances if distr was missing
+    if (missing(distr) | is.null(distr)){
+        if (parametric == TRUE){
+            message("Distribution was not specified, returning raw scores")
+            output <- "raw"
+        } else {
+            distr <- NULL
+        }
+    }
+    # handling instances if adj was missing
+    if (missing(adj) | is.null(adj)){
+        if (parametric == TRUE){
+            message("Correlation adjustment was not specified, defaulting to FALSE")
+            adj <- FALSE
+        } else {
+            adj <- NULL
+        }
+    }
+
+    # if parametric is false cannot get either cdf values or z-scores
+    if (parametric == FALSE){
+        if (output %in% c("zscore", "cdf")){
+            stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
+        }
+    }
     if (taxa_are_rows == TRUE) {
         tab <- t(tab)
     }
@@ -208,6 +326,7 @@ setMethod("cbea", "matrix", function(obj, set,
     model <- .cbea(
         ab_tab = tab, set_list = set_list,
         output = output, distr = distr, adj = adj,
+        n_perm = n_perm, parametric = parametric,
         thresh = thresh, init = init, control = control, ...
     )
     return(model)
