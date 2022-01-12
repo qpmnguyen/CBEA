@@ -152,7 +152,7 @@ jobs:
           ## Edit below if you have any Windows system dependencies
           ## echo "PATH="${RTOOLS40_HOME}\usr\bin;${PATH}" >> $GITHUB_ENV
           ## First refresh pacman repos
-          pacman -Sy
+          pacman -Syu
           ## Then install glpk
           pacman -Sy mingw-w64-{i686,x86_64}-glpk --noconfirm
           ## Then install libxml2
