@@ -3,21 +3,22 @@
 # TODO: Come up with simple data sets and test for correctness
 data(hmp_gingival)
 requireNamespace("purrr", quietly = TRUE)
+requireNamespace("phyloseq", quietly = TRUE)
+requireNamespace("BiocSet", quietly = TRUE)
+requireNamespace("TreeSummarizedExperiment", quietly = TRUE)
 library(magrittr)
-library(phyloseq)
-library(BiocSet)
-library(TreeSummarizedExperiment)
+
 
 seq <- hmp_gingival$data
 set <- hmp_gingival$set
 # for some reason makeTreeSummarizedExperimentFromPhyloseq(seq) doesn't work
 seq_ts <- TreeSummarizedExperiment::TreeSummarizedExperiment(
-    assays = otu_table(seq),
-    rowData = tax_table(seq),
-    colData = sample_data(seq)
+    assays = phyloseq::otu_table(seq),
+    rowData = phyloseq::tax_table(seq),
+    colData = phyloseq::sample_data(seq)
 )
 
-seq_matrix <- as(otu_table(seq), "matrix")
+seq_matrix <- as(phyloseq::otu_table(seq), "matrix")
 seq_df <- as.data.frame(seq_matrix)
 objects <- list(seq, seq_ts, seq_df, seq_matrix)
 names(objects) <- c("phyloseq", "ts", "df", "matrix")

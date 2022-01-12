@@ -4,7 +4,7 @@
 \alias{estimate_distr}
 \title{Estimate distribution parameters from data}
 \usage{
-estimate_distr(data, distr = c("mnorm", "norm"), init = NULL, args_list = NULL)
+estimate_distr(data, distr, init = NULL, args_list = NULL)
 }
 \arguments{
 \item{data}{(Numeric Vector). A vector of numbers that can be inputted

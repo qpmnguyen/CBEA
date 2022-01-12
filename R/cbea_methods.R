@@ -73,16 +73,17 @@ setGeneric("cbea", function(obj, set,
 #' @export
 setMethod("cbea", "phyloseq", function(obj, set,
                                        output,
-                                       distr,
-                                       adj = FALSE,
+                                       distr = NULL,
+                                       adj = NULL,
                                        n_perm = 1,
                                        parametric = TRUE,
                                        thresh = 0.05,
                                        init = NULL,
                                        control = NULL, ...) {
     # Validate inputs ####
-    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
-    distr <- match.arg(distr, choices = c("mnorm", "norm"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
+
     # handling instances if distr was missing
     if (missing(distr) | is.null(distr)){
         if (parametric == TRUE){
@@ -134,7 +135,7 @@ setMethod("cbea", "phyloseq", function(obj, set,
 
 #' @rdname cbea
 #' @importClassesFrom TreeSummarizedExperiment TreeSummarizedExperiment
-#' @import TreeSummarizedExperiment
+#' @importFrom SummarizedExperiment assays
 #' @import methods
 #' @export
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
@@ -147,7 +148,7 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        init = NULL,
                                                        control = NULL, ...) {
     # Validate inputs ####
-    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
     # handling instances if distr was missing
     if (missing(distr) | is.null(distr)){
@@ -176,7 +177,7 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
     }
 
     # generate table
-    tab <- SummarizedExperiment::assays(obj)[[1]]
+    tab <- assays(obj)[[1]]
     # TreeSummarizedExperiment data sets are always transposed
     tab <- as(tab, "matrix")
     tab <- t(tab)
@@ -212,7 +213,7 @@ setMethod("cbea", "data.frame", function(obj, set,
                                          control = NULL,
                                          taxa_are_rows = FALSE, ...) {
     # Validate inputs ####
-    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
     # handling instances if distr was missing
     if (missing(distr) | is.null(distr)){
@@ -285,7 +286,7 @@ setMethod("cbea", "matrix", function(obj, set,
                                      control = NULL,
                                      taxa_are_rows = FALSE, ...) {
     # Validate inputs ####
-    output <- match.arg(args, choices = c("cdf", "zscore", "pval", "sig", "raw"))
+    output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
     # handling instances if distr was missing
     if (missing(distr) | is.null(distr)){

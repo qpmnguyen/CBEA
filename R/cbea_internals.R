@@ -39,9 +39,10 @@
         if (output == "raw"){
             scores <- raw_scores
         } else {
-            scores <- adjust_scores(ab_tab = ab_tab, adj = adj,
+            scores <- adjust_scores(ab_tab = ab_tab, adj = adj, distr = distr, output = output,
                                     raw_scores = raw_scores, true_index = true_index,
-                                    n_perm = n_perm, parametric = parametric, thresh = thresh)
+                                    n_perm = n_perm, parametric = parametric, thresh = thresh,
+                                    init = init, control = control)
         }
         return(scores)
     })
@@ -93,6 +94,7 @@ get_score <- function(X, idx) {
 #'     This is the OTU/ASV/Strain table where taxa are columns.
 #' @param adj (Logical). See documentation \code{\link{cbea}}
 #' @param distr (Character). See documentation \code{\link{cbea}}
+#' @param output (Character). See documentation \code{\link{cbea}}
 #' @param init (List). See documentation \code{\link{cbea}}
 #' @param control (List). See documentation \code{\link{cbea}}
 #' @param raw_scores (Vector). A vector of the raw scores using the correct
@@ -102,23 +104,25 @@ get_score <- function(X, idx) {
 #' @param parametric (Logical). See documentation \code{\link{cbea}}
 #' @param thresh (Numeric). See documentation \code{\link{cbea}}
 #' @keywords internal
-#' @importFrom purrr map map_dfr
-adjust_scores <- function(ab_tab, adj, distr, init, control,
+#' @importFrom purrr map map_dbl
+#' @importFrom stats quantile
+adjust_scores <- function(ab_tab, adj, distr, output,
                           raw_scores, true_index,
-                          n_perm, parametric, thresh){
+                          n_perm, parametric,
+                          init, control, thresh){
     p <- ncol(ab_tab) # total number of taxa
     perm_index_list <- map(seq_len(n_perm), ~sample(seq_len(p), size = length(true_index),
                                                     replace = FALSE))
-    perm_scores <- map(perm_index_list, ~get_scores(ab_tab, .x))
+    perm_scores <- map(perm_index_list, ~get_score(ab_tab, .x))
     perm_scores <- unname(do.call(c, perm_scores))
     if (parametric == TRUE) {
         perm_distr <- estimate_distr(perm_scores,
                                      distr = distr,
                                      init = init,
-                                     arg_list = control)
+                                     args_list = control)
         if (adj == TRUE) {
             unperm_distr <- estimate_distr(raw_scores, distr = distr,
-                                           init = init, arg_list = control)
+                                           init = init, args_list = control)
             final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr)
         } else {
             final_distr <- perm_distr
@@ -129,7 +133,7 @@ adjust_scores <- function(ab_tab, adj, distr, init, control,
                                thresh = thresh, distr = distr)
     } else {
         if (output == "sig"){
-            scores <- raw_scores >= quantile(perm_scores, 1 - thresh)
+            scores <- ifelse(raw_scores >= quantile(perm_scores, 1 - thresh),1,0)
         } else if (output == "pval") {
             scores <- map_dbl(raw_scores, ~{sum(perm_scores >= .x)/length(perm_scores)})
         }
@@ -171,9 +175,9 @@ adjust_scores <- function(ab_tab, adj, distr, init, control,
 #' @importFrom stats na.omit
 #' @importFrom rlang abort
 #' @importFrom utils capture.output
-estimate_distr <- function(data, distr = c("mnorm", "norm"),
+estimate_distr <- function(data, distr,
                            init = NULL, args_list = NULL) {
-    distr <- match.arg(distr)
+    distr <- match.arg(distr, c("norm", "mnorm"))
     # check if data has NAs
     if (any(is.na(data))) {
         message("There are NAs in the data vector, omitting NA values")

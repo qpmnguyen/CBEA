@@ -9,12 +9,13 @@ adjust_scores(
   ab_tab,
   adj,
   distr,
-  init,
-  control,
+  output,
   raw_scores,
   true_index,
   n_perm,
   parametric,
+  init,
+  control,
   thresh
 )
 }
@@ -26,9 +27,7 @@ This is the OTU/ASV/Strain table where taxa are columns.}
 
 \item{distr}{(Character). See documentation \code{\link{cbea}}}
 
-\item{init}{(List). See documentation \code{\link{cbea}}}
-
-\item{control}{(List). See documentation \code{\link{cbea}}}
+\item{output}{(Character). See documentation \code{\link{cbea}}}
 
 \item{raw_scores}{(Vector). A vector of the raw scores using the correct
 indices}
@@ -38,6 +37,10 @@ indices}
 \item{n_perm}{(Numeric). The total number of permutations.}
 
 \item{parametric}{(Logical). See documentation \code{\link{cbea}}}
+
+\item{init}{(List). See documentation \code{\link{cbea}}}
+
+\item{control}{(List). See documentation \code{\link{cbea}}}
 
 \item{thresh}{(Numeric). See documentation \code{\link{cbea}}}
 }
