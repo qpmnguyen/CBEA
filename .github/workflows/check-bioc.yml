@@ -159,6 +159,10 @@ jobs:
           pacman -Sy mingw-w64-{i686,x86_64}-libxml2 --noconfirm
           ## Then install gmp
           pacman -Sy mingw-w64-{i686,x86_64}-gmp --noconfirm
+          ## Install openssl for -lssl -lssh2 -lcrypto
+          pacman -Sy mingw-w64-{i686,x86_64}-openssl --noconfirm
+          pacman -Sy mingw-w64-{i686,x86_64}-libssh2 --noconfirm
+          pacman -Sy mingw-w64-{i686,x86_64}-crypto++ --noconfirm
         shell: bash
 
       - name: Install BiocManager
