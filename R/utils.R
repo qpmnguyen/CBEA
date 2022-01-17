@@ -73,3 +73,37 @@ get_mean <- function(mu, lambda) {
     sum(lambda * mu)
 }
 
+#' @title Checking arguments of the function
+#' @param args (List) A list of parameters
+check_args <- function(args){
+    arg_names <- c("obj", "set", "output", 
+                   "distr", "adj", "n_perm", "parametric", "init", "control")
+    if (intersect(names(args), arg_names) != length(arg_names)){
+        stop("Please specify all required inputs")
+    } 
+    
+    # first, check if distr is null 
+    if (is.null(args$distr)){
+        if (args$parametric == TRUE){
+            stop("Distribution needs to be specified if parametric fit is desired")
+        } 
+    }
+    # handling if adj argument is null 
+    if (is.null(args$adj)){
+        if (args$parametric == TRUE){
+            stop("Correlation adjustment option needs to be specified if parametric fit is desired")
+        }
+    }
+    # if parametric is false cannot get either cdf values or z-scores
+    if (args$parametric == FALSE){
+        if (args$output %in% c("zscore", "cdf")){
+            stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
+        }
+        # if parametric fit is false then needs to perform more permutations 
+        if (args$n_perm <= 200){
+            message("For non-parametric fits, the number of permutations should be higher (Rec: 200)")
+        }
+    }
+    
+}
+

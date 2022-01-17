@@ -83,32 +83,10 @@ setMethod("cbea", "phyloseq", function(obj, set,
     # Validate inputs ####
     output <- match.arg(output, choices = c("cdf", "zscore", "pval", "sig", "raw"))
     distr <- match.arg(distr, choices = c("mnorm", "norm", NULL))
+    
+    args <- match.call()
+    print(args)
 
-    # handling instances if distr was missing
-    if (missing(distr) | is.null(distr)){
-        if (parametric == TRUE){
-            message("Distribution was not specified, returning raw scores")
-            output <- "raw"
-        } else {
-            distr <- NULL
-        }
-    }
-    # handling instances if adj was missing
-    if (missing(adj) | is.null(adj)){
-        if (parametric == TRUE){
-            message("Correlation adjustment was not specified, defaulting to FALSE")
-            adj <- FALSE
-        } else {
-            adj <- NULL
-        }
-    }
-
-    # if parametric is false cannot get either cdf values or z-scores
-    if (parametric == FALSE){
-        if (output %in% c("zscore", "cdf")){
-            stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
-        }
-    }
     # wrangle data into the correct format
     tab <- phyloseq::otu_table(obj)
     tab <- as(tab, "matrix")
