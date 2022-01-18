@@ -24,7 +24,7 @@ using approaches commonly used in the gene set testing literature.
 
 **This package is under ongoing development and might not be stable at
 the moment. Only install the development version if R CMD CHECK badge is
-green (passed).**
+green (passed) or if the error is due to dependency installation.**
 
 ### Installation
 
@@ -37,12 +37,7 @@ devtools::install_github("qpmnguyen/CBEA")
 
 ### Features
 
--   Supports the currently under review method CBEA (Competitive
-    compositional balances for enrichment analysis) formerly known as
-    cILR.  
--   Supports both `phyloseq` and `TreeSummarizedExperiment` data types
-    as inputs.
--   Converting taxonomic tables into sets in the `BiocSet` data type.
+This package supports the implementation of the CBEA approach (formerly
+known as cILR) for taxonomic enrichment analysis.
 
-Future directions include additional support for using standard gene set
-analysis tools on microbiome relative abundance data sets
+### Dependency Graph

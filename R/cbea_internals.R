@@ -15,7 +15,6 @@
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
 #' @importFrom purrr map_dfc map
-#' @importFrom rlang warn abort
 #' @importFrom utils object.size
 #' @importFrom tibble add_column
 #' @return A \code{data.frame} of size \code{n} by \code{m}.
@@ -173,7 +172,6 @@ adjust_scores <- function(ab_tab, adj, distr, output,
 #' @importFrom mixtools normalmixEM
 #' @importFrom rlist list.append
 #' @importFrom stats na.omit
-#' @importFrom rlang abort
 #' @importFrom utils capture.output
 estimate_distr <- function(data, distr,
                            init = NULL, args_list = NULL) {
@@ -182,9 +180,9 @@ estimate_distr <- function(data, distr,
     if (any(is.na(data))) {
         message("There are NAs in the data vector, omitting NA values")
         org_length <- length(data)
-        data <- stats::na.omit(data)
+        data <- na.omit(data)
         if (length(data) < 0.5 * org_length) {
-            rlang::abort("More than 50% of the data is NA,
+            stop("More than 50% of the data is NA,
                        aborting distribution fitting")
         }
     }
@@ -331,7 +329,7 @@ combine_distr <- function(perm, unperm, distr) {
         check_perm <- all(vapply(perm, FUN = length, FUN.VALUE = 1) == 2)
         check_unperm <- all(vapply(unperm, FUN = length, FUN.VALUE = 1) == 2)
         if (check_perm == FALSE | check_unperm == FALSE) {
-            rlang::abort("Each named parameter much have values for
+            stop("Each named parameter much have values for
                            each of the two components.
                            Number of components restricted to 2")
         }

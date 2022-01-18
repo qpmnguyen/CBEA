@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 The `CBEA` package provides basic functionality to perform taxonomic enrichment analysis in R. This package mainly supports the `CBEA` method, and provides additional support for generating sets for analyses using approaches commonly used in the gene set testing literature. 
 
-**This package is under ongoing development and might not be stable at the moment. Only install the development version if R CMD CHECK badge is green (passed).**  
+**This package is under ongoing development and might not be stable at the moment. Only install the development version if R CMD CHECK badge is green (passed) or if the error is due to dependency installation.**  
 
 ### Installation
 
@@ -36,9 +36,12 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("qpmnguyen/CBEA")
 ```
 
-### Features  
- * Supports the currently under review method CBEA (Competitive compositional balances for enrichment analysis) formerly known as cILR.  
- * Supports both `phyloseq` and `TreeSummarizedExperiment` data types as inputs. 
- * Converting taxonomic tables into sets in the `BiocSet` data type.  
 
-Future directions include additional support for using standard gene set analysis tools on microbiome relative abundance data sets  
+### Features  
+This package supports the implementation of the CBEA approach (formerly known as cILR) for taxonomic enrichment analysis.   
+
+### Dependency Graph  
+
+```{r, include = FALSE}
+knitr::include_graphics("man/figures/dep.png")
+```
