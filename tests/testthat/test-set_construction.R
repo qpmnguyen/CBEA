@@ -1,6 +1,3 @@
-# TODO: Test input output type
-# TODO: Test standard errors
-# TODO: Come up with simple data sets and test for correctness
 data(hmp_gingival)
 requireNamespace("purrr", quietly = TRUE)
 requireNamespace("phyloseq", quietly = TRUE)

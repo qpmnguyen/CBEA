@@ -41,3 +41,5 @@ This package supports the implementation of the CBEA approach (formerly
 known as cILR) for taxonomic enrichment analysis.
 
 ### Dependency Graph
+
+<img src="man/figures/dep.png" width="100%" />

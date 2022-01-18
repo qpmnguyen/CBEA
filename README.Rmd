@@ -27,7 +27,7 @@ The `CBEA` package provides basic functionality to perform taxonomic enrichment 
 
 **This package is under ongoing development and might not be stable at the moment. Only install the development version if R CMD CHECK badge is green (passed) or if the error is due to dependency installation.**  
 
-### Installation
+### Installation  
 
 And the development version from [GitHub](https://github.com/) with:
 
@@ -38,10 +38,11 @@ devtools::install_github("qpmnguyen/CBEA")
 
 
 ### Features  
+
 This package supports the implementation of the CBEA approach (formerly known as cILR) for taxonomic enrichment analysis.   
 
 ### Dependency Graph  
 
-```{r, include = FALSE}
+```{r, include = TRUE, echo=FALSE}
 knitr::include_graphics("man/figures/dep.png")
 ```

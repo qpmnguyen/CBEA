@@ -30,10 +30,12 @@ test_that("Basic outputs", {
 })
 
 test_that("Expected errors and warnings combining different options", {
+    # parametric is false but output is either cdf or zscore 
     expect_error(cbea(obj = physeq, set = sets, output = "cdf", distr = "norm",
                       adj = TRUE, n_perm = 1,parametric = FALSE))
     expect_error(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
                       adj = TRUE, n_perm = 1, parametric = FALSE))
-    expect_warning(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
+    # parametric is true but no adj argument was performed 
+    expect_error(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
                         n_perm = 1, parametric = TRUE))
 })
