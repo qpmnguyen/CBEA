@@ -163,7 +163,7 @@ jobs:
           pacman -Sy mingw-w64-{i686,x86_64}-openssl --noconfirm
           pacman -Sy mingw-w64-{i686,x86_64}-libssh2 --noconfirm
           ## Install gsl 
-          pacman -Sy mingw-w64-{i686, x86_64}-gsl --noconfirm
+          pacman -Sy mingw-w64-{i686,x86_64}-gsl --noconfirm
         shell: bash
 
       - name: Install BiocManager
