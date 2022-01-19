@@ -189,9 +189,10 @@ get_raw_score <- function(X, idx) {
 #' @importFrom fitdistrplus fitdist
 #' @importFrom mixtools normalmixEM
 #' @importFrom stats na.omit
+#' @importFrom extraDistr dlst plst qlst rlst
 estimate_distr <- function(data, distr,
                            init = NULL, args_list = NULL) {
-    distr <- match.arg(distr, c("norm", "mnorm"))
+    distr <- match.arg(distr, c("norm", "mnorm", "lst"))
     # check if data has NAs
     if (any(is.na(data))) {
         message("There are NAs in the data vector, omitting NA values")
@@ -208,6 +209,8 @@ estimate_distr <- function(data, distr,
             init <- list(mean = 0, sd = 1)
         } else if (distr == "mnorm") {
             init <- list(lambda = NULL, mu = NULL, sigma = NULL)
+        } else if (distr == "lst") {
+            init <- list(df = 1, mu = 0, sigma = 1)
         }
     }
     # supplied and defaults for additional parameters
@@ -216,7 +219,7 @@ estimate_distr <- function(data, distr,
             maxrestarts = 1000, epsilon = 1e-06,
             maxit = 1e5, arbmean = TRUE, k = 2
         )
-    } else if (distr == "norm") {
+    } else if (distr %in% c("norm", "lst")) {
         # so far there have no opinions
         defaults <- list(
             method = "mle", fix.arg = NULL,
@@ -233,10 +236,15 @@ estimate_distr <- function(data, distr,
             return(NULL)
         },
         {
-            if (distr %in% c("norm")) {
+            if (distr %in% c("norm", "lst")) {
                 params <- c(params, list(start = init, distr = distr, data = data))
                 fit <- do.call(fitdist, params)
-                list(mean = fit$estimate[["mean"]], sd = fit$estimate[["sd"]])
+                if (distr == "norm"){
+                    list(mean = fit$estimate[["mean"]], sd = fit$estimate[["sd"]])
+                } else if (distr == "lst"){
+                    list(df = fit$estimate[["df"]], mu = fit$estimate[["mu"]],
+                         sigma = fit$estimate[["sigma"]])
+                }
             } else if (distr == "mnorm") {
                 params <- c(params, list(x = data))
                 params <- c(init, params)
@@ -261,7 +269,7 @@ estimate_distr <- function(data, distr,
 #' @keywords internal
 scale_scores <- function(scores, method,
                          param, distr, thresh = 0.05) {
-    distr <- match.arg(distr, c("norm", "mnorm"))
+    distr <- match.arg(distr, c("norm", "mnorm", "lst"))
     method <- match.arg(method, c("cdf", "zscore", "pval", "sig"))
     # detect if parameter length is concordant with distribution type
     if (distr == "norm") {
@@ -269,7 +277,7 @@ scale_scores <- function(scores, method,
         if (length(intersect(names(param), c("mean", "sd"))) != 2) {
             stop("Normal requires both mean and standard deviation")
         }
-    } else {
+    } else if (distr == "mnorm"){
         f <- "pmnorm"
         if (length(intersect(names(param), c("mu", "lambda", "sigma"))) != 3) {
             stop("Mixture normal requires mu,
@@ -280,6 +288,11 @@ scale_scores <- function(scores, method,
             stop("Each named parameter much have values for
                        each of the two components.
                        Number of components restricted to 2")
+        }
+    }  else if (distr == "lst"){
+        f <- "plst"
+        if (length(intersect(names(param), c("mu", "df", "sigma"))) != 3) {
+            stop("Location-scale t-distribution requires mu, sigma, and df arguments")
         }
     }
     # compute values
@@ -322,7 +335,7 @@ scale_scores <- function(scores, method,
 #'    the initial distribution of choice
 #' @keywords internal
 combine_distr <- function(perm, unperm, distr, ...) {
-    distr <- match.arg(distr, c("norm", "mnorm"))
+    distr <- match.arg(distr, c("norm", "mnorm", "lst"))
     # If unable to estimate anything, then return NULL final distribution
     if (is.null(perm) | is.null(unperm)) {
         return(NULL)
@@ -349,6 +362,11 @@ combine_distr <- function(perm, unperm, distr, ...) {
                            Number of components restricted to 2")
         }
         final <- get_adj_mnorm(perm = perm, unperm = unperm, ...)
+    } else if (distr == "lst"){
+        if (length(intersect(names(perm), c("df", "mu", "sigma"))) != 3){
+            stop("Location-scale t-distribution requires mu, df and sigma arguments")
+        }
+        final <- list(mu = perm$mu, sigma = unperm$sigma, df = unperm$df)
     }
     return(final)
 }

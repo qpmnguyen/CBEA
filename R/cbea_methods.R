@@ -17,8 +17,9 @@
 #'     or inference procedure. Users can use this option to examine the distribution of CBEA scores
 #'     under the null.
 #' @param obj The element of class \code{TreeSummarizedExperiment},
-#'     \code{data.frame}, or \code{matrix}. \code{phyloseq} is supported
-#'     but users have to install the package themselves.
+#'     \code{data.frame}, or \code{matrix}. \code{phyloseq} is not supported
+#'     due to conflicting dependencies and \code{TreeSummarizedExperiment} is much
+#'     more compact.
 #' @param set \code{BiocSet}. Sets to be tested for
 #'     enrichment in the \code{BiocSet}
 #'     format. Taxa names must be in the same format
@@ -210,49 +211,6 @@ setMethod("cbea", "matrix", function(obj, set,
         output = output, distr = distr, adj = adj,
         n_perm = n_perm, parametric = parametric,
         thresh = thresh, init = init, control = control, ...
-    )
-    return(model)
-})
-
-#' @rdname cbea
-#' @importFrom methods as
-#' @export
-setMethod("cbea", "phyloseq", function(obj, set,
-                                       output,
-                                       distr = NULL,
-                                       adj = NULL,
-                                       n_perm = 1,
-                                       parametric = TRUE,
-                                       thresh = 0.05,
-                                       init = NULL,
-                                       control = NULL, ...) {
-    if (!requireNamespace("phyloseq", quietly = TRUE)){
-        stop("Package \" phyloseq\" must be installed to use this function.",
-             .call = FALSE)
-    }
-    # Validate inputs ####
-    check_args()
-
-    # wrangle data into the correct format
-    tab <- phyloseq::otu_table(obj)
-    tab <- as(tab, "matrix")
-
-    if (phyloseq::taxa_are_rows(obj) == TRUE) {
-        tab <- t(tab)
-    }
-
-    if (length(which(tab == 0)) > 0) {
-        warning("Taxonomic count table contains zeros,
-            which would invalidate the log-ratio transform.
-            Adding a pseudocount of 1...")
-        tab <- tab + 1
-    }
-    set_list <- as(set, "list")
-    model <- .cbea(
-        ab_tab = tab, set_list = set_list, output = output,
-        distr = distr, adj = adj, n_perm = n_perm, parametric = parametric,
-        thresh = thresh, init = init,
-        control = control, ...
     )
     return(model)
 })

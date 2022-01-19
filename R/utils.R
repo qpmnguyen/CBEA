@@ -94,8 +94,9 @@ check_args <- function(){
         stop("Output has to be of options 'cdf', 'zscore', 'pval', 'sig', 'raw'")
     }
 
-    if (!env$distr %in% c("norm", "mnorm", NULL)){
-        stop("Distribution choices has to either be 'norm', 'mnorm', or 'NULL' (equivalent to 'parametric' = FALSE)")
+    if (!env$distr %in% c("norm", "mnorm", "lst", NULL)){
+        stop("Distribution choices has to either be 'norm', 'mnorm', 'lst',
+             or 'NULL' (equivalent to 'parametric' = FALSE)")
     }
 
 

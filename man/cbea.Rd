@@ -5,7 +5,6 @@
 \alias{cbea,TreeSummarizedExperiment-method}
 \alias{cbea,data.frame-method}
 \alias{cbea,matrix-method}
-\alias{cbea,phyloseq-method}
 \title{Enrichment analysis using competitive compositional balances (CBEA)}
 \usage{
 cbea(
@@ -67,25 +66,12 @@ cbea(
   control = NULL,
   ...
 )
-
-\S4method{cbea}{phyloseq}(
-  obj,
-  set,
-  output,
-  distr = NULL,
-  adj = NULL,
-  n_perm = 1,
-  parametric = TRUE,
-  thresh = 0.05,
-  init = NULL,
-  control = NULL,
-  ...
-)
 }
 \arguments{
 \item{obj}{The element of class \code{TreeSummarizedExperiment},
-\code{data.frame}, or \code{matrix}. \code{phyloseq} is supported
-but users have to install the package themselves.}
+\code{data.frame}, or \code{matrix}. \code{phyloseq} is not supported
+due to conflicting dependencies and \code{TreeSummarizedExperiment} is much
+more compact.}
 
 \item{set}{\code{BiocSet}. Sets to be tested for
 enrichment in the \code{BiocSet}
