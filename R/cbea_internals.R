@@ -12,11 +12,12 @@
 #' @param thresh See documentation \code{\link{cbea}}
 #' @param init See documentation \code{\link{cbea}}
 #' @param control See documentation \code{\link{cbea}}
+#' @param parallel_backend See documentation \code{\link{cbea}}
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
-#' @importFrom purrr map_dfc map
-#' @importFrom utils object.size
-#' @importFrom tibble add_column
+#' @importFrom BiocParallel SerialParam bplapply
+#' @importFrom tibble as_tibble add_column
+#' @importFrom stats rpois
 #' @return A \code{data.frame} of size \code{n} by \code{m}.
 #'     \code{n} is the total number of samples and \code{m}
 #'     is the total number of sets with elements represented in the data.
@@ -25,29 +26,99 @@
                   set_list,
                   output, distr,
                   adj = TRUE,
-                  n_perm = 1,
+                  n_perm = 100,
                   parametric = TRUE,
                   thresh = 0.05,
                   init = NULL,
-                  control = NULL, ...) {
-    # Loop through each set
-    R <- map_dfc(set_list, ~ {
-        # first, retrieve indices for the set of interest of the original matrix
-        true_index <- which(colnames(ab_tab) %in% .x)
-        raw_scores <- get_score(ab_tab, true_index)
-        if (output == "raw"){
-            scores <- raw_scores
-        } else {
-            scores <- adjust_scores(ab_tab = ab_tab, adj = adj, distr = distr, output = output,
-                                    raw_scores = raw_scores, true_index = true_index,
-                                    n_perm = n_perm, parametric = parametric, thresh = thresh,
-                                    init = init, control = control)
-        }
-        return(scores)
-    })
+                  control = NULL,
+                  parallel_backend = NULL,
+                  ...) {
+    if (is.null(parallel_backend)){
+        seed <- rpois(1, lambda = 1e4)
+        parallel_backend <- SerialParam(RNGseed = seed)
+    }
+    R <- bplapply(set_list, fit_scores, ab_tab = ab_tab, adj = adj, distr = distr,
+                  output = output, n_perm = n_perm,
+                  parametric = parametric, init = init, control = control,
+                  thresh = thresh, BPPARAM = parallel_backend)
+    R <- as_tibble(R)
     colnames(R) <- names(set_list)
     R <- add_column(R, sample_id = rownames(ab_tab), .before = 1)
     return(R)
+}
+
+#' @title Function to compute CBEA scores for each set
+#' @param ab_tab (Matrix). Named \code{n} by \code{p} matrix.
+#'     This is the OTU/ASV/Strain table where taxa are columns.
+#' @param index_vec (Character Vector). A character vector indicating the
+#'     elements of the set of interest
+#' @param adj (Logical). See documentation \code{\link{cbea}}
+#' @param distr (Character). See documentation \code{\link{cbea}}
+#' @param output (Character). See documentation \code{\link{cbea}}
+#' @param init (List). See documentation \code{\link{cbea}}
+#' @param control (List). See documentation \code{\link{cbea}}
+#' @param n_perm (Numeric). The total number of permutations.
+#' @param parametric (Logical). See documentation \code{\link{cbea}}
+#' @param thresh (Numeric). See documentation \code{\link{cbea}}
+#' @keywords internal
+#' @importFrom stats quantile
+fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric, thresh,
+                       init, control){
+    if (!is.null(control) & ("fix_comp" %in% names(control))){
+        fix_comp <- control$fix_comp
+        control <- control[-which(names(control) == "fix_comp")]
+        if (length(control) == 0){
+            control <- NULL
+        }
+    } else {
+        fix_comp <- "none"
+    }
+    # get the true index
+    true_index <- which(colnames(ab_tab) %in% index_vec)
+    # true_index is different than index_vec bc index_vec can have more elements not present
+    # in the data set (taxa not present here but still part of the category)
+    raw_scores <- get_raw_score(ab_tab, true_index)
+    if (output == "raw"){
+        scores <- raw_scores
+    } else {
+        p <- ncol(ab_tab) # total number of taxa
+        # first, get a list of indices to shuffle
+        # get random indices the same size as the true index
+        perm_index_list <- replicate(n_perm,
+                                     sample(seq_len(p), size = length(true_index),
+                                            replace = FALSE),
+                                     simplify = FALSE)
+        # get perm scores fromt he perm_index_list
+        perm_scores <- lapply(perm_index_list, function(x) get_raw_score(ab_tab, x))
+        perm_scores <- unname(do.call(c, perm_scores))
+
+        # if parametric is true estimate distribution
+        if (parametric == TRUE) {
+            perm_distr <- estimate_distr(perm_scores,
+                                         distr = distr,
+                                         init = init,
+                                         args_list = control)
+            if (adj == TRUE) {
+                unperm_distr <- estimate_distr(raw_scores, distr = distr,
+                                               init = init, args_list = control)
+                final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr,
+                                             fix_comp = fix_comp)
+            } else {
+                final_distr <- perm_distr
+            }
+            scores <- scale_scores(raw_scores,
+                                   method = output,
+                                   param = final_distr,
+                                   thresh = thresh, distr = distr)
+        } else {
+            if (output == "sig"){
+                scores <- ifelse(raw_scores >= quantile(perm_scores, 1 - thresh),1,0)
+            } else if (output == "pval") {
+                scores <- vapply(raw_scores, function(x) sum(perm_scores >= x)/length(perm_scores), FUN.VALUE = 0.1)
+            }
+        }
+    }
+    return(scores)
 }
 
 
@@ -61,12 +132,12 @@
 #' @examples
 #' data(hmp_gingival)
 #' seq <- hmp_gingival$data
-#' seq_matrix <- as(phyloseq::otu_table(seq), "matrix")
+#' seq_matrix <- SummarizedExperiment::assays(seq)[[1]]
 #' seq_matrix <- t(seq_matrix) + 1
 #' rand_set <- sample(seq_len(ncol(seq_matrix)), size = 10)
-#' scores <- get_score(X = seq_matrix, idx = rand_set)
+#' scores <- get_raw_score(X = seq_matrix, idx = rand_set)
 #' @export
-get_score <- function(X, idx) {
+get_raw_score <- function(X, idx) {
     # check type
     if (is.matrix(X) == FALSE) {
         message("Coercing X to matrix")
@@ -85,59 +156,6 @@ get_score <- function(X, idx) {
     denom <- gmeanRow(as.matrix(X[, -idx]))
     # return the ilr like statistic
     return(scale * (log(num / denom)))
-}
-
-#' @title Function to compute adjusted CBEA scores if raw scores are not the
-#'     intended output
-#' @param ab_tab (Matrix). Named \code{n} by \code{p} matrix.
-#'     This is the OTU/ASV/Strain table where taxa are columns.
-#' @param adj (Logical). See documentation \code{\link{cbea}}
-#' @param distr (Character). See documentation \code{\link{cbea}}
-#' @param output (Character). See documentation \code{\link{cbea}}
-#' @param init (List). See documentation \code{\link{cbea}}
-#' @param control (List). See documentation \code{\link{cbea}}
-#' @param raw_scores (Vector). A vector of the raw scores using the correct
-#'     indices
-#' @param true_index (Vector). A vector of the correct indices
-#' @param n_perm (Numeric). The total number of permutations.
-#' @param parametric (Logical). See documentation \code{\link{cbea}}
-#' @param thresh (Numeric). See documentation \code{\link{cbea}}
-#' @keywords internal
-#' @importFrom purrr map map_dbl
-#' @importFrom stats quantile
-adjust_scores <- function(ab_tab, adj, distr, output,
-                          raw_scores, true_index,
-                          n_perm, parametric,
-                          init, control, thresh){
-    p <- ncol(ab_tab) # total number of taxa
-    perm_index_list <- map(seq_len(n_perm), ~sample(seq_len(p), size = length(true_index),
-                                                    replace = FALSE))
-    perm_scores <- map(perm_index_list, ~get_score(ab_tab, .x))
-    perm_scores <- unname(do.call(c, perm_scores))
-    if (parametric == TRUE) {
-        perm_distr <- estimate_distr(perm_scores,
-                                     distr = distr,
-                                     init = init,
-                                     args_list = control)
-        if (adj == TRUE) {
-            unperm_distr <- estimate_distr(raw_scores, distr = distr,
-                                           init = init, args_list = control)
-            final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr)
-        } else {
-            final_distr <- perm_distr
-        }
-        scores <- scale_scores(raw_scores,
-                               method = output,
-                               param = final_distr,
-                               thresh = thresh, distr = distr)
-    } else {
-        if (output == "sig"){
-            scores <- ifelse(raw_scores >= quantile(perm_scores, 1 - thresh),1,0)
-        } else if (output == "pval") {
-            scores <- map_dbl(raw_scores, ~{sum(perm_scores >= .x)/length(perm_scores)})
-        }
-    }
-    return(scores)
 }
 
 #' @title Estimate distribution parameters from data
@@ -170,9 +188,7 @@ adjust_scores <- function(ab_tab, adj, distr, output,
 #' @keywords internal
 #' @importFrom fitdistrplus fitdist
 #' @importFrom mixtools normalmixEM
-#' @importFrom rlist list.append
 #' @importFrom stats na.omit
-#' @importFrom utils capture.output
 estimate_distr <- function(data, distr,
                            init = NULL, args_list = NULL) {
     distr <- match.arg(distr, c("norm", "mnorm"))
@@ -218,14 +234,11 @@ estimate_distr <- function(data, distr,
         },
         {
             if (distr %in% c("norm")) {
-                params <- rlist::list.append(params,
-                    start = init,
-                    distr = distr, data = data
-                )
-                fit <- do.call(fitdistrplus::fitdist, params)
+                params <- c(params, list(start = init, distr = distr, data = data))
+                fit <- do.call(fitdist, params)
                 list(mean = fit$estimate[["mean"]], sd = fit$estimate[["sd"]])
             } else if (distr == "mnorm") {
-                params <- rlist::list.append(params, x = data)
+                params <- c(params, list(x = data))
                 params <- c(init, params)
                 fit <- do.call(normalmixEM, params)
                 list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda)
@@ -246,9 +259,10 @@ estimate_distr <- function(data, distr,
 #'    is significantly enriched. Only available if \code{method} is \code{sig}
 #' @return A vector of size \code{n} where \code{n} is the sample size
 #' @keywords internal
-#' @importFrom rlist list.append
-scale_scores <- function(scores, method = c("cdf", "zscore", "pval", "sig"),
+scale_scores <- function(scores, method,
                          param, distr, thresh = 0.05) {
+    distr <- match.arg(distr, c("norm", "mnorm"))
+    method <- match.arg(method, c("cdf", "zscore", "pval", "sig"))
     # detect if parameter length is concordant with distribution type
     if (distr == "norm") {
         f <- "pnorm"
@@ -270,7 +284,7 @@ scale_scores <- function(scores, method = c("cdf", "zscore", "pval", "sig"),
     }
     # compute values
     if (method %in% c("cdf", "sig", "pval")) {
-        param <- list.append(q = as.vector(scores), param)
+        param <- c(param, list(q = as.vector(scores)))
         scale <- do.call(f, param)
         if (sum(is.na(scale)) >= 1) {
             message("There are NA values here")
@@ -307,7 +321,8 @@ scale_scores <- function(scores, method = c("cdf", "zscore", "pval", "sig"),
 #' @return A list of the combined distribution form based on
 #'    the initial distribution of choice
 #' @keywords internal
-combine_distr <- function(perm, unperm, distr) {
+combine_distr <- function(perm, unperm, distr, ...) {
+    distr <- match.arg(distr, c("norm", "mnorm"))
     # If unable to estimate anything, then return NULL final distribution
     if (is.null(perm) | is.null(unperm)) {
         return(NULL)
@@ -333,7 +348,7 @@ combine_distr <- function(perm, unperm, distr) {
                            each of the two components.
                            Number of components restricted to 2")
         }
-        final <- get_adj_mnorm(perm = perm, unperm = unperm)
+        final <- get_adj_mnorm(perm = perm, unperm = unperm, ...)
     }
     return(final)
 }
@@ -343,10 +358,12 @@ combine_distr <- function(perm, unperm, distr) {
 # ;    computed on permuted data
 #' @param unperm (List). Parameter values of the distribution of scores
 #'    computed on unpermuted data
+#' @param fix_comp (Character). Which component to keep
 #' @return A List of parameters for the adjusted mixture normal.
 #' @keywords internal
 #' @importFrom stats optim
-get_adj_mnorm <- function(perm, unperm, verbose = FALSE) {
+get_adj_mnorm <- function(perm, unperm, verbose = FALSE, fix_comp = "none") {
+    fix_comp <- match.arg(fix_comp, c("large", "small", "none"))
     # get the overall mean first
     perm_mean <- get_mean(mu = perm$mu, lambda = perm$lambda)
     unperm_mean <- get_mean(mu = unperm$mu, lambda = unperm$lambda)
@@ -360,35 +377,75 @@ get_adj_mnorm <- function(perm, unperm, verbose = FALSE) {
         sigma = perm$sigma, mu = perm$mu, mean = perm_mean,
         lambda = perm$lambda
     )
-    # define objective function
-    obj_function <- function(sigma, mu, lambda, mean, sd) {
-        s1 <- sigma[1]
-        s2 <- sigma[2]
-        m1 <- mu[1]
-        m2 <- mu[2]
-        l1 <- lambda[1]
-        l2 <- lambda[2]
-        estimate_sd <- sqrt((s1 + m1 - mean) * l1 + (s2 + m2 - mean) * l2)
-
-        # estimate the objective funciton which is an l2 norm
-        obj <- sqrt(sum((estimate_sd - sd)^2))
-        return(obj)
+    opt_params <- list(method = "L-BFGS-B", mean = perm_mean,
+                       sd = unperm_sd)
+    if (fix_comp == "large"){
+        c_idx <- which(perm$lambda == max(perm$lambda))
+    } else if (fix_comp == "small"){
+        c_idx <- which(perm$lambda == min(perm$lambda))
     }
-    opt <- stats::optim(
-        par = c(0.01, 0.01),
-        obj_function,
-        method = "L-BFGS-B",
-        lower = c(1e-5, 1e-5),
-        upper = c(Inf, Inf),
-        mu = perm$mu, lambda = perm$lambda, mean = perm_mean, sd = unperm_sd
-    )
+    if (fix_comp %in% c("large", "small")){
+        opt_params <- c(opt_params, list(par = 0.01,
+                                         fn = obj_function_single,
+                                         lower = .Machine$double.eps,
+                                         upper = Inf,
+                                         m1 = perm$mu[c_idx],
+                                         m2 = perm$mu[-c_idx],
+                                         l1 = perm$lambda[c_idx],
+                                         l2 = perm$lambda[-c_idx],
+                                         s1 = unperm$sigma[c_idx]))
+    } else {
+        opt_params <- c(opt_params, list(
+            par = c(0.01, 0.01),
+            fn = obj_function_double,
+            lower = c(.Machine$double.eps, .Machine$double.eps),
+            upper = c(Inf, Inf),
+            mu = perm$mu, lambda = perm$lambda
+        ))
+    }
+    opt <- do.call(optim, opt_params)
+    if (sum(opt$par == 0.01) >= 1 | sum(opt$par == .Machine$double.eps) >= 1){
+        warning("Could not find an optimized solution for the adjustment. At least one of the estimated values
+                are equal to initial values or the machine limit")
+    }
+    # calculate the estimated sd
+    if (fix_comp %in% c("large", "small")){
+        est_sig <- rep(0, length(perm$lambda))
+        est_sig[c_idx] <- unperm$sigma[c_idx]
+        est_sig[-c_idx] <- opt$par
+    } else {
+        est_sig <- opt$par
+    }
     estim_sd <- get_sd(
-        sigma = opt$par, lambda = perm$lambda,
+        sigma = est_sig, lambda = perm$lambda,
         mu = perm$mu, mean = perm_mean
     )
     if (verbose == TRUE) {
         print(paste("Total sd is", unperm_sd, "and estimated sd is", estim_sd))
     }
-    param <- list(mu = perm$mu, sigma = opt$par, lambda = perm$lambda)
+    param <- list(mu = perm$mu, sigma = est_sig, lambda = perm$lambda)
     return(param)
+}
+
+#' @keywords internal
+obj_function_single <- function(s1, m1, l1, s2, l2, m2, mean, sd) {
+    estimate_sd <- sqrt((s1 + m1 - mean) * l1 + (s2 + m2 - mean) * l2)
+    # estimate the objective funciton which is an l2 norm
+    obj <- sqrt(sum((estimate_sd - sd)^2))
+    return(obj)
+}
+
+#' @keywords internal
+obj_function_double <- function(sigma, mu, lambda, mean, sd) {
+    s1 <- sigma[1]
+    s2 <- sigma[2]
+    m1 <- mu[1]
+    m2 <- mu[2]
+    l1 <- lambda[1]
+    l2 <- lambda[2]
+    estimate_sd <- sqrt((s1 + m1 - mean) * l1 + (s2 + m2 - mean) * l2)
+
+    # estimate the objective funciton which is an l2 norm
+    obj <- sqrt(sum((estimate_sd - sd)^2))
+    return(obj)
 }

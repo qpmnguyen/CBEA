@@ -10,11 +10,12 @@
   output,
   distr,
   adj = TRUE,
-  n_perm = 1,
+  n_perm = 100,
   parametric = TRUE,
   thresh = 0.05,
   init = NULL,
   control = NULL,
+  parallel_backend = NULL,
   ...
 )
 }
@@ -40,6 +41,8 @@ This is a list of set membership by column names.}
 \item{init}{See documentation \code{\link{cbea}}}
 
 \item{control}{See documentation \code{\link{cbea}}}
+
+\item{parallel_backend}{See documentation \code{\link{cbea}}}
 
 \item{...}{See documentation \code{\link{cbea}}}
 }

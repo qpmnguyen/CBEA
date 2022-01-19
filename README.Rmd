@@ -36,7 +36,6 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("qpmnguyen/CBEA")
 ```
 
-
 ### Features  
 
 This package supports the implementation of the CBEA approach (formerly known as cILR) for taxonomic enrichment analysis.   
@@ -44,5 +43,8 @@ This package supports the implementation of the CBEA approach (formerly known as
 ### Dependency Graph  
 
 ```{r, include = TRUE, echo=FALSE}
-knitr::include_graphics("man/figures/dep.png")
+#dd <- deepdep::deepdep(package = "CBEA", local = TRUE, depth = 2, dependency_type = "Imports")
+#ggplot2::ggsave(plot = deepdep::plot_dependencies(dd), filename = "man/figures/dep_new.png")
+
+knitr::include_graphics("man/figures/dep_new.png")
 ```

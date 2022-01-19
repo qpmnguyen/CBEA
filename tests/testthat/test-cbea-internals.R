@@ -24,29 +24,29 @@ df_neg <- replace(df_pos, sample(seq_len(length(df_pos)), size = 3), -2)
 df_zero <- replace(df_pos, sample(seq_len(length(df_pos)), size = 3), 0)
 index <- c(1:3)
 
-###### Testing for get_score function ###################################
+###### Testing for get_raw_score function ###################################
 # Testing correctness
-test_that("Testing correctness for get_score", {
-  expect_equal(get_score(df_pos, index), ref_ilr(df_pos, index))
+test_that("Testing correctness for get_raw_score", {
+  expect_equal(get_raw_score(df_pos, index), ref_ilr(df_pos, index))
 })
 
-test_that("get_score should return error if there are zeroes or negatives", {
-  expect_error(get_score(df_zero, index))
-  expect_error(get_score(df_neg, index))
+test_that("get_raw_score should return error if there are zeroes or negatives", {
+  expect_error(get_raw_score(df_zero, index))
+  expect_error(get_raw_score(df_neg, index))
 })
 
 # Testing input output
-test_that("Testing get_score returns a vector", {
-  expect_vector(get_score(df_pos, index))
+test_that("Testing get_raw_score returns a vector", {
+  expect_vector(get_raw_score(df_pos, index))
 })
 
 test_that("Testing if warning is displayed if data.frame is included", {
-  expect_message(get_score(as.data.frame(df_pos), index))
+  expect_message(get_raw_score(as.data.frame(df_pos), index))
 })
 
 ##### Testing for the estimate_distr function ####
 # Testing for input output first
-scores <- get_score(df_pos, index)
+scores <- get_raw_score(df_pos, index)
 test_that("Making sure estimate_distr returns a list", {
   expect_type(estimate_distr(scores, distr = "norm"), "list")
   expect_type(estimate_distr(scores, distr = "mnorm"), "list")

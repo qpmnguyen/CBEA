@@ -10,6 +10,7 @@ check_args()
 None
 }
 \description{
-Checking arguments of the function
+This function extracts the parent environment (when called under the cbea function)
+and then check all the arguments.
 }
 \keyword{internal}

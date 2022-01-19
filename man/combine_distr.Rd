@@ -4,7 +4,7 @@
 \alias{combine_distr}
 \title{Combining two distributions}
 \usage{
-combine_distr(perm, unperm, distr)
+combine_distr(perm, unperm, distr, ...)
 }
 \arguments{
 \item{perm}{(List). A list of parameters for permuted distribution}

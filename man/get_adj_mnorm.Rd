@@ -4,13 +4,15 @@
 \alias{get_adj_mnorm}
 \title{Function to perform the adjustment for the mixture normal distribution}
 \usage{
-get_adj_mnorm(perm, unperm, verbose = FALSE)
+get_adj_mnorm(perm, unperm, verbose = FALSE, fix_comp = "none")
 }
 \arguments{
 \item{perm}{(List). Parameter values of the distribution of scores}
 
 \item{unperm}{(List). Parameter values of the distribution of scores
 computed on unpermuted data}
+
+\item{fix_comp}{(Character). Which component to keep}
 }
 \value{
 A List of parameters for the adjusted mixture normal.

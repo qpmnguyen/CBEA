@@ -1,11 +1,13 @@
 data("hmp_gingival")
-requireNamespace("phyloseq", quietly = TRUE)
-requireNamespace("purrr", quietly = TRUE)
-#requireNamespace("glue", quietly = TRUE)
+library(mia)
+library(SummarizedExperiment)
+library(glue)
+library(purrr)
 
 physeq <- hmp_gingival$data
 sets <- hmp_gingival$set
-physeq <- phyloseq::transform_sample_counts(physeq, function(x) x + 1)
+
+SummarizedExperiment::assay(physeq) <- SummarizedExperiment::assay(physeq, "16SrRNA") + 1
 
 test_that("Basic outputs", {
     settings <- purrr::cross_df(list(
@@ -21,21 +23,23 @@ test_that("Basic outputs", {
         ))
     )
     purrr::pmap(settings, function(distr, adj, output, parametric){
-        #print(glue::glue("Currently at {distr}, {adj}, {output}, {parametric}"))
-        expect_s3_class(cbea(obj = physeq, set = sets, output = output,
-                           distr = distr, adj = adj, n_perm = 1,
+        print(glue::glue("Currently at {distr}, {adj}, {output}, {parametric}"))
+        expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                             set = sets, output = output,
+                           distr = distr, adj = adj, n_perm = 10,
                            parametric = parametric), class = "tbl_df")
         return(NULL)
     })
 })
 
 test_that("Expected errors and warnings combining different options", {
-    # parametric is false but output is either cdf or zscore 
+    # parametric is false but output is either cdf or zscore
     expect_error(cbea(obj = physeq, set = sets, output = "cdf", distr = "norm",
                       adj = TRUE, n_perm = 1,parametric = FALSE))
     expect_error(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
                       adj = TRUE, n_perm = 1, parametric = FALSE))
-    # parametric is true but no adj argument was performed 
+    # parametric is true but no adj argument was performed
     expect_error(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
                         n_perm = 1, parametric = TRUE))
+    # parametric is true but no distr argument was performed
 })

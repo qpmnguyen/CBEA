@@ -4,13 +4,7 @@
 \alias{scale_scores}
 \title{Scaling scores based on estimated null distribution}
 \usage{
-scale_scores(
-  scores,
-  method = c("cdf", "zscore", "pval", "sig"),
-  param,
-  distr,
-  thresh = 0.05
-)
+scale_scores(scores, method, param, distr, thresh = 0.05)
 }
 \arguments{
 \item{scores}{(Numeric Vector). Raw CBEA scores

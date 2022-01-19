@@ -32,7 +32,7 @@ pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     }
     comp <- vector(mode = "list", length = n_components)
     for (i in seq_len(n_components)) {
-        comp[[i]] <- lambda[i] * stats::pnorm(q, mu[i], sigma[i], log.p = log)
+        comp[[i]] <- lambda[i] * pnorm(q, mu[i], sigma[i], log.p = log)
     }
     return(Reduce("+", comp))
 }
@@ -47,7 +47,7 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     }
     comp <- vector(mode = "list", length = n_components)
     for (i in seq_len(n_components)) {
-        comp[[i]] <- lambda[i] * stats::dnorm(x, mu[i], sigma[i], log = log)
+        comp[[i]] <- lambda[i] * dnorm(x, mu[i], sigma[i], log = log)
     }
     return(Reduce("+", comp))
 }
@@ -74,30 +74,38 @@ get_mean <- function(mu, lambda) {
 }
 
 #' @title Checking arguments of the function
-#' @description This function extracts the parent environment (when called under the cbea function) 
-#'     and then check all the arguments.  
+#' @description This function extracts the parent environment (when called under the cbea function)
+#'     and then check all the arguments.
 #' @return None
 #' @keywords internal
 check_args <- function(){
     env <- parent.frame()
-    
-    # output 
+
+    # check arguments for control
+    if (!is.null(env$control)){
+        if ("fix_comp" %in% names(env$control) & (env$distr != "mnorm"| env$parametric == FALSE)) {
+            stop("If fix_comp is part of control then distribution
+                 has to be 'mnorm' and the fit is parametric")
+        }
+    }
+
+    # output
     if (!env$output %in% c("cdf", "zscore", "pval", "sig", "raw")){
         stop("Output has to be of options 'cdf', 'zscore', 'pval', 'sig', 'raw'")
     }
-     
+
     if (!env$distr %in% c("norm", "mnorm", NULL)){
         stop("Distribution choices has to either be 'norm', 'mnorm', or 'NULL' (equivalent to 'parametric' = FALSE)")
     }
-    
-    
-    # first, check if distr is null 
+
+
+    # first, check if distr is null
     if (is.null(env$distr)){
         if (env$parametric == TRUE){
             stop("Distribution needs to be specified if parametric fit is desired")
-        } 
+        }
     }
-    # handling if adj argument is null 
+    # handling if adj argument is null
     if (is.null(env$adj)){
         if (env$parametric == TRUE){
             stop("Correlation adjustment option needs to be specified if parametric fit is desired")
@@ -108,12 +116,12 @@ check_args <- function(){
         if (env$output %in% c("zscore", "cdf")){
             stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
         }
-        # if parametric fit is false then needs to perform more permutations 
-        if (env$n_perm <= 200){
-            message("For non-parametric fits, the number of permutations should be higher (Rec: 200)")
+        # if parametric fit is false then needs to perform more permutations
+        if (env$n_perm < 100){
+            message("For non-parametric fits, the number of permutations should be higher (Rec: 100)")
         }
     }
-    
+
 }
 
 

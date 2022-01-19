@@ -42,4 +42,4 @@ known as cILR) for taxonomic enrichment analysis.
 
 ### Dependency Graph
 
-<img src="man/figures/dep.png" width="100%" />
+<img src="man/figures/dep_new.png" width="100%" />

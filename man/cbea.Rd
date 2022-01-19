@@ -2,19 +2,65 @@
 % Please edit documentation in R/cbea_methods.R
 \name{cbea}
 \alias{cbea}
-\alias{cbea,phyloseq-method}
 \alias{cbea,TreeSummarizedExperiment-method}
 \alias{cbea,data.frame-method}
 \alias{cbea,matrix-method}
+\alias{cbea,phyloseq-method}
 \title{Enrichment analysis using competitive compositional balances (CBEA)}
 \usage{
 cbea(
   obj,
   set,
   output,
-  distr,
+  distr = NULL,
   adj = FALSE,
-  n_perm = 1,
+  n_perm = 100,
+  parametric = TRUE,
+  thresh = 0.05,
+  init = NULL,
+  control = NULL,
+  ...
+)
+
+\S4method{cbea}{TreeSummarizedExperiment}(
+  obj,
+  set,
+  output,
+  distr = NULL,
+  abund_values,
+  adj = FALSE,
+  n_perm = 100,
+  parametric = TRUE,
+  thresh = 0.05,
+  init = NULL,
+  control = NULL,
+  ...
+)
+
+\S4method{cbea}{data.frame}(
+  obj,
+  set,
+  taxa_are_rows = FALSE,
+  id_col = NULL,
+  output,
+  distr = NULL,
+  adj = FALSE,
+  n_perm = 100,
+  parametric = TRUE,
+  thresh = 0.05,
+  init = NULL,
+  control = NULL,
+  ...
+)
+
+\S4method{cbea}{matrix}(
+  obj,
+  set,
+  taxa_are_rows = FALSE,
+  output,
+  distr = NULL,
+  adj = FALSE,
+  n_perm = 100,
   parametric = TRUE,
   thresh = 0.05,
   init = NULL,
@@ -35,54 +81,11 @@ cbea(
   control = NULL,
   ...
 )
-
-\S4method{cbea}{TreeSummarizedExperiment}(
-  obj,
-  set,
-  output,
-  distr,
-  adj = FALSE,
-  n_perm = 1,
-  parametric = TRUE,
-  thresh = 0.05,
-  init = NULL,
-  control = NULL,
-  ...
-)
-
-\S4method{cbea}{data.frame}(
-  obj,
-  set,
-  output,
-  distr,
-  adj = FALSE,
-  n_perm = 1,
-  parametric = TRUE,
-  thresh = 0.05,
-  init = NULL,
-  control = NULL,
-  taxa_are_rows = FALSE,
-  ...
-)
-
-\S4method{cbea}{matrix}(
-  obj,
-  set,
-  output,
-  distr,
-  adj = FALSE,
-  n_perm = 1,
-  parametric = TRUE,
-  thresh = 0.05,
-  init = NULL,
-  control = NULL,
-  taxa_are_rows = FALSE,
-  ...
-)
 }
 \arguments{
 \item{obj}{The element of class \code{TreeSummarizedExperiment},
-\code{phyloseq}, \code{data.frame}, or \code{matrix}}
+\code{data.frame}, or \code{matrix}. \code{phyloseq} is supported
+but users have to install the package themselves.}
 
 \item{set}{\code{BiocSet}. Sets to be tested for
 enrichment in the \code{BiocSet}
@@ -118,8 +121,14 @@ Default is NULL.}
 
 \item{...}{Additional arguments not used at the moment.}
 
+\item{abund_values}{(Character). Character value for selecting the \code{assay} to be
+the input to \code{cbea}}
+
 \item{taxa_are_rows}{(Logical). Indicate whether the data frame
 or matrix has taxa as rows}
+
+\item{id_col}{(Character Vector). Vector of character to indicate metadata
+columns to keep (for example, \code{sample_id})}
 }
 \value{
 \code{R}    An \code{n} by \code{m} matrix of enrichment scores at
@@ -132,10 +141,13 @@ per sample for pre-defined sets using the CBEA
 }
 \details{
 This function support different formats of the OTU table, however
-for best results please use either \code{\linkS4class{TreeSummarizedExperiment}} or
-\code{\linkS4class{phyloseq}}. If use \code{data.frame} or \code{matrix}, additional
-arguments specifying if \code{taxa_are_rows} should be true or not. \cr
-The \code{output} specifies what type of values will be returned in the final matrix.
+for best results please use \code{\linkS4class{TreeSummarizedExperiment}}.
+\code{phyloseq} is supported, however \code{CBEA} will not explicitly import
+\code{phyloseq} package and will require users to install them separately.
+If use \code{data.frame} or \code{matrix}, users should specify whether taxa are rows using the
+\code{taxa_are_rows} option. Additionally, for \code{data.frame}, users can specify
+metadata columns to be kept via the \code{id_col} argument. \cr
+The \code{output} argument specifies what type of values will be returned in the final matrix.
 The options \code{pval} or \code{sig} returns either unadjusted p-values or dummy variables
 indicating whether a set is significantly enriched in that sample (based on unadjusted
 p-values thresholded at \code{thresh}).
@@ -147,6 +159,9 @@ under the null.
 data(hmp_gingival)
 seq <- hmp_gingival$data
 set <- hmp_gingival$set
-mod <- cbea(obj = seq, set = set, output = "zscore", distr = "norm", parametric = TRUE,
-    adj = TRUE, thresh = 0.05)
+# n_perm = 10 to reduce runtime
+mod <- cbea(obj = seq, set = set, output = "zscore",
+    abund_values = "16SrRNA",
+    distr = "norm", parametric = TRUE,
+    adj = TRUE, thresh = 0.05, n_perm = 10)
 }

@@ -1,40 +1,35 @@
 ## code to prepare `DATASET` dataset goes here
 library(HMP16SData)
 library(tidyverse)
-library(phyloseq)
 library(TreeSummarizedExperiment)
 library(BiocSet)
 
-# basic filtering
-process_16S <- function(physeq){
-    physeq <- physeq %>% filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE)
-    physeq <- prune_samples(sample_sums(physeq) >= 1000, physeq)
-    return(physeq)
-}
-
 # create sets
 generate_sets <- function(physeq, metadata){
-    names <- taxa_names(physeq)
+    names <- rownames(physeq)
     sets <- unique(metadata$Meth)
     set_list <- vector(length = length(sets), mode = "list")
     for (i in seq_along(sets)){
         g_names <- metadata %>% filter(Meth == sets[i]) %>% pull(Genera)
-        idx <- which(as.vector(tax_table(physeq)[,"GENUS"]) %in% g_names)
-        set_list[[i]] <- taxa_names(physeq)[idx]
+        idx <- which(as.vector(rowData(physeq)$GENUS) %in% g_names)
+        set_list[[i]] <- names[idx]
     }
     names(set_list) <- sets
     set <- BiocSet::BiocSet(set_list)
     return(set)
 }
 
-supra <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Supragingival Plaque" & VISITNO == 1) %>%
-    as_phyloseq()
+supra <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Supragingival Plaque" & VISITNO == 1)
+supra <- as(supra, "TreeSummarizedExperiment")
 
 sub <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Subgingival Plaque" & VISITNO == 1) %>%
-    as_phyloseq()
+    as(., "TreeSummarizedExperiment")
 
-merged <- merge_phyloseq(supra, sub)
-merged <- merged %>% subset_samples(!duplicated(RSID)) %>% process_16S()
+merged <- cbind(supra, sub)
+filt_tax <- apply(assays(merged)$`16SrRNA`, 1, function(x) sum(x == 0)/length(x) <= 0.95)
+filt_samples <- apply(assays(merged)$`16SrRNA`, 2, function(x) sum(x) >= 1000)
+merged <- merged[filt_tax,filt_samples]
+
 metadata <- read_tsv("https://raw.githubusercontent.com/mcalgaro93/sc2meta/master/data/genera_methabolism.tsv")
 
 set <- generate_sets(merged, metadata)

@@ -3,56 +3,55 @@ Title: Competitive Balances for Taxonomic Enrichment Analysis in R
 Version: 0.99.2
 Date: 2021-05-20
 Authors@R: 
-    person(given = "Quang",
-           family = "Nguyen",
-           role = c("aut", "cre"),
-           email = "quangpmnguyen@gmail.com",
+    person("Quang", "Nguyen", , "quangpmnguyen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2072-3279"))
-Description: This package implements CBEA, a method to perform set-based analysis for
-    microbiome relative abundance data. This approach constructs a competitive balance between
-    taxa within the set and remainder taxa per sample. More details can be found in the
-    Nguyen et al. 2021+ manuscript. Additionally, this package adds support functions to help
-    users perform taxa-set enrichment analyses using existing gene set analysis methods. 
-    In the future we hope to also provide curated knowledge driven taxa sets.
+Description: This package implements CBEA, a method to perform set-based
+    analysis for microbiome relative abundance data. This approach
+    constructs a competitive balance between taxa within the set and
+    remainder taxa per sample. More details can be found in the Nguyen et
+    al. 2021+ manuscript. Additionally, this package adds support
+    functions to help users perform taxa-set enrichment analyses using
+    existing gene set analysis methods.  In the future we hope to also
+    provide curated knowledge driven taxa sets.
 License: MIT + file LICENSE
 URL: https://github.com/qpmnguyen/CBEA
 BugReports: https://github.com/qpmnguyen/CBEA//issues
+Depends: 
+    R (>= 4.1.0)
+Imports: 
+    BiocParallel,
+    BiocSet,
+    dplyr,
+    fitdistrplus,
+    magrittr,
+    methods,
+    mixtools,
+    Rcpp (>= 1.0.7),
+    stats,
+    SummarizedExperiment,
+    tibble,
+    TreeSummarizedExperiment
+Suggests: 
+    phyloseq,
+    BiocStyle,
+    covr,
+    knitr,
+    RefManageR,
+    rmarkdown,
+    sessioninfo,
+    testthat (>= 3.0.0),
+    tidyverse,
+    roxygen2,
+    mia,
+    glue,
+    purrr
+LinkingTo: 
+    Rcpp
+VignetteBuilder: 
+    knitr
 biocViews: Software, Microbiome, Metagenomics, GeneSetEnrichment
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: false
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-LinkingTo: 
-    Rcpp
-Imports: 
-    fitdistrplus,
-    phyloseq,
-    rlang,
-    Rcpp (>= 1.0.7),
-    magrittr,
-    methods,
-    purrr,
-    BiocSet,
-    stringr,
-    dplyr,
-    tibble,
-    mixtools,
-    rlist,
-    stats,
-    lobstr,
-    utils,
-    TreeSummarizedExperiment,
-    SummarizedExperiment
-Suggests: 
-    knitr,
-    covr,
-    testthat (>= 3.0.0),
-    rmarkdown,
-    tidyverse,
-    BiocStyle,
-    RefManageR,
-    sessioninfo
-Config/testthat/edition: 3
-VignetteBuilder: knitr
-Depends: 
-    R (>= 4.1.0)

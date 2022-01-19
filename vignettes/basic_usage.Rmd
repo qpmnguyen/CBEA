@@ -65,11 +65,23 @@ bib <- c(
 )
 ```
 
-# Basics
+# Introduction  
 
-## Install `CBEA`
+This package implements the CBEA approach for performing set-based enrichment analysis for microbiome relative abundance data. A preprint of the package can be found [on bioXriv](https://www.biorxiv.org/content/10.1101/2021.09.07.459294v1.full). In summary, CBEA (Competitive Balances for taxonomic Enrichment Analysis) provides an estimate of the activity of a set by transforming an input taxa-by-sample data matrix into a corresponding taxa-set-by-sample data matrix. The resulting output can be used for additional downstream analyses such as differential abundance, classification, clustering, etc. using set-based features instead of the original units.  
 
-`R` is an open-source statistical environment which can be easily modified to enhance its functionality via packages. `r Biocpkg("CBEA")` is a `R` package available via the [Bioconductor](http://bioconductor.org) repository for packages. `R` can be installed on any operating system from [CRAN](https://cran.r-project.org/) after which you can install `r Biocpkg("CBEA")` by using the following commands in your `R` session:
+The transformation that CBEA applies is based on the isometric log ratio transformation:  
+$$
+CBEA_{i,\mathbb{S}} = \sqrt{\frac{|\mathbb{S}||\mathbb{S_c}|}{|\mathbb{S}| + |\mathbb{S_c}|}} \ln \frac{g(X_{i,j | j\in \mathbb{S}})}{g(X_{i,j | j \notin \mathbb{S}})}
+$$
+Where $\mathbb{S}$ is the set of interest, $\mathbb{S}_C$ is it's complement, $g()$ is the geometric mean operation, and $X$ is the original data matrix where $i$ is the index representing samples and $j$ is the index representing variables (or taxa).   
+
+The inference procedure is performed through estimating the null distribution of the test statistic. This can be done either via permutations or a parametric fit of a distributional form on the permuted scores. Users can also adjust for variance inflation due to inter-taxa correlation. Please refer to the main manuscript for any additional details.  
+
+# Usage guide    
+
+## Install `CBEA`  
+
+`r Biocpkg("CBEA")` is an `R` package available via the [Bioconductor](http://bioconductor.org) repository for packages. It requires installing the `R` open source statistical programming language, which can be accessed on any operating system from [CRAN](https://cran.r-project.org/). After which you can install `r Biocpkg("CBEA")` by using the following commands in your `R` session:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -82,17 +94,61 @@ BiocManager::install("CBEA")
 BiocManager::valid()
 ```
 
-## Required knowledge
+If there are any issues with the installation procedure or package features, the best place would be to file an issue at the GitHub [repository](https://github.com/qpmnguyen/CBEA). For any additional support you can use the [Bioconductor support site](https://support.bioconductor.org/) and use the `CBEA` tag and check [the older posts](https://support.bioconductor.org/t/CBEA/). Please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.  
 
-`r Biocpkg("CBEA")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with microbiome data sets and gene set methods. That is, packages like `r Biocpkg("TreeSummarizedExperiment")`, `r Biocpkg("phyloseq")`, and `r Biocpkg("BiocSet")`.  
+```{r "start", message=FALSE}
+library("CBEA")
+library(BiocSet)
+library(tidyverse)
+```
 
-If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](http://lcolladotor.github.io/2014/10/16/startbioc/#.VkOKbq6rRuU).
+## Loading sample data  
+First, we can load some pre-packaged data sets contained in `r Biocpkg("CBEA")`. Here we're loading the data from the Human Microbiome Project (HMP) in `TreeSummarizedExperiment` data container from the `r Biocpkg("TreeSummarizedExperiment")`. It also supports `phyloseq` from the `r Biocpkg("phyloseq")` package but users will have to install that package independently due to its size. Users can leverage the `r Biocpkg("mia")` package to convert between the data types.  
 
-## Asking for help
+In addition, users can also input raw matrices or data frames, however those require additional arguments. The `taxa_are_rows` argument requires users specify whether the data frame/matrix has taxa abundances as rows (or as columns). The `id_col` argument requires users to specify (for data frames only) a vector of names of row metadata that will be excluded from the analysis.  
 
-The best approach to ask for support for `CBEA` would be to file an issue at the GitHub [repository](https://github.com/qpmnguyen/CBEA). For any additional support you can use the [Bioconductor support site](https://support.bioconductor.org/) and use the `CBEA` tag and check [the older posts](https://support.bioconductor.org/t/CBEA/). Please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.  
+```{r load_data}
+data("hmp_gingival")
+abun <- hmp_gingival$data
+metab_sets <- hmp_gingival$set
+abun # this is a TreeSummarizedExperiment object 
+```
 
-## Citing `CBEA`
+## Input sets 
+
+CBEA accepts any type of sets, as long as it is in the `BiocSet` format where the elements in the sets can be matched to taxa names in the data set. The main function will check if these names match.   
+
+```{r load_sets}
+metab_sets
+```
+
+For more information on `BiocSet`, please refer to the documentation from `r Biocpkg("BiocSet")`. However, simply speaking, `BiocSet` acts similar to a list of three data frames and can be used in conjunction with `r CRANpkg("dplyr")`/`r CRANpkg("tidyr")`.  
+
+## Applying CBEA   
+
+After specifying the inputs, `cbea` is the main function to apply the method. If there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method. For parametric fits, `cbea` relies on on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.     
+
+Applying `cbea` is one command:  
+```{r run_cbea, eval = TRUE}
+results <- cbea(abun, set = metab_sets, abund_values = "16SrRNA",
+                output = "cdf", distr = "mnorm", adj = TRUE, thresh = 0.05, n_perm = 10)
+head(results)
+```
+Some important arguments to control the behaviour of CBEA.  
+
+* `output`: This controls what type of output is being returned. CBEA usually estimates a parametric null and users can specify what they want in return. If users want to perform downstream analysis with set-level features, they can return CDF values or z-scores of each raw score computed against that distribution (options `cdf` or `zscore`). Alternatively, users can just return the raw scores themselves (no distribution fitting will be performed) using `raw` as the option. Users can also use this distribution to estimate unadjusted p-values (option `pval`) to see whether a set is enriched at each sample. These unadjusted p-values can be converted based on a threshold (based on `thresh` which is default to be set at 0.05) into a dummy variable indicating enrichment (option `sig`). **Note**: CDF values and Z-scores are not available for non-parametric null estimations.  
+* `parametric`: This is a logical argument to specify whether a the null distribution will be specified via parametric fit or via non-parametric permutation testing. If `parametric` is `TRUE`, users need to specify `distr` and `adj`. If `parametric` is `FALSE`, users need to increase `n_perm`.  
+* `distr`: The form of the distribution if parametric fit is desired. As of now only supports `norm`, `mnorm`.  
+* `adj`: Whether the distribution should be adjusted for variance inflation. This procedure is done by combining the mean estimate from scores computed from permuted data set and the variance estimate from raw scores (computed on the unpermuted data set).  
+ 
+## Assessing goodness of fit  
+
+## Parallel computing  
+
+`CBEA` has in-built capacity to perform calculations paralelled across the total number of sets. The engine for parallelization is `r Biocpkg("BiocParallel")`
+
+
+# Citing `CBEA`
 
 We hope that `r Biocpkg("CBEA")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
 
@@ -100,65 +156,6 @@ We hope that `r Biocpkg("CBEA")` will be useful for your research. Please use th
 ## Citation info
 citation("CBEA")
 ```
-
-# Using `CBEA`
-
-```{r "start", message=FALSE}
-library("CBEA")
-library(BiocSet)
-library(tidyverse)
-library(phyloseq)
-```
-
-## Loading sample data  
-First, we can load some pre-packaged data sets contained in `r Biocpkg("CBEA")`. Here we're loading the data from the Human Microbiome Project (HMP) in `phyloseq` data container from the `r Biocpkg("phyloseq")` package. The `r Biocpkg("CBEA")` package also supports `TreeSummarizedExperiment` objects from the `r Biocpkg("TreeSummarizedExperiment")` package, where users can perform the conversion using the `r Biocpkg("mia")`` package.          
-```{r load_data}
-data("hmp_gingival")
-abun <- hmp_gingival$data
-sets <- hmp_gingival$set
-```
-
-## Constructing sets from taxonomic tables  
-Taxonomic sets are custom collections of microbes and associated annotations pre-determined. There are various ways to think about constructing sets, and the most common type of sets used are based on taxonomic ranks. We can construct these sets using a convenient function `const_set`:  
-
-```{r const_set_rank, eval = TRUE}
-genus_sets <- const_set(abun, rank = "FAMILY")
-genus_sets
-```
-The construction of sets using the `const_set` function also attaches the size of the set. Using this metadata and convenient functions associated with the `BiocSet` data container from the `r Biocpkg("BiocSet")` package, we can filter out small sets. We can see that the total number of sets and element sets have decreased since the filter.   
-
-```{r trim_sets, eval = TRUE}
-genus_sets <- genus_sets %>% BiocSet::filter_set(size >= 10)
-```
-
-CBEA accepts any type of sets, as long as it is in the `BiocSet` format where the elements in the sets can be matched to taxa currently in the data container of choice (`phyloseq` or `TreeSummarizedExperiment`). Users can attach any type of metadata to sets as they wish. 
-
-## Applying CBEA   
-
-`cbea` requires an object of type `phyloseq`, `TreeSummarizedExperiment`, `matrix`, or `data.frame`. For `matrix` and `data.frame` classes, it is required that taxa are columns and sample are rows. For other data containers there is an automated procedure to perform the transpose and correct for these issues. Additionally, if there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method.  
-
-Applying `cbea` is one command:  
-```{r run_cbea, eval = TRUE}
-results <- cbea(abun, set = genus_sets, 
-                output = "cdf", distr = "norm", adj = TRUE, thresh = 0.05)
-head(results)
-```
-
-There are various arguments to control the behaviour of CBEA. The most important arguments include the format of the output (CDF, z-scores, p-values or merely whether it is significant - controlled by threshold argument `thresh`), the form of the null distribution (normal or mixture normal), and whether correlation adjustment is required. The procedure relies on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.   
-
-# Additional considerations  
-
-## Constructing sets from other sources  
-
-Users would want to consider utilizing different types of sets that is not from the taxonomic table. CBEA's `const_set` function also supports two additional sources: `data.frame` and `matrix`. These signatures correspond to specific types of formats that can be converted to `BiocSet`.   
-
-* `data.frame` is expected to be an element-set data frame containing a column of taxonomic names (equivalent to `taxa_names` from a `phyloseq` object), and a column of set assignment  
-* `matrix` is expected to be a dummy matrix (of only 1 and 0s) of taxa as rows (or columns) and sets as columns (or rows)  
-
-## Making sure all elements are represented in the data frame 
-
-`CBEA` extracts sub-matrices by matching taxa by names that are assigned to that set. As such, an error would be thrown if a set contains taxa that were not part of the data object. The function `unify_sets` can perform a check to "unify" the elements in the set with the taxa in the data object. It would prune out elements (or entire sets) if they did not exist as part of the data object. This is an issue that is more commonly found when users attempt to use custom sets.  
-
 
 # Reproducibility
 
