@@ -31,4 +31,10 @@ of location-scale.
 \item \code{plst}: Cumulative distribution function
 }}
 
+\examples{
+    val <- rnorm(10)
+    dlst(val, df = 1, mu = 0, sigma = 1)
+    val <- rnorm(10)
+    plst(q = val, df = 1, mu = 0, sigma = 1)
+}
 \keyword{internal}

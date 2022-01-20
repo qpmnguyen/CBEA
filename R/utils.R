@@ -63,6 +63,10 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
 #' @importFrom stats dt
 #' @describeIn dlst Probability Density Function
 #' @keywords internal
+#' @export
+#' @examples 
+#'     val <- rnorm(10)
+#'     dlst(val, df = 1, mu = 0, sigma = 1)
 dlst <- function(x, df=1, mu=0, sigma=1, log = FALSE){
     prob <- (log(1) - log(sigma)) + dt((x - mu)/sigma, df, log = TRUE)
     if (log == TRUE){
@@ -74,6 +78,10 @@ dlst <- function(x, df=1, mu=0, sigma=1, log = FALSE){
 
 #' @describeIn dlst Cumulative distribution function
 #' @importFrom stats pt
+#' @export
+#' @examples
+#'     val <- rnorm(10)
+#'     plst(q = val, df = 1, mu = 0, sigma = 1)
 plst <- function(q, df=1, mu=0, sigma=1, log = FALSE){
     prob <- pt((q - mu)/sigma, df, log.p = log)
     return(prob)

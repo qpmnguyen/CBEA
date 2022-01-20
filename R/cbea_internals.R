@@ -188,7 +188,7 @@ get_raw_score <- function(X, idx) {
 #' @keywords internal
 #' @importFrom fitdistrplus fitdist
 #' @importFrom mixtools normalmixEM
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit sd
 estimate_distr <- function(data, distr,
                            init = NULL, args_list = NULL) {
     distr <- match.arg(distr, c("norm", "mnorm", "lst"))
