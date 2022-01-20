@@ -64,7 +64,7 @@ NULL
 #' @export
 setGeneric("cbea", function(obj, set,
                             output,
-                            distr=NULL,
+                            distr = NULL,
                             adj = FALSE,
                             n_perm = 100,
                             parametric = TRUE,
@@ -85,7 +85,7 @@ setGeneric("cbea", function(obj, set,
 #' @export
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,
-                                                       distr=NULL,
+                                                       distr = NULL,
                                                        abund_values,
                                                        adj = FALSE,
                                                        n_perm = 100,

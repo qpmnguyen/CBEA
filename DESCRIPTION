@@ -21,7 +21,6 @@ Depends:
 Imports: 
     BiocParallel,
     BiocSet,
-    extraDistr,
     dplyr,
     fitdistrplus,
     magrittr,

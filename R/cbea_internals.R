@@ -25,7 +25,7 @@
 .cbea <- function(ab_tab,
                   set_list,
                   output, distr,
-                  adj = TRUE,
+                  adj = FALSE,
                   n_perm = 100,
                   parametric = TRUE,
                   thresh = 0.05,
@@ -189,7 +189,6 @@ get_raw_score <- function(X, idx) {
 #' @importFrom fitdistrplus fitdist
 #' @importFrom mixtools normalmixEM
 #' @importFrom stats na.omit
-#' @importFrom extraDistr dlst plst qlst rlst
 estimate_distr <- function(data, distr,
                            init = NULL, args_list = NULL) {
     distr <- match.arg(distr, c("norm", "mnorm", "lst"))
@@ -206,11 +205,11 @@ estimate_distr <- function(data, distr,
     # Default initialization is all zeroes
     if (missing(init) | is.null(init)) {
         if (distr == "norm") {
-            init <- list(mean = 0, sd = 1)
+            init <- list(mean = mean(data), sd = sd(data))
         } else if (distr == "mnorm") {
             init <- list(lambda = NULL, mu = NULL, sigma = NULL)
         } else if (distr == "lst") {
-            init <- list(df = 1, mu = 0, sigma = 1)
+            init <- list(df = 1, mu = mean(data), sigma = sd(data))
         }
     }
     # supplied and defaults for additional parameters
