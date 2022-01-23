@@ -52,6 +52,43 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     return(Reduce("+", comp))
 }
 
+#' @title Defintions for location-scale t distribution 
+#' @description Internal functions for defining the t-distribution in terms 
+#'     of location-scale.  
+#' @param x,q The data vector 
+#' @param df Degrees of freedom
+#' @param mu The location parameter 
+#' @param sigma The scale parameter
+#' @param log Indicate whether probabilities are return as log 
+#' @importFrom stats dt
+#' @describeIn dlst Probability Density Function
+#' @keywords internal
+#' @export
+#' @examples 
+#'     val <- rnorm(10)
+#'     dlst(val, df = 1, mu = 0, sigma = 1)
+dlst <- function(x, df=1, mu=0, sigma=1, log = FALSE){
+    prob <- (log(1) - log(sigma)) + dt((x - mu)/sigma, df, log = TRUE)
+    if (log == TRUE){
+        return(prob)
+    } else {
+        return(exp(prob))
+    }
+}
+
+#' @describeIn dlst Cumulative distribution function
+#' @importFrom stats pt
+#' @export
+#' @examples
+#'     val <- rnorm(10)
+#'     plst(q = val, df = 1, mu = 0, sigma = 1)
+plst <- function(q, df=1, mu=0, sigma=1, log = FALSE){
+    prob <- pt((q - mu)/sigma, df, log.p = log)
+    return(prob)
+}
+
+
+
 #' @title Get the overall standard deviation of a
 #'     two component mixture distribution
 #' @param mu (Vector). A two value vector of mean values.
@@ -94,10 +131,7 @@ check_args <- function(){
         stop("Output has to be of options 'cdf', 'zscore', 'pval', 'sig', 'raw'")
     }
 
-    if (!env$distr %in% c("norm", "mnorm", "lst") | is.null(env$distr)){
-        stop("Distribution choices has to either be 'norm', 'mnorm', 'lst',
-             or 'NULL' (equivalent to 'parametric' = FALSE)")
-    }
+   
 
 
     # first, check if distr is null
@@ -105,13 +139,19 @@ check_args <- function(){
         if (env$parametric == TRUE){
             stop("Distribution needs to be specified if parametric fit is desired")
         }
+    } else {
+        if (!env$distr %in% c("norm", "mnorm", "lst")){
+            stop("Distribution choices has to either be 'norm', 'mnorm', 'lst',
+             or 'NULL' (equivalent to 'parametric' = FALSE)")
+        }
     }
+    
     # handling if adj argument is null
     if (is.null(env$adj)){
         if (env$parametric == TRUE){
             stop("Correlation adjustment option needs to be specified if parametric fit is desired")
         }
-    }
+    } 
     # if parametric is false cannot get either cdf values or z-scores
     if (env$parametric == FALSE){
         if (env$output %in% c("zscore", "cdf")){

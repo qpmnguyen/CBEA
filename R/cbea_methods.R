@@ -64,7 +64,7 @@ NULL
 #' @export
 setGeneric("cbea", function(obj, set,
                             output,
-                            distr=NULL,
+                            distr = NULL,
                             adj = FALSE,
                             n_perm = 100,
                             parametric = TRUE,
@@ -85,7 +85,7 @@ setGeneric("cbea", function(obj, set,
 #' @export
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,
-                                                       distr=NULL,
+                                                       distr = NULL,
                                                        abund_values,
                                                        adj = FALSE,
                                                        n_perm = 100,
@@ -95,7 +95,7 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        control = NULL, ...) {
     # Validate inputs ####
     check_args()
-
+    call <- match.call()
     # generate table
     if (!abund_values %in% names(assays(obj))){
         stop("abund_values must be part of the assays of the object.
@@ -118,7 +118,12 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
         thresh = thresh, init = init,
         raw = raw, control = control, ...
     )
-    return(model)
+    
+    out <- new_CBEAout(model, sample_ids = rownames(tab), 
+                       output = output, 
+                       parametric, 
+                       distr) 
+    return(out)
 })
 
 #' @rdname cbea

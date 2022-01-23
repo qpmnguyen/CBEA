@@ -9,7 +9,7 @@
   set_list,
   output,
   distr,
-  adj = TRUE,
+  adj = FALSE,
   n_perm = 100,
   parametric = TRUE,
   thresh = 0.05,

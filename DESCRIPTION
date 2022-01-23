@@ -21,8 +21,8 @@ Depends:
 Imports: 
     BiocParallel,
     BiocSet,
-    extraDistr,
     dplyr,
+    lmom,
     fitdistrplus,
     magrittr,
     methods,
@@ -31,7 +31,9 @@ Imports:
     stats,
     SummarizedExperiment,
     tibble,
-    TreeSummarizedExperiment
+    TreeSummarizedExperiment,
+    tidyr,
+    glue
 Suggests: 
     phyloseq,
     BiocStyle,
@@ -44,7 +46,6 @@ Suggests:
     tidyverse,
     roxygen2,
     mia,
-    glue,
     purrr
 LinkingTo: 
     Rcpp
