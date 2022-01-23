@@ -237,6 +237,7 @@ estimate_distr <- function(data, distr,
         },
         {
             if (distr %in% c("norm", "lst")) {
+                print(exists("dlst", mode = "function"))
                 params <- c(params, list(start = init, distr = distr, data = data))
                 fit <- do.call(fitdist, params)
                 if (distr == "norm"){
