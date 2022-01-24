@@ -61,7 +61,7 @@
 #' @param parametric (Logical). See documentation \code{\link{cbea}}
 #' @param thresh (Numeric). See documentation \code{\link{cbea}}
 #' @keywords internal
-#' @importFrom stats quantile
+#' @importFrom stats quantile ks.test
 #' @importFrom lmom samlmu
 #' @importFrom mixtools rnormmix
 fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric, thresh,
@@ -106,7 +106,7 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric
                 final_distr <- combine_distr(perm_distr, unperm_distr, distr = distr,
                                              fix_comp = fix_comp)
             } else {
-                final_distr <- perm_distr
+                final_distr <- perm_distr[-which(names(perm_distr) == "loglik")]
             }
             scores <- scale_scores(raw_scores,
                                    method = output,
@@ -120,37 +120,37 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric
             }
         }
     }
-    
+
     # PROTOTYPE DIAGNOSTIC
     out <- list(scores = scores)
-    if (output == "raw"){
+    if (output == "raw" | parametric == FALSE){
         fit_diagnostic <- NA
-        Lmoment_comparison <- NA
+        lmoment_comparison <- NA
     } else {
         fit_diagnostic <- list(
             distr = distr,
             parameters = final_distr,
             permuted_distr = list(
                 loglik = perm_distr[["loglik"]],
-                kd = do.call(ks.test, c(perm_distr[-which(names(perm_distr) == "loglik")], 
+                kd = do.call(ks.test, c(perm_distr[-which(names(perm_distr) == "loglik")],
                                         list(x = perm_scores, y = paste0("p", distr))))$statistic
             ))
-        # Simulating data 
+        # Simulating data
         if (distr == "mnorm"){
             func <- "rnormmix"
         } else {
             func <- paste0("r", distr)
-        } 
+        }
         gen_fit <- do.call(func, args = c(final_distr, list(n = 1e4)))
-        
+
         lmoment_comparison <- t(data.frame(
             data = samlmu(x = raw_scores),
             perm = samlmu(x = perm_scores),
             fit = samlmu(x = gen_fit)
         ))
-        colnames(lmoment_comparison) <- c("l_location", "l_scale", 
+        colnames(lmoment_comparison) <- c("l_location", "l_scale",
                                           "l_skewness", "l_kurtosis")
-        
+
         if (adj == TRUE){
             unperm_distr = list(
                 loglik = unperm_distr[["loglik"]],
@@ -279,14 +279,13 @@ estimate_distr <- function(data, distr,
         },
         {
             if (distr %in% c("norm", "lst")) {
-                print(exists("dlst", mode = "function"))
                 params <- c(params, list(start = init, distr = distr, data = data))
                 fit <- do.call(fitdist, params)
                 if (distr == "norm"){
-                    list(mean = fit$estimate[["mean"]], 
+                    list(mean = fit$estimate[["mean"]],
                          sd = fit$estimate[["sd"]], loglik = fit$loglik)
                 } else if (distr == "lst"){
-                    list(df = fit$estimate[["df"]], 
+                    list(df = fit$estimate[["df"]],
                          mu = fit$estimate[["mu"]],
                          sigma = fit$estimate[["sigma"]], loglik = fit$loglik)
                 }
@@ -294,7 +293,7 @@ estimate_distr <- function(data, distr,
                 params <- c(params, list(x = data))
                 params <- c(init, params)
                 fit <- do.call(normalmixEM, params)
-                list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda, 
+                list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda,
                      loglik = fit$loglik)
             }
         }

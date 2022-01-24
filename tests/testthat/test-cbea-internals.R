@@ -53,8 +53,8 @@ test_that("Making sure estimate_distr returns a list", {
 })
 
 test_that("Making sure the names test_that are using is correct", {
-  expect_named(estimate_distr(scores, distr = "norm"), c("mean", "sd"))
-  expect_named(estimate_distr(scores, distr = "mnorm"), c("mu", "sigma", "lambda"))
+  expect_named(estimate_distr(scores, distr = "norm"), c("mean", "sd", "loglik"))
+  expect_named(estimate_distr(scores, distr = "mnorm"), c("mu", "sigma", "lambda", "loglik"))
 })
 
 test_that("Return error if have too much NAs", {

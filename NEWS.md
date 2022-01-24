@@ -1,9 +1,23 @@
+# CBEA 0.99.3  
+NEW FEATURES 
+
+- Created an output type object (`CBEAout`). This is an S3 type object that is essentially a list that incorporates the final score matrix as well as other diagnostic details.  
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+- Due to the new feature above, now instead of getting a tibble, users would have to extract the scores out either using the provided function or use a custom approach based on the list-of-list format of the `CBEAout` objects.    
+- Implemented `tidy` and `glance` methods to deal with `CBEAout` objects  
+
+BUG FIXES
+
+None
+
 # CBEA 0.99.2  
 NEW FEATURES  
 
 - Added an option (`parametric`) to specify whether the null is estimated parametrically or
-via pure permutation. To support this, an option (`nboot`) was also added to specify the number of permutations. A warning will be added if `parametric` is `FALSE` but `n_boot` is small (< 200)    
-- Added option (`parallel_backend`) to specify the parallel backend of the loop using `BiocParallel`   
+via pure permutation. To support this, an option (`n_perm`) was also added to specify the number of permutations. A warning will be added if `parametric` is `FALSE` but `n_boot` is small (< 100)    
+- Added option (`parallel_backend`) to specify the parallel backend of the loop using `BiocParallel`  
 - Argument `control` now allow for a special slot titled `fix_comp` that can specify which component of the two-component mixture distribution to fix during the adjustment process.    
 
 SIGNIFICANT USER-VISIBLE CHANGES  
@@ -15,7 +29,7 @@ returning raw CBEA scores (without any distribution fitting and transformation).
 
 BUG FIXES  
 
-
+None
 
 # CBEA 0.99.1  
 NEW FEATURES     

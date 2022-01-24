@@ -95,7 +95,6 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        control = NULL, ...) {
     # Validate inputs ####
     check_args()
-    call <- match.call()
     # generate table
     if (!abund_values %in% names(assays(obj))){
         stop("abund_values must be part of the assays of the object.
@@ -118,11 +117,16 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
         thresh = thresh, init = init,
         raw = raw, control = control, ...
     )
-    
-    out <- new_CBEAout(model, sample_ids = rownames(tab), 
-                       output = output, 
-                       parametric, 
-                       distr) 
+    call <- list(
+        sample_ids = rownames(tab),
+        parametric = parametric,
+        distr = distr,
+        n_perm = n_perm,
+        output = output,
+        adj = adj
+    )
+
+    out <- new_CBEAout(model, call = call)
     return(out)
 })
 
@@ -169,8 +173,8 @@ setMethod("cbea", "data.frame", function(obj, set,
     if (length(which(tab == 0)) > 0) {
         warning("Taxonomic count table contains zeros,
             which would invalidate the log-ratio transform.
-            Adding a pseudocount of 1...")
-        tab <- tab + 1
+            Adding a pseudocount of 1e-5...")
+        tab <- tab + 1e-5
     }
 
     set_list <- as(set, "list")
@@ -206,8 +210,8 @@ setMethod("cbea", "matrix", function(obj, set,
     if (length(which(tab == 0)) > 0) {
         warning("Taxonomic count table contains zeros,
             which would invalidate the log-ratio transform.
-            Adding a pseudocount of 1...")
-        tab <- tab + 1
+            Adding a pseudocount of 1e-5...")
+        tab <- tab + 1e-5
     }
 
     set_list <- as(set, "list")

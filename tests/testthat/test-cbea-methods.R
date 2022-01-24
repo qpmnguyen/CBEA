@@ -9,37 +9,70 @@ sets <- hmp_gingival$set
 
 SummarizedExperiment::assay(physeq) <- SummarizedExperiment::assay(physeq, "16SrRNA") + 1
 
-test_that("Basic outputs", {
-    settings <- purrr::cross_df(list(
-        distr = c("mnorm", "norm"),
-        adj = c(TRUE, FALSE),
-        output = c("sig", "pval", "cdf", "zscore"),
-        parametric = c(TRUE, FALSE)
-    ))
-    settings <- settings %>% dplyr::anti_join(
-        purrr::cross_df(list(
-            output = c("zscore", "cdf"),
-            parametric = FALSE
-        ))
-    )
-    purrr::pmap(settings, function(distr, adj, output, parametric){
-        print(glue::glue("Currently at {distr}, {adj}, {output}, {parametric}"))
-        expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
-                             set = sets, output = output,
-                           distr = distr, adj = adj, n_perm = 10,
-                           parametric = parametric), class = "tbl_df")
-        return(NULL)
-    })
+test_that("Testing parametric fits w/o adjustment", {
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "sig",
+                         distr = "norm", adj = FALSE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "cdf",
+                         distr = "norm", adj = FALSE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "sig",
+                         distr = "mnorm", adj = FALSE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "cdf",
+                         distr = "mnorm", adj = FALSE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
 })
+
+test_that("Testing non-parametric fits", {
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "sig", n_perm = 1,
+                         parametric = FALSE), class = "CBEAout")
+
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "pval", n_perm = 1,
+                         parametric = FALSE), class = "CBEAout")
+})
+
+test_that("Testing parametric fits w/ adjustment", {
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "sig",
+                         distr = "norm", adj = TRUE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "cdf",
+                         distr = "norm", adj = TRUE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "sig",
+                         distr = "mnorm", adj = TRUE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA",
+                         set = sets, output = "cdf",
+                         distr = "mnorm", adj = TRUE, n_perm = 1,
+                         parametric = TRUE), class = "CBEAout")
+
+})
+
 
 test_that("Expected errors and warnings combining different options", {
     # parametric is false but output is either cdf or zscore
-    expect_error(cbea(obj = physeq, set = sets, output = "cdf", distr = "norm",
+    expect_error(cbea(obj = physeq, abund_values = "16SrRNA",
+                      set = sets, output = "cdf", distr = "norm",
                       adj = TRUE, n_perm = 1,parametric = FALSE))
-    expect_error(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
+    expect_error(cbea(obj = physeq, abund_values = "16SrRNA",
+                      set = sets, output = "zscore", distr = "norm",
                       adj = TRUE, n_perm = 1, parametric = FALSE))
-    # parametric is true but no adj argument was performed
-    expect_error(cbea(obj = physeq, set = sets, output = "zscore", distr = "norm",
-                        n_perm = 1, parametric = TRUE))
     # parametric is true but no distr argument was performed
+    expect_error(cbea(obj = physeq, abund_values = "16SrRNA",
+                      set = sets, output = "zscore", adj = TRUE,
+                      n_perm = 1, parametric = TRUE))
+    # n_perm < 100 if parametric is FALSE
+    expect_message(cbea(obj = physeq, abund_values = "16SrRNA",
+                        set = sets, output = "sig", adj = TRUE,
+                      n_perm = 1, parametric = FALSE))
 })
