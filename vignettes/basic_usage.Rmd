@@ -131,7 +131,7 @@ After specifying the inputs, `cbea` is the main function to apply the method. If
 Applying `cbea` is one command:  
 ```{r run_cbea, eval = TRUE}
 results <- cbea(abun, set = metab_sets, abund_values = "16SrRNA",
-                output = "cdf", distr = "mnorm", adj = TRUE, thresh = 0.05, n_perm = 10)
+              output = "cdf", distr = "mnorm", adj = TRUE, thresh = 0.05, n_perm = 10)
 head(results)
 ```
 Some important arguments to control the behaviour of CBEA.  
