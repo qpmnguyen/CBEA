@@ -23,6 +23,7 @@ merge_lists <- function(defaults, supplied) {
 #' @return A numeric value representing the probability
 #'     density value of a two-component mixture distribution
 #' @describeIn pmnorm Cumulative Distribution Function
+#' @export
 #' @importFrom stats pnorm
 pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     q <- as.vector(q)
@@ -38,6 +39,7 @@ pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
 }
 
 #' @describeIn pmnorm Probability Density Function
+#' @export
 #' @importFrom stats dnorm
 dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     x <- as.vector(x)
@@ -52,19 +54,19 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     return(Reduce("+", comp))
 }
 
-#' @title Defintions for location-scale t distribution 
-#' @description Internal functions for defining the t-distribution in terms 
-#'     of location-scale.  
-#' @param x,q The data vector 
+#' @title Defintions for location-scale t distribution
+#' @description Internal functions for defining the t-distribution in terms
+#'     of location-scale.
+#' @param x,q The data vector
 #' @param df Degrees of freedom
-#' @param mu The location parameter 
+#' @param mu The location parameter
 #' @param sigma The scale parameter
-#' @param log Indicate whether probabilities are return as log 
+#' @param log Indicate whether probabilities are return as log
 #' @importFrom stats dt
 #' @describeIn dlst Probability Density Function
 #' @keywords internal
 #' @export
-#' @examples 
+#' @examples
 #'     val <- rnorm(10)
 #'     dlst(val, df = 1, mu = 0, sigma = 1)
 dlst <- function(x, df=1, mu=0, sigma=1, log = FALSE){
@@ -131,7 +133,7 @@ check_args <- function(){
         stop("Output has to be of options 'cdf', 'zscore', 'pval', 'sig', 'raw'")
     }
 
-   
+
 
 
     # first, check if distr is null
@@ -145,13 +147,13 @@ check_args <- function(){
              or 'NULL' (equivalent to 'parametric' = FALSE)")
         }
     }
-    
+
     # handling if adj argument is null
     if (is.null(env$adj)){
         if (env$parametric == TRUE){
             stop("Correlation adjustment option needs to be specified if parametric fit is desired")
         }
-    } 
+    }
     # if parametric is false cannot get either cdf values or z-scores
     if (env$parametric == FALSE){
         if (env$output %in% c("zscore", "cdf")){

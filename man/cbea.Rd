@@ -18,6 +18,7 @@ cbea(
   thresh = 0.05,
   init = NULL,
   control = NULL,
+  parallel_backend = NULL,
   ...
 )
 
@@ -33,6 +34,7 @@ cbea(
   thresh = 0.05,
   init = NULL,
   control = NULL,
+  parallel_backend = NULL,
   ...
 )
 
@@ -49,6 +51,7 @@ cbea(
   thresh = 0.05,
   init = NULL,
   control = NULL,
+  parallel_backend = NULL,
   ...
 )
 
@@ -64,6 +67,7 @@ cbea(
   thresh = 0.05,
   init = NULL,
   control = NULL,
+  parallel_backend = NULL,
   ...
 )
 }
@@ -104,6 +108,8 @@ Default is NULL.}
 
 \item{control}{(Named List). Additional arguments to be passed to
 \code{fitdistr} and \code{normmixEM}. Defaults to NULL.}
+
+\item{parallel_backend}{See documentation \code{\link{cbea}}}
 
 \item{...}{Additional arguments not used at the moment.}
 

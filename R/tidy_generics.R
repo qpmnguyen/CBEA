@@ -24,8 +24,8 @@ generics::glance
 #' @export
 tidy.CBEAout <- function(x, ...){
     output <- as_tibble(x$R)
-    output <- add_column(output, sample_ids = x$call_params$sample_ids, .before = 1)
     colnames(output) <- gsub(" ", "_", colnames(output))
+    output <- add_column(output, sample_ids = x$call_param$sample_ids, .before = 1)
     return(output)
 }
 
@@ -57,9 +57,9 @@ glance.CBEAout <- function(x, statistic, ...){
     value <- NULL
 
     statistic <- match.arg(statistic, c("fit_diagnostic", "fit_comparison"))
-    names(mod$diagnostic) <- gsub(" ", "_", names(mod$diagnostic))
-    names(mod$parameters) <- gsub(" ", "_", names(mod$parameters))
-    names(mod$fit_comparison) <- gsub(" ", "_", names(mod$fit_comparison))
+    names(x$diagnostic) <- gsub(" ", "_", names(x$diagnostic))
+    names(x$parameters) <- gsub(" ", "_", names(x$parameters))
+    names(x$fit_comparison) <- gsub(" ", "_", names(x$fit_comparison))
 
     parameters <- tibble(set_ids = names(x$parameters),
                          final_param = x$parameters)
@@ -72,7 +72,7 @@ glance.CBEAout <- function(x, statistic, ...){
             rename("set_ids" = "name")
         output <- left_join(parameters, diagnostic, by = "set_ids")
     } else if (statistic == "fit_comparison"){
-        fit_parameters <- tibble(set_ids= names(x$fit_comparison),
+        fit_parameters <- tibble(set_ids = names(x$fit_comparison),
                                 fit_comparison = lapply(x$fit_comparison, function(x) {
                                     as.data.frame(x) %>%
                                         rownames_to_column(var = "distr") %>%

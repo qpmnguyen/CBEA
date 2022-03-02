@@ -37,7 +37,8 @@
         seed <- rpois(1, lambda = 1e4)
         parallel_backend <- SerialParam(RNGseed = seed)
     }
-    R <- bplapply(set_list, fit_scores, ab_tab = ab_tab, adj = adj, distr = distr,
+    R <- bplapply(set_list, fit_scores, ab_tab = ab_tab, adj = adj,
+                  distr = distr,
                   output = output, n_perm = n_perm,
                   parametric = parametric, init = init, control = control,
                   thresh = thresh, BPPARAM = parallel_backend)
@@ -61,11 +62,10 @@
 #' @param parametric (Logical). See documentation \code{\link{cbea}}
 #' @param thresh (Numeric). See documentation \code{\link{cbea}}
 #' @keywords internal
-#' @importFrom stats quantile ks.test
-#' @importFrom lmom samlmu
-#' @importFrom mixtools rnormmix
-fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric, thresh,
+fit_scores <- function(index_vec, ab_tab, adj, distr, output,
+                       n_perm, parametric, thresh,
                        init, control){
+    # check control arguments
     if (!is.null(control) & ("fix_comp" %in% names(control))){
         fix_comp <- control$fix_comp
         control <- control[-which(names(control) == "fix_comp")]
@@ -90,7 +90,7 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric
                                      sample(seq_len(p), size = length(true_index),
                                             replace = FALSE),
                                      simplify = FALSE)
-        # get perm scores fromt he perm_index_list
+        # get perm scores from the perm_index_list
         perm_scores <- lapply(perm_index_list, function(x) get_raw_score(ab_tab, x))
         perm_scores <- unname(do.call(c, perm_scores))
 
@@ -100,6 +100,7 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric
                                          distr = distr,
                                          init = init,
                                          args_list = control)
+            # estimate the adjusted distribution as well
             if (adj == TRUE) {
                 unperm_distr <- estimate_distr(raw_scores, distr = distr,
                                                init = init, args_list = control)
@@ -121,49 +122,80 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output, n_perm, parametric
         }
     }
 
-    # PROTOTYPE DIAGNOSTIC
+    # generating diagnostics
     out <- list(scores = scores)
-    if (output == "raw" | parametric == FALSE){
+    diagnostics <- get_diagnostics()
+    out <- c(out, diagnostics)
+    return(out)
+}
+
+
+#' @title Get diagnostic values using parent environment.
+#' @description This function is used internally inside fit_scores to grab the relevant objects
+#'     from the previous parent environment (i.e. the environment from fit_scores) and
+#'     compute relevant information. The role of this function is break diagnostic component into
+#'     a different function for maintenance.
+#' @importFrom rlang empty_env caller_env env_names
+#' @importFrom goftest ad.test
+#' @importFrom lmom samlmu
+#' @importFrom mixtools rnormmix
+#' @keywords internal
+get_diagnostics <- function(env = caller_env()){
+    # all the function checks!
+    if (identical(env, empty_env())){
+        stop("Environment is empty", .call = FALSE)
+    }
+    req_objs <- c("output", "distr", "parametric", "final_distr", "perm_distr", "raw_scores",
+                  "perm_scores", "unperm_distr")
+    obj_names <- rlang::env_names(env)
+    sapply(req_objs, function(x){
+        if(!x %in% obj_names){
+            stop(x, " not found")
+        }
+    })
+
+    if (env$output == "raw" | env$parametric == FALSE){
         fit_diagnostic <- NA
         lmoment_comparison <- NA
     } else {
+        # diagnostic of the permuted distribution fit
         fit_diagnostic <- list(
-            distr = distr,
-            parameters = final_distr,
+            distr = env$distr,
+            parameters = env$final_distr,
             permuted_distr = list(
-                loglik = perm_distr[["loglik"]],
-                kd = do.call(ks.test, c(perm_distr[-which(names(perm_distr) == "loglik")],
-                                        list(x = perm_scores, y = paste0("p", distr))))$statistic
-            ))
-        # Simulating data
-        if (distr == "mnorm"){
+                loglik = env$perm_distr[["loglik"]],
+                ad = do.call(ad.test, c(env$perm_distr[-which(names(env$perm_distr) == "loglik")],
+                                        list(x = env$perm_scores, null = paste0("p", env$distr))))$statistic
+            )
+        )
+        if (env$adj == TRUE){
+            unperm_distr = list(
+                loglik = env$unperm_distr[["loglik"]],
+                ad = do.call(ad.test, c(env$unperm_distr[-which(names(env$unperm_distr) == "loglik")],
+                                        list(x = env$raw_scores, null = paste0("p", env$distr))))$statistic
+            )
+            fit_diagnostic$unperm_distr <- unperm_distr
+        }
+
+        # lmoment comparison between distributions
+        if (env$distr == "mnorm"){
             func <- "rnormmix"
         } else {
             func <- paste0("r", distr)
         }
-        gen_fit <- do.call(func, args = c(final_distr, list(n = 1e4)))
+
+        gen_fit <- do.call(func, args = c(env$final_distr, list(n = 1e4)))
 
         lmoment_comparison <- t(data.frame(
-            data = samlmu(x = raw_scores),
-            perm = samlmu(x = perm_scores),
+            data = samlmu(x = env$raw_scores),
+            perm = samlmu(x = env$perm_scores),
             fit = samlmu(x = gen_fit)
         ))
         colnames(lmoment_comparison) <- c("l_location", "l_scale",
                                           "l_skewness", "l_kurtosis")
-
-        if (adj == TRUE){
-            unperm_distr = list(
-                loglik = unperm_distr[["loglik"]],
-                kd = do.call(ks.test, c(unperm_distr[-which(names(unperm_distr) == "loglik")],
-                                        list(x = raw_scores, y = paste0("p", distr))))$statistic
-            )
-            fit_diagnostic$unperm_distr <- unperm_distr
-        }
     }
-    out <- c(out, list(diagnostic = fit_diagnostic, lmoment = lmoment_comparison))
-    return(out)
+    return(list(diagnostic = fit_diagnostic, lmoment = lmoment_comparison))
 }
-
 
 #' @title Get CBEA scores for a given matrix and a vector of column indices
 #' @param X (Matrix). OTU table of matrix format where taxa are

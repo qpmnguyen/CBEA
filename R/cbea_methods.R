@@ -43,6 +43,7 @@
 #'     Default is NULL.
 #' @param control (Named List). Additional arguments to be passed to
 #'     \code{fitdistr} and \code{normmixEM}. Defaults to NULL.
+#' @param parallel_backend See documentation \code{\link{cbea}}
 #' @param ... Additional arguments not used at the moment.
 #' @return \code{R}    An \code{n} by \code{m} matrix of enrichment scores at
 #'     the sample level
@@ -70,7 +71,8 @@ setGeneric("cbea", function(obj, set,
                             parametric = TRUE,
                             thresh = 0.05,
                             init = NULL,
-                            control = NULL, ...) {
+                            control = NULL,
+                            parallel_backend = NULL, ...) {
   standardGeneric("cbea")
 }, signature = "obj")
 
@@ -92,7 +94,9 @@ setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        parametric = TRUE,
                                                        thresh = 0.05,
                                                        init = NULL,
-                                                       control = NULL, ...) {
+                                                       control = NULL,
+                                                       parallel_backend = NULL,
+                                                       ...) {
     # Validate inputs ####
     check_args()
     # generate table
@@ -149,6 +153,7 @@ setMethod("cbea", "data.frame", function(obj, set,
                                          thresh = 0.05,
                                          init = NULL,
                                          control = NULL,
+                                         parallel_backend = NULL,
                                          ...) {
     # Validate inputs ####
     check_args()
@@ -200,6 +205,7 @@ setMethod("cbea", "matrix", function(obj, set,
                                      thresh = 0.05,
                                      init = NULL,
                                      control = NULL,
+                                     parallel_backend = NULL,
                                      ...) {
     # Validate inputs ####
     check_args()

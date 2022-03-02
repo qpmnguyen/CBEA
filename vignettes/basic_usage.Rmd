@@ -61,13 +61,15 @@ bib <- c(
     tidyverse = citation("tidyverse")[1],
     mixtools = citation("mixtools")[1],
     fitdistrplus = citation("fitdistrplus")[1],
-    CBEA = citation("CBEA")[1]
+    CBEA = citation("CBEA")[1],
+    broom = citation("broom")[1], 
+    BiocParallel = citation("BiocParallel")[1]
 )
 ```
 
 # Introduction  
 
-This package implements the CBEA approach for performing set-based enrichment analysis for microbiome relative abundance data. A preprint of the package can be found [on bioXriv](https://www.biorxiv.org/content/10.1101/2021.09.07.459294v1.full). In summary, CBEA (Competitive Balances for taxonomic Enrichment Analysis) provides an estimate of the activity of a set by transforming an input taxa-by-sample data matrix into a corresponding taxa-set-by-sample data matrix. The resulting output can be used for additional downstream analyses such as differential abundance, classification, clustering, etc. using set-based features instead of the original units.  
+This package implements the CBEA approach for performing set-based enrichment analysis for microbiome relative abundance data. A preprint of the package can be found [on bioXriv](https://www.biorxiv.org/content/10.1101/2021.09.07.459294v1.full). In summary, CBEA (Competitive Balances for taxonomic Enrichment Analysis) provides an estimate of the activity of a set by transforming an input taxa-by-sample data matrix into a corresponding set-by-sample data matrix. The resulting output can be used for additional downstream analyses such as differential abundance, classification, clustering, etc. using set-based features instead of the original units.  
 
 The transformation that CBEA applies is based on the isometric log ratio transformation:  
 $$
@@ -103,7 +105,7 @@ library(tidyverse)
 ```
 
 ## Loading sample data  
-First, we can load some pre-packaged data sets contained in `r Biocpkg("CBEA")`. Here we're loading the data from the Human Microbiome Project (HMP) in `TreeSummarizedExperiment` data container from the `r Biocpkg("TreeSummarizedExperiment")`. It also supports `phyloseq` from the `r Biocpkg("phyloseq")` package but users will have to install that package independently due to its size. Users can leverage the `r Biocpkg("mia")` package to convert between the data types.  
+First, we can load some pre-packaged data sets contained in `r Biocpkg("CBEA")`. Here we're loading the data from the Human Microbiome Project (HMP) in `TreeSummarizedExperiment` data container from the `r Biocpkg("TreeSummarizedExperiment")`. This package does not support `phyloseq` from the `r Biocpkg("phyloseq")` package but users can leverage the `r Biocpkg("mia")` package to convert between the data types.  
 
 In addition, users can also input raw matrices or data frames, however those require additional arguments. The `taxa_are_rows` argument requires users specify whether the data frame/matrix has taxa abundances as rows (or as columns). The `id_col` argument requires users to specify (for data frames only) a vector of names of row metadata that will be excluded from the analysis.  
 
@@ -126,14 +128,14 @@ For more information on `BiocSet`, please refer to the documentation from `r Bio
 
 ## Applying CBEA   
 
-After specifying the inputs, `cbea` is the main function to apply the method. If there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method. For parametric fits, `cbea` relies on on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.     
-
+After specifying the inputs, `cbea` is the main function to apply the method. If there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method. For parametric fits, `cbea` relies on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.     
 Applying `cbea` is one command:  
 ```{r run_cbea, eval = TRUE}
 results <- cbea(abun, set = metab_sets, abund_values = "16SrRNA",
               output = "cdf", distr = "mnorm", adj = TRUE, thresh = 0.05, n_perm = 10)
-head(results)
+results
 ```
+
 Some important arguments to control the behaviour of CBEA.  
 
 * `output`: This controls what type of output is being returned. CBEA usually estimates a parametric null and users can specify what they want in return. If users want to perform downstream analysis with set-level features, they can return CDF values or z-scores of each raw score computed against that distribution (options `cdf` or `zscore`). Alternatively, users can just return the raw scores themselves (no distribution fitting will be performed) using `raw` as the option. Users can also use this distribution to estimate unadjusted p-values (option `pval`) to see whether a set is enriched at each sample. These unadjusted p-values can be converted based on a threshold (based on `thresh` which is default to be set at 0.05) into a dummy variable indicating enrichment (option `sig`). **Note**: CDF values and Z-scores are not available for non-parametric null estimations.  
@@ -141,11 +143,39 @@ Some important arguments to control the behaviour of CBEA.
 * `distr`: The form of the distribution if parametric fit is desired. As of now only supports `norm`, `mnorm`.  
 * `adj`: Whether the distribution should be adjusted for variance inflation. This procedure is done by combining the mean estimate from scores computed from permuted data set and the variance estimate from raw scores (computed on the unpermuted data set).  
  
-## Assessing goodness of fit  
+## Model output  
+
+The output object is of class `CBEAout`, which is an S3 object. The underlying data structure is a list of lists, where the outer lists represent different aspects of the output. For example `R` represent the final scores while `diagnostic` represent certain goodness-of-fit statistics. 
+
+```{r results_obj, eval = TRUE}
+names(results)
+```
+Within each aspect, there is a list of size equivalent to the total number of sets evaluated. For example, the `results` object is of size 3 representing the evaluated sets.   
+
+```{r results_obj_2, eval = TRUE}
+str(results$R)
+```
+
+Users can use `tidy` and `glance` following the `r CRANpkg("broom")` to process `CBEAout` into nice objects. The `tidy` function returns a `tibble` of scores (samples by set). The `glance` function returns some diagnostics. There are two options for the `glance` function: `fit_comparison` allows users to compare the l-moments of the data, the permuted data, and the final fitted distribution; `fit_diagnostic` shows goodness-of-fit statistics of the distribution fitting procedure itself, with log-likelihoods and Anderson-Darling (column "ad") statistics.   
+
+```{r tidy_functions, eval = TRUE}
+tidy(results)
+glance(results, "fit_comparison")
+glance(results, "fit_diagnostic")
+```
 
 ## Parallel computing  
 
-`CBEA` has in-built capacity to perform calculations paralelled across the total number of sets. The engine for parallelization is `r Biocpkg("BiocParallel")`
+`CBEA` has in-built capacity to perform calculations paralelled across the total number of sets. The engine for parallelization is `r Biocpkg("BiocParallel")`. If `NULL`, `SerialParam` backend will be used.   
+
+```{r check_backend, eval= TRUE}
+BiocParallel::registered()
+```
+```{r parallel_computing, eval=FALSE}
+cbea(abun, set = metab_sets, abund_values = "16SrRNA",
+     output = "cdf", distr = "mnorm", adj = TRUE, thresh = 0.05, n_perm = 10, 
+     parallel_backend = MulticoreParam(workers = 2))
+```
 
 
 # Citing `CBEA`
@@ -166,6 +196,7 @@ The `r Biocpkg("CBEA")` package `r Citep(bib[["CBEA"]])` was made possible thank
 * `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])`
 * `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`
 * `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
+* `r CRANpkg("broom")` `r Citep(bib[["broom"]])`
 * `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
 * `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
 * `r CRANpkg("mixtools")` `r Citep(bib[["mixtools"]])`
@@ -173,6 +204,7 @@ The `r Biocpkg("CBEA")` package `r Citep(bib[["CBEA"]])` was made possible thank
 * `r CRANpkg("tidyverse")` `r Citep(bib[["tidyverse"]])`
 * `r Biocpkg("BiocSet")` `r Citep(bib[["BiocSet"]])`
 * `r Biocpkg("phyloseq")` `r Citep(bib[["phyloseq"]])`
+* `r Biocpkg("BiocParallel")` `r Citep(bib[["BiocParallel"]])`
 
 This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
 
