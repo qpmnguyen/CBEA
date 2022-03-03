@@ -11,6 +11,9 @@ new_CBEAout(out, call)
 
 \item{call}{A list containing all important arguments for printing}
 }
+\value{
+A new CBEAout object (which is a cleaner list of lists)
+}
 \description{
 This function takes a list of lists from each object and
 turns it into a CBEAout type object

@@ -36,3 +36,12 @@ The Two Component Mixture Normal Distribution
 \item \code{dmnorm}: Probability Density Function
 }}
 
+\examples{
+    library(mixtools)
+    lambda <- c(0.7,0.3)
+    mu <- c(1,2)
+    sigma <- c(1,1)
+    v <- rnormmix(100, lambda=lambda, mu=mu, sigma=sigma)
+    pmnorm(v, lambda=lambda,mu=mu,sigma=sigma)
+    dmnorm(v, lambda=lambda,mu=mu,sigma=sigma)
+}

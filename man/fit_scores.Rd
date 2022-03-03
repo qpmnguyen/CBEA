@@ -40,6 +40,10 @@ This is the OTU/ASV/Strain table where taxa are columns.}
 
 \item{control}{(List). See documentation \code{\link{cbea}}}
 }
+\value{
+This function returns a list containing output scores
+and other diagnostics (as sublists)
+}
 \description{
 Function to compute CBEA scores for each set
 }

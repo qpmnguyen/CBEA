@@ -11,6 +11,9 @@
 
 \item{...}{Undefined arguments, keeping consistency for generics}
 }
+\value{
+Text for printing
+}
 \description{
 Print dispatch for CBEAout objects
 }

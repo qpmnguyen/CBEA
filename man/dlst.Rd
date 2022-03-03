@@ -20,6 +20,10 @@ plst(q, df = 1, mu = 0, sigma = 1, log = FALSE)
 
 \item{log}{Indicate whether probabilities are return as log}
 }
+\value{
+Numeric values representing the density and cumulative
+probabilitiy values of the location-scale t distribution
+}
 \description{
 Internal functions for defining the t-distribution in terms
 of location-scale.

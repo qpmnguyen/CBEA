@@ -6,6 +6,13 @@
 \usage{
 get_diagnostics(env = caller_env())
 }
+\value{
+This function returns a list of two components:
+\code{diagnostic} represent goodness-of-fit statistics for the
+distribution fitting itself while \code{lmoment} contains
+the l-moment comparisons between the computed raw scores,
+permuted scores, and other fitted distributions.
+}
 \description{
 This function is used internally inside fit_scores to grab the relevant objects
 from the previous parent environment (i.e. the environment from fit_scores) and

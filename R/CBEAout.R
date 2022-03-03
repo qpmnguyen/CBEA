@@ -5,6 +5,7 @@
 #'  turns it into a CBEAout type object
 #' @param out A list containing scores for each set
 #' @param call A list containing all important arguments for printing
+#' @return A new CBEAout object (which is a cleaner list of lists)
 new_CBEAout <- function(out, call){
     req_values <- c("parametric", "distr", "output", "n_perm", "adj", "sample_ids")
     if (length(intersect(names(call), req_values)) != length(req_values)){
@@ -50,6 +51,7 @@ new_CBEAout <- function(out, call){
 #' @param x The \code{CBEAout} object
 #' @param ... Undefined arguments, keeping consistency for generics
 #' @importFrom glue glue
+#' @return Text for printing
 #' @export
 print.CBEAout <- function(x, ...){
     if (!is.null(x$call_param$distr)){

@@ -21,7 +21,7 @@ sets and samples that were evaluated.
 \examples{
 # load the data
 data(hmp_gingival)
-mod <- cbea(hmp_gingival$data, hmp_gingival$object, abund_values = "16SrRNA",
+mod <- cbea(hmp_gingival$data, hmp_gingival$set, abund_values = "16SrRNA",
     output = "sig", distr = "norm", adj = FALSE, n_perm = 5, parametric = TRUE)
 tidy(mod)
 }

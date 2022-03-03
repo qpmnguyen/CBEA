@@ -23,8 +23,16 @@ merge_lists <- function(defaults, supplied) {
 #' @return A numeric value representing the probability
 #'     density value of a two-component mixture distribution
 #' @describeIn pmnorm Cumulative Distribution Function
-#' @export
+#' @examples
+#'     library(mixtools)
+#'     lambda <- c(0.7,0.3)
+#'     mu <- c(1,2)
+#'     sigma <- c(1,1)
+#'     v <- rnormmix(100, lambda=lambda, mu=mu, sigma=sigma)
+#'     pmnorm(v, lambda=lambda,mu=mu,sigma=sigma)
+#'     dmnorm(v, lambda=lambda,mu=mu,sigma=sigma)
 #' @importFrom stats pnorm
+#' @export
 pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     q <- as.vector(q)
     n_components <- length(sigma)
@@ -65,6 +73,8 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
 #' @importFrom stats dt
 #' @describeIn dlst Probability Density Function
 #' @keywords internal
+#' @return Numeric values representing the density and cumulative
+#'     probabilitiy values of the location-scale t distribution
 #' @export
 #' @examples
 #'     val <- rnorm(10)

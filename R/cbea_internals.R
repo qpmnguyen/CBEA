@@ -15,7 +15,7 @@
 #' @param parallel_backend See documentation \code{\link{cbea}}
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
-#' @importFrom BiocParallel SerialParam bplapply
+#' @importFrom BiocParallel SerialParam bplapply bpok bptry bpstopOnError<- bpresult
 #' @importFrom tibble as_tibble add_column
 #' @importFrom stats rpois
 #' @return A \code{data.frame} of size \code{n} by \code{m}.
@@ -37,14 +37,22 @@
         seed <- rpois(1, lambda = 1e4)
         parallel_backend <- SerialParam(RNGseed = seed)
     }
+    #bpstopOnError(parallel_backend) <- TRUE
     R <- bplapply(set_list, fit_scores, ab_tab = ab_tab, adj = adj,
-                  distr = distr,
-                  output = output, n_perm = n_perm,
-                  parametric = parametric, init = init, control = control,
-                  thresh = thresh, BPPARAM = parallel_backend)
-    #R <- as_tibble(R)
-    #colnames(R) <- names(set_list)
-    #R <- add_column(R, sample_id = rownames(ab_tab), .before = 1)
+                 distr = distr,
+                 output = output, n_perm = n_perm,
+                 parametric = parametric, init = init, control = control,
+                 thresh = thresh, BPPARAM = parallel_backend)
+    # check_res <- bpok(R)
+    # if (sum(check_res) != length(R)){
+    #     print(R)
+    #     idx <- which(check_res == FALSE)
+    #     for (i in seq_along(idx)){
+    #         print(names(R)[idx[i]])
+    #         print(noquote(attr(R[[idx[i]]], "traceback")))
+    #     }
+    #     stop("Errors were returned. Check the traceback for more details")
+    # }
     return(R)
 }
 
@@ -61,6 +69,9 @@
 #' @param n_perm (Numeric). The total number of permutations.
 #' @param parametric (Logical). See documentation \code{\link{cbea}}
 #' @param thresh (Numeric). See documentation \code{\link{cbea}}
+#' @importFrom stats quantile
+#' @return This function returns a list containing output scores
+#'     and other diagnostics (as sublists)
 #' @keywords internal
 fit_scores <- function(index_vec, ab_tab, adj, distr, output,
                        n_perm, parametric, thresh,
@@ -121,7 +132,6 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output,
             }
         }
     }
-
     # generating diagnostics
     out <- list(scores = scores)
     diagnostics <- get_diagnostics()
@@ -139,21 +149,37 @@ fit_scores <- function(index_vec, ab_tab, adj, distr, output,
 #' @importFrom goftest ad.test
 #' @importFrom lmom samlmu
 #' @importFrom mixtools rnormmix
+#' @return This function returns a list of two components:
+#'    \code{diagnostic} represent goodness-of-fit statistics for the
+#'    distribution fitting itself while \code{lmoment} contains
+#'    the l-moment comparisons between the computed raw scores,
+#'    permuted scores, and other fitted distributions.
 #' @keywords internal
 get_diagnostics <- function(env = caller_env()){
     # all the function checks!
     if (identical(env, empty_env())){
         stop("Environment is empty", .call = FALSE)
     }
-    req_objs <- c("output", "distr", "parametric", "final_distr", "perm_distr", "raw_scores",
-                  "perm_scores", "unperm_distr")
-    obj_names <- rlang::env_names(env)
+
+    req_objs <- c("output", "distr", "parametric", "raw_scores", "perm_scores", "adj")
+    obj_names <- env_names(env)
     sapply(req_objs, function(x){
         if(!x %in% obj_names){
             stop(x, " not found")
         }
     })
+    if (env$parametric == TRUE){
+        add_objs <- c("final_distr", "perm_distr")
+        if (env$adj == TRUE){
+            add_objs <- c(add_objs, "unperm_distr")
+        }
+        sapply(add_objs, function(x){
+            if(!x %in% obj_names){
+                stop(x, " not found")
+            }
+        })
 
+    }
     if (env$output == "raw" | env$parametric == FALSE){
         fit_diagnostic <- NA
         lmoment_comparison <- NA
@@ -181,7 +207,7 @@ get_diagnostics <- function(env = caller_env()){
         if (env$distr == "mnorm"){
             func <- "rnormmix"
         } else {
-            func <- paste0("r", distr)
+            func <- paste0("r", env$distr)
         }
 
         gen_fit <- do.call(func, args = c(env$final_distr, list(n = 1e4)))
