@@ -14,7 +14,8 @@ Description: This package implements CBEA, a method to perform set-based
     existing gene set analysis methods.  In the future we hope to also
     provide curated knowledge driven taxa sets.
 License: MIT + file LICENSE
-URL: https://github.com/qpmnguyen/CBEA
+URL: https://github.com/qpmnguyen/CBEA,
+    https://qpmnguyen.github.io/CBEA/
 BugReports: https://github.com/qpmnguyen/CBEA//issues
 Depends: 
     R (>= 4.1.0)
