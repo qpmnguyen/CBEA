@@ -163,21 +163,23 @@ get_diagnostics <- function(env = caller_env()){
 
     req_objs <- c("output", "distr", "parametric", "raw_scores", "perm_scores", "adj")
     obj_names <- env_names(env)
-    sapply(req_objs, function(x){
+    vapply(req_objs, function(x){
         if(!x %in% obj_names){
             stop(x, " not found")
         }
-    })
+        return(0)
+    }, FUN.VALUE = 0)
     if (env$parametric == TRUE){
         add_objs <- c("final_distr", "perm_distr")
         if (env$adj == TRUE){
             add_objs <- c(add_objs, "unperm_distr")
         }
-        sapply(add_objs, function(x){
+        vapply(add_objs, function(x){
             if(!x %in% obj_names){
                 stop(x, " not found")
             }
-        })
+            return(0)
+        }, FUN.VALUE = 0)
 
     }
     if (env$output == "raw" | env$parametric == FALSE){
@@ -544,7 +546,8 @@ get_adj_mnorm <- function(perm, unperm, verbose = FALSE, fix_comp = "none") {
         mu = perm$mu, mean = perm_mean
     )
     if (verbose == TRUE) {
-        print(paste("Total sd is", unperm_sd, "and estimated sd is", estim_sd))
+        message("Total sd is ", unperm_sd, " and estimated sd is ",
+                estim_sd)
     }
     param <- list(mu = perm$mu, sigma = est_sig, lambda = perm$lambda)
     return(param)

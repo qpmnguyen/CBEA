@@ -18,14 +18,12 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/qpmnguyen/CBEA/branch/master/graph/badge.svg)](https://codecov.io/gh/qpmnguyen/CBEA?branch=master)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
-[![BioC status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA)
+<!-- [![BioC status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA) -->
 <!-- badges: end -->
 
 ### Quang Nguyen
 
 The `CBEA` package provides basic functionality to perform taxonomic enrichment analysis in R. This package mainly supports the `CBEA` method, and provides additional support for generating sets for analyses using approaches commonly used in the gene set testing literature. 
-
-**This package is under ongoing development and might not be stable at the moment. Only install the development version if R CMD CHECK badge is green (passed) or if the error is due to dependency installation.**  
 
 ### Installation  
 
@@ -38,13 +36,12 @@ devtools::install_github("qpmnguyen/CBEA")
 
 ### Features  
 
-This package supports the implementation of the CBEA approach (formerly known as cILR) for taxonomic enrichment analysis.   
+This package implements the CBEA approach for performing set-based enrichment analysis for microbiome relative abundance data. A preprint of the package can be found [on bioXriv](https://www.biorxiv.org/content/10.1101/2021.09.07.459294v1.full). In summary, CBEA (Competitive Balances for taxonomic Enrichment Analysis) provides an estimate of the activity of a set by transforming an input taxa-by-sample data matrix into a corresponding set-by-sample data matrix. The resulting output can be used for additional downstream analyses such as differential abundance, classification, clustering, etc. using set-based features instead of the original units.  
 
-### Dependency Graph  
+The transformation that CBEA applies is based on the isometric log ratio transformation:  
+$$
+CBEA_{i,\mathbb{S}} = \sqrt{\frac{|\mathbb{S}||\mathbb{S_c}|}{|\mathbb{S}| + |\mathbb{S_c}|}} \ln \frac{g(X_{i,j | j\in \mathbb{S}})}{g(X_{i,j | j \notin \mathbb{S}})}
+$$
+Where $\mathbb{S}$ is the set of interest, $\mathbb{S}_C$ is it's complement, $g()$ is the geometric mean operation, and $X$ is the original data matrix where $i$ is the index representing samples and $j$ is the index representing variables (or taxa).   
 
-```{r, include = TRUE, echo=FALSE}
-#dd <- deepdep::deepdep(package = "CBEA", local = TRUE, depth = 2, dependency_type = "Imports")
-#ggplot2::ggsave(plot = deepdep::plot_dependencies(dd), filename = "man/figures/dep_new.png")
-
-knitr::include_graphics("man/figures/dep_new.png")
-```
+The inference procedure is performed through estimating the null distribution of the test statistic. This can be done either via permutations or a parametric fit of a distributional form on the permuted scores. Users can also adjust for variance inflation due to inter-taxa correlation. Please refer to the main manuscript for any additional details.  

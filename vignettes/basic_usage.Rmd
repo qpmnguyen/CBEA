@@ -102,6 +102,7 @@ If there are any issues with the installation procedure or package features, the
 library("CBEA")
 library(BiocSet)
 library(tidyverse)
+set.seed(1020)
 ```
 
 ## Loading sample data  
