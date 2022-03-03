@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `CBEA`: Taxonomic Enrichment Analysis in R <img src='man/figures/hex-CBEA.png' align="right" height="110" />
+# `CBEA`: Taxonomic Enrichment Analysis in R <img src='man/figures/hex-CBEA.png' style="float:right; height:150px;"/>
 
 <!-- badges: start -->
 
@@ -32,14 +32,6 @@ devtools::install_github("qpmnguyen/CBEA")
 
 ### Features
 
-This package implements the CBEA approach for performing set-based
-enrichment analysis for microbiome relative abundance data. A preprint
-of the package can be found [on bioXriv](https://www.biorxiv.org/content/10.1101/2021.09.07.459294v1.full). In summary, CBEA (Competitive Balances for taxonomic Enrichment Analysis) provides an estimate of the activity of a set by transforming an input taxa-by-sample data matrix into a corresponding set-by-sample data matrix. The resulting output can be used for additional downstream analyses such as differential abundance, classification, clustering, etc. using set-based features instead of the original units.
+This package implements the CBEA approach for performing set-based enrichment analysis for microbiome relative abundance data. A preprint of the package can be found [on bioXriv](https://www.biorxiv.org/content/10.1101/2021.09.07.459294v1.full). In summary, CBEA (Competitive Balances for taxonomic Enrichment Analysis) provides an estimate of the activity of a set by transforming an input taxa-by-sample data matrix into a corresponding set-by-sample data matrix. The resulting output can be used for additional downstream analyses such as differential abundance, classification, clustering, etc. using set-based features instead of the original units.  
 
-The transformation that CBEA applies is based on the isometric log ratio transformation:  
-
-![](https://latex.codecogs.com/gif.latex?CBEA_%7Bi%2C%5Cmathbb%7BS%7D%7D%20%3D%20%5Csqrt%7B%5Cfrac%7B%7C%5Cmathbb%7BS%7D%7C%7C%5Cmathbb%7BS_c%7D%7C%7D%7B%7C%5Cmathbb%7BS%7D%7C%20&plus;%20%7C%5Cmathbb%7BS_c%7D%7C%7D%7D%20%5Cln%20%5Cfrac%7Bg%28X_%7Bi%2Cj%20%7C%20j%5Cin%20%5Cmathbb%7BS%7D%7D%29%7D%7Bg%28X_%7Bi%2Cj%20%7C%20j%20%5Cnotin%20%5Cmathbb%7BS%7D%7D%29%7D) 
-
-Where ![S](https://latex.codecogs.com/gif.latex?%5Cinline%20%5Cmathbb%7BS%7D) is the set of interest, ![Sc](https://latex.codecogs.com/gif.latex?%5Cinline%20%5Cmathbb%7BS_%7BC%7D%7D) is it's complement, ![g()](https://latex.codecogs.com/gif.latex?%5Cinline%20g%28%29) is the geometric mean operation, and ![X](https://latex.codecogs.com/gif.latex?%5Cinline%20X) is the original data matrix where ![i](https://latex.codecogs.com/gif.latex?%5Cinline%20i) is the index representing samples and ![j](https://latex.codecogs.com/gif.latex?%5Cinline%20j) is the index representing variables (or taxa).   
-
-The inference procedure is performed through estimating the null distribution of the test statistic. This can be done either via permutations or a parametric fit of a distributional form on the permuted scores. Users can also adjust for variance inflation due to inter-taxa correlation. Please refer to the main manuscript for any additional details. 
+The transformation that CBEA applies is based on the isometric log ratio transformation that captures enrichment of a set as the balance between the geometric mean of variables in the set and remainder taxa. The inference procedure is performed through estimating the null distribution of the test statistic. This can be done either via permutations or a parametric fit of a distributional form on the permuted scores. Users can also adjust for variance inflation due to inter-taxa correlation. Please refer to the main manuscript for any additional details.   
