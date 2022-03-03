@@ -3,7 +3,7 @@ pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   basic_usage: basic_usage.html
-last_built: 2022-03-03T19:21Z
+last_built: 2022-03-03T19:39Z
 urls:
   reference: https://qpmnguyen.github.io/CBEA/reference
   article: https://qpmnguyen.github.io/CBEA/articles
