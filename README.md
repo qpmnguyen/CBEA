@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `CBEA`: Taxonomic Enrichment Analysis in R <img src='man/figures/hex-CBEA.png' align="right" height="100" style="float:right; height:110px;"/>
+# `CBEA`: Taxonomic Enrichment Analysis in R <img src='man/figures/logo.png' align="right" height="100" style="float:right; height:110px;"/>
 
 <!-- badges: start -->
 
