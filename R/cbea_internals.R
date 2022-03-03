@@ -15,7 +15,7 @@
 #' @param parallel_backend See documentation \code{\link{cbea}}
 #' @param ... See documentation \code{\link{cbea}}
 #' @importFrom magrittr %>%
-#' @importFrom BiocParallel SerialParam bplapply bpok bptry bpstopOnError<- bpresult
+#' @importFrom BiocParallel SerialParam bplapply bpok bptry bpstopOnError<-
 #' @importFrom tibble as_tibble add_column
 #' @importFrom stats rpois
 #' @return A \code{data.frame} of size \code{n} by \code{m}.
