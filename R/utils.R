@@ -39,11 +39,11 @@ pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     if (verbose == TRUE) {
         message(n_components, " components!", "\n")
     }
-    comp <- vector(mode = "list", length = n_components)
-    for (i in seq_len(n_components)) {
-        comp[[i]] <- lambda[i] * pnorm(q, mu[i], sigma[i], log.p = log)
-    }
-    return(Reduce("+", comp))
+    vpar <- var_setup(mu = mu, sigma = sigma, lambda = lambda, vlen = length(q))
+    wval <- vpar$lambda * pnorm(q, mean = vpar$mu, sd = vpar$sigma, log.p = log)
+    # split back into vectors of size length(q) then sum the vectors
+    output <- Reduce("+", split(wval, ceiling(seq_along(wval)/length(q))))
+    return(output)
 }
 
 #' @describeIn pmnorm Probability Density Function
@@ -55,12 +55,32 @@ dmnorm <- function(x, mu, sigma, lambda, log = FALSE, verbose = FALSE) {
     if (verbose == TRUE) {
         message(n_components, "components!", "\n")
     }
-    comp <- vector(mode = "list", length = n_components)
-    for (i in seq_len(n_components)) {
-        comp[[i]] <- lambda[i] * dnorm(x, mu[i], sigma[i], log = log)
-    }
-    return(Reduce("+", comp))
+    # due to how vectorized pnorm works, each parameter combination for each q value
+    vpar <- var_setup(mu = mu, sigma = sigma, lambda = lambda, vlen = length(x))
+    wval <- vpar$lambda * dnorm(x, mean = vpar$mu, sd = vpar$sigma, log = log)
+    # split back into vectors of size length(q) then sum the vectors
+    output <- Reduce("+", split(wval, ceiling(seq_along(wval)/length(x))))
+    return(output)
 }
+
+#' @title Setting up parameter arrays for vectorized call to d/pnorm functions
+#'     for multi-component mixture distributions
+#' @param mu See pmnorm documentation
+#' @param sigma See pmnorm documentation
+#' @param lambda See pmnorm documentation
+#' @param vlen (Integer). Length of the \code{x} or \code{p} vector to be evaluated
+#' @keywords internal
+#' @return A list containing lambda, mu, and sigma
+var_setup <- function(mu, sigma, lambda, vlen){
+    return(
+        list(
+            lambda = rep(lambda, each = vlen),
+            mu = rep(mu, each = vlen),
+            sigma = rep(sigma, each = vlen)
+        )
+    )
+}
+
 
 #' @title Defintions for location-scale t distribution
 #' @description Internal functions for defining the t-distribution in terms
