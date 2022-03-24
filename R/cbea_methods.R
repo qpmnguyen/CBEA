@@ -62,7 +62,6 @@ NULL
 
 #' @rdname cbea
 #' @importClassesFrom BiocSet BiocSet
-#' @import BiocSet
 #' @export
 setGeneric("cbea", function(obj, set,
                             output,
@@ -85,7 +84,6 @@ setGeneric("cbea", function(obj, set,
 #' @importClassesFrom TreeSummarizedExperiment TreeSummarizedExperiment
 #' @importFrom SummarizedExperiment assay assays
 #' @importFrom methods as
-#' @import TreeSummarizedExperiment
 #' @export
 setMethod("cbea", "TreeSummarizedExperiment", function(obj, set,
                                                        output,

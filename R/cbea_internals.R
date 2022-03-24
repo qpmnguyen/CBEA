@@ -37,22 +37,11 @@
         seed <- rpois(1, lambda = 1e4)
         parallel_backend <- SerialParam(RNGseed = seed)
     }
-    #bpstopOnError(parallel_backend) <- TRUE
     R <- bplapply(set_list, fit_scores, ab_tab = ab_tab, adj = adj,
                  distr = distr,
                  output = output, n_perm = n_perm,
                  parametric = parametric, init = init, control = control,
                  thresh = thresh, BPPARAM = parallel_backend)
-    # check_res <- bpok(R)
-    # if (sum(check_res) != length(R)){
-    #     print(R)
-    #     idx <- which(check_res == FALSE)
-    #     for (i in seq_along(idx)){
-    #         print(names(R)[idx[i]])
-    #         print(noquote(attr(R[[idx[i]]], "traceback")))
-    #     }
-    #     stop("Errors were returned. Check the traceback for more details")
-    # }
     return(R)
 }
 
@@ -197,7 +186,7 @@ get_diagnostics <- function(env = caller_env()){
             )
         )
         if (env$adj == TRUE){
-            unperm_distr = list(
+            unperm_distr <- list(
                 loglik = env$unperm_distr[["loglik"]],
                 ad = do.call(ad.test, c(env$unperm_distr[-which(names(env$unperm_distr) == "loglik")],
                                         list(x = env$raw_scores, null = paste0("p", env$distr))))$statistic
@@ -377,28 +366,13 @@ scale_scores <- function(scores, method,
     distr <- match.arg(distr, c("norm", "mnorm", "lst"))
     method <- match.arg(method, c("cdf", "zscore", "pval", "sig"))
     # detect if parameter length is concordant with distribution type
+    check_distr_arg(param = param, distr = distr)
     if (distr == "norm") {
         f <- "pnorm"
-        if (length(intersect(names(param), c("mean", "sd"))) != 2) {
-            stop("Normal requires both mean and standard deviation")
-        }
     } else if (distr == "mnorm"){
         f <- "pmnorm"
-        if (length(intersect(names(param), c("mu", "lambda", "sigma"))) != 3) {
-            stop("Mixture normal requires mu,
-                         lambda and sigma arguments")
-        }
-        check_param <- all(vapply(param, FUN = length, FUN.VALUE = 1) == 2)
-        if (check_param == FALSE) {
-            stop("Each named parameter much have values for
-                       each of the two components.
-                       Number of components restricted to 2")
-        }
     }  else if (distr == "lst"){
         f <- "plst"
-        if (length(intersect(names(param), c("mu", "df", "sigma"))) != 3) {
-            stop("Location-scale t-distribution requires mu, sigma, and df arguments")
-        }
     }
     # compute values
     if (method %in% c("cdf", "sig", "pval")) {
@@ -429,6 +403,39 @@ scale_scores <- function(scores, method,
     return(scale)
 }
 
+#' This function checks for validity of arguments based on 
+#' the parameters and the distribution of interest
+#' @param param (List). Named list of parameter values 
+#' @param distr (String). String name of the distribution being 
+#'     evaluated
+#' @param .note (String). Any additional annotation to be put 
+#'     in front of error messages 
+#' @return Returns 0 if there are no errors
+#' @keywords internal 
+check_distr_arg <- function(param, distr, .note=NULL){
+    if (distr == "norm"){
+        check_len <- intersect(names(param), c('mean', 'sd'))
+        if (length(check_len) != 2) {
+            stop(.note, " Normal requires both mean and standard deviation")
+        }
+    } else if (distr == "mnorm") {
+        check_len <- intersect(names(param), c("mu", "lambda", "sigma"))
+        if (length(check_len) != 3) {
+            stop(.note, " Mixture normal requires mu, lambda and sigma arguments")
+        }
+        check_ncomp <- all(vapply(param, FUN = length, FUN.VALUE = 1) == 2)
+        if (check_ncomp == FALSE) {
+            stop(.note, " Each named parameter must have values for each of the two components. The number of components is restricted to 2")
+        }
+    } else if (distr == "lst"){
+        check_len <- intersect(names(param), c("df", "mu", "sigma"))
+        if (length(check_len) != 3){
+            stop(.note, " Location-scale t-distribution requires mu, df and sigma arguments")
+        }
+    }
+    return(0)
+}
+
 
 #' @title Combining two distributions
 #' @description Pass along handling of combining distributions to avoid
@@ -451,29 +458,15 @@ combine_distr <- function(perm, unperm, distr, ...) {
         stop("The two distributions to combine
                      have to have the same parameters")
     }
+    check_distr_arg(param = perm, distr = distr, .note = "Perm")
+    check_distr_arg(param = unperm, distr = distr, .note = "Unperm")
     if (distr == "norm") {
-        if (length(intersect(names(perm), c("mean", "sd"))) != 2) {
-            stop("Normal requires both mean and standard deviation")
-        }
         final <- list(mean = perm$mean, sd = unperm$sd)
     } else if (distr == "mnorm") {
-        if (length(intersect(names(perm), c("mu", "lambda", "sigma"))) != 3) {
-            stop("Mixture normal requires mu,
-                         lambda and sigma arguments")
-        }
-        check_perm <- all(vapply(perm, FUN = length, FUN.VALUE = 1) == 2)
-        check_unperm <- all(vapply(unperm, FUN = length, FUN.VALUE = 1) == 2)
-        if (check_perm == FALSE | check_unperm == FALSE) {
-            stop("Each named parameter much have values for
-                           each of the two components.
-                           Number of components restricted to 2")
-        }
         final <- get_adj_mnorm(perm = perm, unperm = unperm, ...)
     } else if (distr == "lst"){
-        if (length(intersect(names(perm), c("df", "mu", "sigma"))) != 3){
-            stop("Location-scale t-distribution requires mu, df and sigma arguments")
-        }
-        final <- list(mu = perm$mu, sigma = unperm$sigma, df = unperm$df)
+        final <- list(mu = perm$mu, sigma = unperm$sigma, 
+        df = unperm$df)
     }
     return(final)
 }

@@ -129,7 +129,7 @@ For more information on `BiocSet`, please refer to the documentation from `r Bio
 
 ## Applying CBEA   
 
-After specifying the inputs, `cbea` is the main function to apply the method. If there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method. For parametric fits, `cbea` relies on the `r CRANpkg("fitdistrplus")` and ``r CRANpkg("mixtools")`` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.     
+After specifying the inputs, `cbea` is the main function to apply the method. If there are zeros in the abundance data, the `cbea` will add a pseudocount to avoid issues with the log-ratio transformation (but will throw a warning). If a different zero-handling approach is desired, users should pre-process the abundance data with the appropriate method. For parametric fits, `cbea` relies on the `r CRANpkg("fitdistrplus")` and `r CRANpkg("mixtools")` packages to estimate the parameters of the null. Specific arguments to control this fitting procedure can be provided as a named list in the `control` argument.     
 Applying `cbea` is one command:  
 ```{r run_cbea, eval = TRUE}
 results <- cbea(abun, set = metab_sets, abund_values = "16SrRNA",
