@@ -58,6 +58,11 @@ test_that("Testing parametric fits w/ adjustment", {
 
 })
 
+test_that("Testing producing only raw outputs", {
+    expect_s3_class(cbea(obj = physeq, abund_values = "16SrRNA", set = sets, 
+         output = "raw", parametric = FALSE, adj = FALSE, n_perm = 1))
+})
+
 
 test_that("Expected errors and warnings combining different options", {
     # parametric is false but output is either cdf or zscore

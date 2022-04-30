@@ -1,6 +1,6 @@
 Package: CBEA
 Title: Competitive Balances for Taxonomic Enrichment Analysis in R
-Version: 0.99.4
+Version: 1.0.1
 Date: 2022-03-03
 Authors@R: 
     person("Quang", "Nguyen", , "quangpmnguyen@gmail.com", role = c("aut", "cre"),
@@ -18,7 +18,7 @@ URL: https://github.com/qpmnguyen/CBEA,
     https://qpmnguyen.github.io/CBEA/
 BugReports: https://github.com/qpmnguyen/CBEA//issues
 Depends: 
-    R (>= 4.2.0)
+    R (>= 4.1.0)
 Imports: 
     BiocParallel,
     BiocSet,

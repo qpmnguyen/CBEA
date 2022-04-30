@@ -149,8 +149,9 @@ get_diagnostics <- function(env = caller_env()){
     if (identical(env, empty_env())){
         stop("Environment is empty", .call = FALSE)
     }
-
-    req_objs <- c("output", "distr", "parametric", "raw_scores", "perm_scores", "adj")
+    # check for existence of objects
+    # first check all the basic arguments
+    req_objs <- c("output", "distr", "parametric", "raw_scores", "adj")
     obj_names <- env_names(env)
     vapply(req_objs, function(x){
         if(!x %in% obj_names){
@@ -158,8 +159,10 @@ get_diagnostics <- function(env = caller_env()){
         }
         return(0)
     }, FUN.VALUE = 0)
+    
+    # then check for specific arguments for parametric fits 
     if (env$parametric == TRUE){
-        add_objs <- c("final_distr", "perm_distr")
+        add_objs <- c("final_distr", "perm_distr", "perm_scores")
         if (env$adj == TRUE){
             add_objs <- c(add_objs, "unperm_distr")
         }
@@ -169,7 +172,17 @@ get_diagnostics <- function(env = caller_env()){
             }
             return(0)
         }, FUN.VALUE = 0)
-
+    # finally for the case without parametric fits but raw scores are returned
+    } else {
+        if (env$output != "raw"){
+            add_objs <- c("perm_scores")
+            vapply(add_objs, function(x){
+                if(!x %in% obj_names){
+                    stop(x, " not found")
+                }
+                return(0)
+            }, FUN.VALUE = 0)
+        }
     }
     if (env$output == "raw" | env$parametric == FALSE){
         fit_diagnostic <- NA

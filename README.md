@@ -11,7 +11,7 @@ coverage](https://codecov.io/gh/qpmnguyen/CBEA/branch/master/graph/badge.svg)](h
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
-<!-- [![BioC status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA) -->
+[![BioC status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA)
 <!-- badges: end -->
 
 ### Quang Nguyen
@@ -26,8 +26,17 @@ using approaches commonly used in the gene set testing literature.
 And the development version from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("qpmnguyen/CBEA")
+# install.packages("remotes")
+remotes::install_github("qpmnguyen/CBEA@v101")
+```
+
+The current version 1.0.0 is on [Bioconductor 3.15 release](https://bioconductor.org/packages/release/bioc/html/CBEA.html) (requires R version 4.2.0)  
+
+``` r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("CBEA")
 ```
 
 ### Features

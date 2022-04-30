@@ -190,7 +190,7 @@ check_args <- function(){
             stop("Output cannot be either z-scores or CDF values if no parametric fit was performed")
         }
         # if parametric fit is false then needs to perform more permutations
-        if (env$n_perm < 100){
+        if (env$n_perm < 100 & env$output != "raw"){
             message("For non-parametric fits, the number of permutations should be higher (Rec: 100)")
         }
     }

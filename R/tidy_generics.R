@@ -57,28 +57,33 @@ glance.CBEAout <- function(x, statistic, ...){
     value <- NULL
 
     statistic <- match.arg(statistic, c("fit_diagnostic", "fit_comparison"))
-    names(x$diagnostic) <- gsub(" ", "_", names(x$diagnostic))
-    names(x$parameters) <- gsub(" ", "_", names(x$parameters))
-    names(x$fit_comparison) <- gsub(" ", "_", names(x$fit_comparison))
-
-    parameters <- tibble(set_ids = names(x$parameters),
-                         final_param = x$parameters)
-    if (statistic == "fit_diagnostic"){
-        diagnostic <- as_tibble(x$diagnostic) %>%
-            pivot_longer(everything()) %>%
-            mutate(type = names(value)) %>%
-            mutate(value = lapply(value, as_tibble)) %>%
-            unnest(value) %>%
-            rename("set_ids" = "name")
-        output <- left_join(parameters, diagnostic, by = "set_ids")
-    } else if (statistic == "fit_comparison"){
-        fit_parameters <- tibble(set_ids = names(x$fit_comparison),
-                                fit_comparison = lapply(x$fit_comparison, function(x) {
-                                    as.data.frame(x) %>%
-                                        rownames_to_column(var = "distr") %>%
-                                        as_tibble()
-                                })) %>% unnest(fit_comparison)
-        output <- left_join(parameters, fit_parameters, by = "set_ids")
+    if (x$call_param$output == "raw"){
+        message("There are no diagnostics if raw scores are returned")
+        output <- NA
+    } else {
+        names(x$diagnostic) <- gsub(" ", "_", names(x$diagnostic))
+        names(x$parameters) <- gsub(" ", "_", names(x$parameters))
+        names(x$fit_comparison) <- gsub(" ", "_", names(x$fit_comparison))
+        
+        parameters <- tibble(set_ids = names(x$parameters),
+                             final_param = x$parameters)
+        if (statistic == "fit_diagnostic"){
+            diagnostic <- as_tibble(x$diagnostic) %>%
+                pivot_longer(everything()) %>%
+                mutate(type = names(value)) %>%
+                mutate(value = lapply(value, as_tibble)) %>%
+                unnest(value) %>%
+                rename("set_ids" = "name")
+            output <- left_join(parameters, diagnostic, by = "set_ids")
+        } else if (statistic == "fit_comparison"){
+            fit_parameters <- tibble(set_ids = names(x$fit_comparison),
+                                     fit_comparison = lapply(x$fit_comparison, function(x) {
+                                         as.data.frame(x) %>%
+                                             rownames_to_column(var = "distr") %>%
+                                             as_tibble()
+                                     })) %>% unnest(fit_comparison)
+            output <- left_join(parameters, fit_parameters, by = "set_ids")
+        }
     }
     return(output)
 }

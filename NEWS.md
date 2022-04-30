@@ -1,3 +1,26 @@
+# CBEA 1.0.1   
+NEW FEATURES  
+SIGNIFICANT USER-VISIBLE CHANGES  
+BUG FIXES  
+
+- Fixed an issue where `perm_scores` was not found when `output` are raw scores.  
+- Fixed an issue where a permutation warning was returned if `parametric` is FALSE but `output` are raw scores (hence no need to specify the number of permutations)  
+
+
+
+# CBEA 1.0.0  
+NEW FEATURES  
+
+- Bioconductor release version 3.15  
+
+SIGNIFICANT USER-VISIBLE CHANGES  
+
+None  
+
+BUG FIXES  
+
+None
+
 # CBEA 0.99.3  
 NEW FEATURES 
 
