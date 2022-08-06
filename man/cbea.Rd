@@ -123,8 +123,21 @@ or matrix has taxa as rows}
 columns to keep (for example, \code{sample_id})}
 }
 \value{
-\code{R}    An \code{n} by \code{m} matrix of enrichment scores at
-the sample level
+A \code{CBEAout} object which is a list of lists where the outer list elements contains
+numerical results and diagnostic tools. Within each element is a list of size \code{m} where \code{m} is the
+number of sets evaluated. Specifically, a \code{CBEAout} object has
+\itemize{
+\item{\code{R}: }{A list of CBEA generated values for each set. Use \code{tidy} function to
+generate a data.frame}
+\item{\code{parameters}: }{The parameters of the fitted distributions for each set.}
+\item{\code{diagnostic}: }{Contains log-likelihood, Anderson-Darling goodness of fit statistic,
+for each distribution fit performed. The distribution types will depend on function calls. Users can
+use this to compare fit against different distribution choices.}
+\item{\code{fit_comparison}: }{Comparing generated values from best-fit distributions using l-moments.
+For example, we would compare the l-moments of the distribution fitted against permuted data and the permuted
+data itself. This is to check whether the distribution fitting process did not capture the presumed null.}
+\item{\code{call_param}: }{Function call values.}
+}
 }
 \description{
 \code{cbea} is used compute enrichment scores

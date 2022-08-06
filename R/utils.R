@@ -163,8 +163,15 @@ check_args <- function(){
         stop("Output has to be of options 'cdf', 'zscore', 'pval', 'sig', 'raw'")
     }
 
-
-
+    # check all the raw options
+    if (env$output == "raw"){
+        if (env$parametric == TRUE){
+            stop("Please specify parametric to be FALSE if using raw outputs")
+        }
+        if (!is.null(env$distr)){
+            message("Since output is raw, distr arguments will be ignored")
+        }
+    }
 
     # first, check if distr is null
     if (is.null(env$distr)){
@@ -192,6 +199,9 @@ check_args <- function(){
         # if parametric fit is false then needs to perform more permutations
         if (env$n_perm < 100 & env$output != "raw"){
             message("For non-parametric fits, the number of permutations should be higher (Rec: 100)")
+        }
+        if (!is.null(env$distr)){
+            message("Since fit type is non-parametric, distr arguments will be ignored")
         }
     }
 

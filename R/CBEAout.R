@@ -54,13 +54,14 @@ new_CBEAout <- function(out, call){
 #' @return Text for printing
 #' @export
 print.CBEAout <- function(x, ...){
-    if (!is.null(x$call_param$distr)){
+    if (is.null(x$call_param$distr) | x$call_param$output == "raw" | x$call_param$parametric == FALSE){
+        distr <- "No"
+    } else {
         distr <- switch(x$call_param$distr,
                         norm = "Gaussian",
                         mnorm = "2-component Gaussian Mixture",
                         lst = "Location-scale Student's t")
-    } else {
-        distr <- "No"
+
     }
     output <- switch(x$call_param$output,
                      raw = "Raw scores (raw)",
