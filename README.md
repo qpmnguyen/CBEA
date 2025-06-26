@@ -3,13 +3,13 @@
 
 # `CBEA`: Taxonomic Enrichment Analysis in R <img src='man/figures/logo.png' align="right" height="100" style="float:right; height:110px;"/>
 
+
+## NOTE: This package has been deprecated on Bioconductor, and is no longer actively maintained. Please use this repository for code (since the method is pretty simple) if needed. 
+
 <!-- badges: start -->
 
 [![Codecov test
 coverage](https://codecov.io/gh/qpmnguyen/CBEA/branch/master/graph/badge.svg)](https://codecov.io/gh/qpmnguyen/CBEA?branch=master)
-[![Project Status: Active – The project has reached a stable, usable
-state and is being actively
-developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R-CMD-check](https://github.com/qpmnguyen/CBEA/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/qpmnguyen/CBEA/actions)
 <!-- [![BioC status](http://www.bioconductor.org/shields/build/release/bioc/CBEA.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/CBEA) -->
 <!-- badges: end -->
